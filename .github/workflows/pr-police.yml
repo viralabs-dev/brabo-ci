@@ -1,5 +1,8 @@
 name: pr-police
 
+# REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
+# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+
 # Aplica a política de branches em todo PR.
 # Fonte da política: docs/explanation/branching-policy.md
 # A lógica vive em scripts/ci/pr-police.ts, testada por vitest — este workflow
@@ -20,8 +23,13 @@ name: pr-police
 # só o rótulo, que é cosmético, deixa de ser escrito. Um check que nunca roda é
 # muito pior que um rótulo que às vezes falta.
 on:
-  pull_request:
-    types: [opened, edited, reopened, synchronize, ready_for_review]
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        required: false
+        type: string
+        default: 'v1.0.0'
 
 permissions:
   contents: read
@@ -68,6 +76,15 @@ jobs:
             "+refs/pull/$n/head:refs/remotes/pull/$n/head" \
             || echo "::notice::não consegui buscar o head do PR — a checagem de origem sairá como NÃO VERIFICADA, nunca como aprovada"
 
+      # Os scripts da política moram no brabo-ci, não no repositório que chama.
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
       - name: Avaliar o PR
         id: policia
         # Dados por env, NUNCA interpolados em `run:`: título e nome de branch
@@ -79,7 +96,7 @@ jobs:
           PR_AUTOR: ${{ github.event.pull_request.user.login }}
           PR_AUTOR_TIPO: ${{ github.event.pull_request.user.type }}
           PR_MESMO_REPO: ${{ github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
-        run: node scripts/ci/pr-police.ts
+        run: node .brabo-ci/scripts/ci/pr-police.ts
         continue-on-error: true
 
       # A label é para humano ler. A DECISÃO nunca vem dela: o approval-ladder

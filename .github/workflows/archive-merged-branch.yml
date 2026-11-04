@@ -1,5 +1,8 @@
 name: archive-merged-branch
 
+# REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
+# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+
 # Toda segunda às 09:00 (Brasília), arquiva a branch mergeada sem commit depois
 # do merge — exceto dev, main (permanentes), qa (aposentada) e gh-pages (deploy do site de docs). "Arquivar" é
 # mecânico: mover de `refs/heads/<nome>` para `refs/archive/<nome>`, nunca
@@ -10,9 +13,13 @@ name: archive-merged-branch
 # scripts/ci/archive-branch.ts; o resumo do job lista arquivadas, mantidas com
 # o motivo e falhas, e o job sai vermelho se houver falha.
 on:
-  schedule:
-    - cron: '0 12 * * 1' # segunda 09:00 em Brasília (UTC-3)
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        required: false
+        type: string
+        default: 'v1.0.0'
 
 permissions:
   contents: write
@@ -37,7 +44,16 @@ jobs:
         with:
           node-version: '26.10.0'
 
+      # Os scripts da política moram no brabo-ci, não no repositório que chama.
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
       - name: Decidir e arquivar
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node scripts/ci/archive-branch.ts
+        run: node .brabo-ci/scripts/ci/archive-branch.ts

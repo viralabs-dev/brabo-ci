@@ -55,4 +55,4 @@ Para calibrar o relato, o que existe hoje:
 - **CI** roda gitleaks na árvore, Trivy nas imagens (`HIGH`/`CRITICAL`
   corrigíveis reprovam) e auditoria de dependências com gate em crítica.
 
-[pvr]: https://github.com/daneiel/brabo/security/advisories/new
+[pvr]: https://github.com/viralabs-dev/brabo-ci/security/advisories/new

@@ -1,37 +1,5 @@
-# Dependabot — o que este arquivo liga, e o que ele NÃO consegue desligar.
-#
-# Antes dele, `cadeia-de-suprimentos-do-ci.md` declarava "No Dependabot", e
-# isso tinha deixado de ser verdade: os SECURITY UPDATES estão ligados na
-# INTERFACE do repositório (não em arquivo nenhum) e rodavam todo dia — em
-# `dev`, contra `npm_and_yarn in /., /website`, reprovando com
-# `Dependabot::DependabotError`. Um workflow vermelho por dia que ninguém lia.
-#
-# Por que eles falham, medido: os pacotes que ele tenta corrigir são os que
-# este repositório resolve por OVERRIDE em `pnpm-workspace.yaml` (`multer`,
-# `esbuild` e a lista inteira ao lado deles). Override é um mecanismo que o
-# Dependabot não sabe manipular — ele vê a árvore resolvida, tenta subir o
-# pacote no lugar onde ele não está declarado, e erra. O alerta que ele
-# persegue já está fechado; o que sobra é o erro.
-#
-# Este arquivo NÃO desliga security update: isso é chave da interface, e só o
-# dono do repositório alcança. O que ele faz é as duas coisas que cabem aqui.
-#
-# E todo PR de dependência entra pela `dev` (`target-branch: dev`), nunca
-# direto na `main`: chega lá pela promoção `dev → main`, como o resto.
-# `target-branch` só vale para atualização de VERSÃO — security update o GitHub
-# abre sempre contra a branch default, e quem o traz para a `dev` é o
-# `.github/workflows/dependabot-para-dev.yml`.
 version: 2
 updates:
-  # 1. LIGA o que a doc já nomeava como dívida: as actions de terceiro estão
-  #    presas por COMMIT SHA (`@<sha>  # v4`), com a versão num comentário —
-  #    exatamente a forma que o Dependabot lê e atualiza. Quem move o SHA hoje
-  #    é uma pessoa, à mão, e "um pin que ninguém atualiza é um pin que
-  #    envelhece até uma versão vulnerável" (cadeia-de-suprimentos-do-ci.md).
-  #
-  #    O `scripts/ci/actions-pinadas.ts` continua reprovando quem não pinar:
-  #    o bot propõe SHA novo com o comentário da versão, e o check garante que
-  #    ninguém troque isso por uma tag.
   - package-ecosystem: github-actions
     directory: /
     target-branch: dev
@@ -40,100 +8,15 @@ updates:
       day: monday
     open-pull-requests-limit: 5
     commit-message:
-      # Conventional commits em pt-BR, como o resto do repositório — o
-      # `pr-police` e o cálculo de versão leem o assunto do commit.
       prefix: chore
       include: scope
 
-  # 2. Declara as duas árvores npm com LIMITE ZERO. Isso desliga os *version
-  #    updates* (que inundariam um monorepo deste tamanho e competiriam com os
-  #    overrides escopados) sem tocar nos *security updates*, que são da
-  #    interface. É o idioma documentado para "não abra PR de rotina aqui".
-  #
-  #    As duas árvores porque `website/` NÃO é membro do workspace (ADR 0117):
-  #    tem lockfile próprio, e o Dependabot já as enxerga separadas.
   - package-ecosystem: npm
     directory: /
     target-branch: dev
     schedule:
       interval: monthly
-    open-pull-requests-limit: 0
-  - package-ecosystem: npm
-    directory: /website
-    target-branch: dev
-    schedule:
-      interval: monthly
-    open-pull-requests-limit: 0
-
-  # 3. LIGA as imagens de terceiro (ADR 0197, sobre os ADRs 0159 e 0178). Elas
-  #    estão presas como `imagem:tag@sha256:<índice>` — a tag INLINE é o que o
-  #    Dependabot lê (ele não lê comentário), e o digest decide os bytes. O
-  #    `scripts/ci/imagens-pinadas.ts` continua reprovando quem não pinar.
-  #
-  #    O que destravou: até o ADR 0197, pgvector e ollama também eram literais
-  #    nos `services:` dos workflows, que nenhum ecossistema lê, e todo PR do
-  #    bot nasceria vermelho por "mesma tag, dois digests". Agora os workflows
-  #    leem a imagem do compose (`.github/workflows/imagens-do-compose.yml`),
-  #    e o PR do bot nunca precisa tocar `.github/workflows/`.
-  #
-  #    `docker-compose`: os composes moram TODOS em `/docker`, então uma subida
-  #    atualiza dev, produção e instalação no MESMO PR.
-  - package-ecosystem: docker-compose
-    directory: /docker
-    target-branch: dev
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
-    groups:
-      # Um PR por semana com tudo: a mesma imagem aparece em mais de um
-      # compose, e um PR por imagem não muda isso — só multiplica o review.
-      imagens-dos-composes:
-        patterns: ['*']
-    ignore:
-      # `brabo-api:prod` e irmãs: imagens que o compose de produção CONSTRÓI.
-      - dependency-name: 'brabo-*'
-    commit-message:
-      prefix: chore
-      include: scope
-
-  #    `docker`: os `FROM` dos Dockerfiles (uma pasta por imagem em `docker/*`)
-  #    e os manifests do kustomize. NUNCA `/docker` sem o `/*`: o ecossistema
-  #    `docker` também lê YAML com `image:` (é como ele cobre Kubernetes), e
-  #    leria os composes, abrindo um segundo PR para a mesma imagem.
-  #
-  #    O grupo é o que impede o vermelho ENTRE pastas: `node:26-alpine` mora em
-  #    três Dockerfiles de dev e `node:26.10.0-alpine3.24` em três de produção,
-  #    cada um numa pasta — sem grupo seriam três PRs, cada um com a mesma tag e
-  #    um digest diferente dos outros dois.
-  #
-  #    O que segue DECLARADO (ADR 0197): `neo4j` e `ollama` moram também em
-  #    `deploy/k8s/base/`, e um ecossistema não agrupa com o outro. Quando o
-  #    registry só re-publica a MESMA tag com outro digest, os dois PRs (este e
-  #    o dos composes) nascem vermelhos pela regra "mesma tag, dois digests", e
-  #    quem revisa junta as duas subidas num PR só.
-  #
-  #    Ficam no procedimento MANUAL do runbook, com ou sem este bloco: o
-  #    `imageName` do CloudNativePG (chave que ecossistema nenhum lê) e a
-  #    `IMAGEM_DO_GOLDEN_SET_QA` (uma constante TypeScript).
-  - package-ecosystem: docker
-    directories:
-      - /docker/*
-      - /deploy/k8s/**
-    target-branch: dev
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
-    groups:
-      imagens-dos-dockerfiles-e-manifests:
-        patterns: ['*']
-    ignore:
-      # As imagens que este repositório CONSTRÓI (`brabo-api:prod` no compose e
-      # no kustomize base): não há registry de terceiro onde procurá-las, e
-      # onde elas atravessam um registry o ADR 0119 já as resolve por digest.
-      - dependency-name: 'brabo-*'
-      - dependency-name: 'ghcr.io/*/brabo-*'
+    open-pull-requests-limit: 3
     commit-message:
       prefix: chore
       include: scope

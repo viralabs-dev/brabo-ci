@@ -5,6 +5,6 @@ import { defineConfig } from 'vitest/config';
 // paralelo à vontade.
 export default defineConfig({
   test: {
-    include: ['**/*.spec.ts'],
+    include: ['scripts/**/*.spec.ts'],
   },
 });

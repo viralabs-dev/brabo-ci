@@ -1,5 +1,8 @@
 name: promote
 
+# REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
+# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+
 # Dispara a promoção de um degrau para o próximo.
 # Fonte da política: docs/explanation/branching-policy.md
 #
@@ -7,15 +10,22 @@ name: promote
 # promoção. O merge continua sendo ato manual do humano, como toda entrada em
 # branch permanente.
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
+      ci_ref:
+        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        required: false
+        type: string
+        default: 'v1.0.0'
       par:
         description: 'Par da esteira a promover'
-        required: true
-        type: choice
-        options:
-          - dev->main
-          # O script valida o par mesmo assim: um dispatch pela API não passa pelo `choice`.
+        required: false
+        type: string
+        default: 'dev->main'
+    secrets:
+      BOT_TOKEN:
+        description: 'PAT ou token do GitHub App do bot (opcional: sem ele os checks do PR de promoção nascem em action_required)'
+        required: false
 
 permissions:
   contents: read
@@ -34,7 +44,7 @@ jobs:
       # `secrets` não existe no `if:` de um step — só em `env`. Passar por aqui
       # é o que torna a presença do PAT testável dentro do job, igual ao
       # `tag-release.yml`.
-      TEM_PAT: ${{ secrets.BRABO_BOT_TOKEN != '' }}
+      TEM_PAT: ${{ secrets.BOT_TOKEN != '' }}
     steps:
       # PRIMEIRO passo do job, antes de qualquer checkout: quem dispara é
       # restrito. `workflow_dispatch` já exige permissão de escrita no repo,
@@ -79,10 +89,18 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413  # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: 26.10.0
+
+      # Os scripts da política moram no brabo-ci, não no repositório que chama.
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
 
       - name: Validar o par e calcular a versão
         id: calculo
@@ -90,7 +108,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PAR: ${{ inputs.par }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: node scripts/ci/promote.ts
+        run: node .brabo-ci/scripts/ci/promote.ts
 
       - name: O PAT está configurado?
         if: env.TEM_PAT != 'true'
@@ -115,8 +133,8 @@ jobs:
       # degradação visível (o aviso acima), não silenciosa.
       - name: Abrir o PR de promoção
         env:
-          GH_TOKEN: ${{ secrets.BRABO_BOT_TOKEN || github.token }}
+          GH_TOKEN: ${{ secrets.BOT_TOKEN || github.token }}
           DE: ${{ steps.calculo.outputs.de }}
           PARA: ${{ steps.calculo.outputs.para }}
           VERSAO: ${{ steps.calculo.outputs.versao }}
-        run: bash scripts/ci/abrir-pr-de-promocao.sh
+        run: bash .brabo-ci/scripts/ci/abrir-pr-de-promocao.sh

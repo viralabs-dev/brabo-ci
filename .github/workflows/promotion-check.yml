@@ -1,5 +1,8 @@
 name: promotion-check
 
+# REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
+# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+
 # Confere o ESTADO do repositório num PR de promoção.
 # Fonte da política: docs/explanation/branching-policy.md
 #
@@ -8,8 +11,13 @@ name: promotion-check
 # baixo, método de merge). Juntos, um check reprovaria por dois motivos sem
 # relação, e quem lesse o veredito teria que adivinhar qual.
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, edited]
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        required: false
+        type: string
+        default: 'v1.0.0'
 
 permissions:
   contents: read
@@ -33,6 +41,15 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # Os scripts da política moram no brabo-ci, não no repositório que chama.
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
       - name: Conferir a promoção
         env:
           GH_TOKEN: ${{ github.token }}
@@ -48,4 +65,4 @@ jobs:
               echo "::notice::branch permanente '$b' não existe no remoto"
           done
           git fetch --tags --quiet origin || true
-          node scripts/ci/promotion-check.ts
+          node .brabo-ci/scripts/ci/promotion-check.ts

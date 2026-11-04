@@ -1,0 +1,91 @@
+# brabo-ci
+
+Política de PR, branch, escada de aprovação, promoção, carimbo de tag, arquivamento e Dependabot do Brabo, como **workflows reutilizáveis** (`on: workflow_call`), mais os modelos de comunidade. A lógica mora em `scripts/ci/` (TypeScript executado pelo Node por type stripping, testado com vitest).
+
+## Como funciona
+
+Cada workflow reutilizável faz um segundo checkout deste repositório em `.brabo-ci/` e roda `node .brabo-ci/scripts/ci/<script>.ts` a partir da raiz do repositório que chama. Por isso todos têm o input `ci_ref`: o **mesmo SHA (ou tag)** que você pôs no `uses:`. O padrão é `v1.0.0`.
+
+Os gatilhos (`on:`) ficam no repositório que chama. `vars` (`APPROVAL_MODE`, `OWNER_HANDLE`, `APROVADORES_*`) são lidas do repositório ou da organização que chama.
+
+Pine sempre por SHA: `uses: viralabs-dev/brabo-ci/.github/workflows/pr-police.yml@<sha>  # v1.0.0`.
+
+## Workflows
+
+| Workflow | Inputs | Secrets | Faz |
+|---|---|---|---|
+| `pr-police.yml` | `ci_ref` | - | forma do PR (nome, origem, destino) e a label de família |
+| `approval-ladder.yml` | `ci_ref` | - | aprovações certas por degrau (usa as vars acima) |
+| `backmerge-gate.yml` | `ci_ref` | - | trava de retropropagação depois de hotfix |
+| `promotion-check.yml` | `ci_ref` | - | estado do PR de promoção (range, tag do degrau) |
+| `promote.yml` | `ci_ref`, `par` (padrão `dev->main`) | `BOT_TOKEN` (opcional) | abre o PR de promoção; o merge é humano |
+| `tag-release.yml` | `ci_ref` | `BOT_TOKEN` (opcional; obrigatório para hotfix) | carimba a tag do estágio, trava e destrava o gate |
+| `archive-merged-branch.yml` | `ci_ref` | - | arquiva branch mergeada em `refs/archive/` |
+| `dependabot-para-dev.yml` | `ci_ref` | - | fecha ou redireciona PR de segurança do Dependabot para a `dev` |
+| `claude.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | responde a `@claude` |
+| `claude-code-review.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | revisão automática de PR |
+
+`BOT_TOKEN` é um PAT ou o token do GitHub App da organização. O nome do App e do secret ainda não foram registrados (lacuna declarada): passe o token que a organização definir.
+
+## Exemplo de chamada
+
+```yaml
+# .github/workflows/politica.yml no repositório que chama
+name: politica
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  pr-police:
+    uses: viralabs-dev/brabo-ci/.github/workflows/pr-police.yml@<sha>  # v1.0.0
+    with:
+      ci_ref: <sha>
+  escada:
+    uses: viralabs-dev/brabo-ci/.github/workflows/approval-ladder.yml@<sha>  # v1.0.0
+    with:
+      ci_ref: <sha>
+```
+
+Promoção e carimbo:
+
+```yaml
+on:
+  workflow_dispatch:
+  push:
+    branches: [dev, main]
+jobs:
+  promover:
+    if: github.event_name == 'workflow_dispatch'
+    uses: viralabs-dev/brabo-ci/.github/workflows/promote.yml@<sha>  # v1.0.0
+    with: { ci_ref: <sha>, par: 'dev->main' }
+    secrets: { BOT_TOKEN: '${{ secrets.BOT_TOKEN }}' }
+  carimbar:
+    if: github.event_name == 'push'
+    uses: viralabs-dev/brabo-ci/.github/workflows/tag-release.yml@<sha>  # v1.0.0
+    with: { ci_ref: <sha> }
+    secrets: { BOT_TOKEN: '${{ secrets.BOT_TOKEN }}' }
+```
+
+Gatilhos dos outros: `backmerge-gate` e `promotion-check` em `pull_request` (`opened, reopened, synchronize, edited`); `archive-merged-branch` em `schedule` (`0 12 * * 1`) e `workflow_dispatch`; `dependabot-para-dev` em `push` na `dev`, `workflow_dispatch` e `pull_request_target` (`opened, reopened`, base `main`). Em PR, nunca ponha `if:` no job que chama `pr-police`, `approval-ladder`, `backmerge-gate` ou `promotion-check` (check obrigatório que se pula deixa veredito velho colado).
+
+Atenção a `permissions`: o job que chama precisa conceder pelo menos o que o reutilizável declara (por exemplo `contents: write` em `tag-release` e `archive-merged-branch`).
+
+## Desenvolvimento
+
+```
+pnpm install
+pnpm test          # vitest dos scripts
+pnpm typecheck
+pnpm actions:pinadas
+```
+
+Branches permanentes: `dev` e `main`. Toda tag nasce de workflow. Licença MIT.
+
+## Origem
+
+Extraído com histórico de `daneiel/brabo` em 04/11/2026; `#NNN` nas mensagens virou `daneiel/brabo#NNN`.
