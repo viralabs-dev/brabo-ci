@@ -23,6 +23,10 @@ on:
         type: string
         default: 'dev->main'
     secrets:
+      APP_ID:
+        required: false
+      APP_PRIVATE_KEY:
+        required: false
       BOT_TOKEN:
         description: 'PAT ou token do GitHub App do bot (opcional: sem ele os checks do PR de promoção nascem em action_required)'
         required: false
@@ -44,8 +48,16 @@ jobs:
       # `secrets` não existe no `if:` de um step — só em `env`. Passar por aqui
       # é o que torna a presença do PAT testável dentro do job, igual ao
       # `tag-release.yml`.
-      TEM_PAT: ${{ secrets.BOT_TOKEN != '' }}
+      TEM_PAT: ${{ (secrets.BOT_TOKEN != '' || secrets.APP_ID != '') }}
+      TEM_APP: ${{ secrets.APP_ID != '' }}
     steps:
+      - name: Token do GitHub App
+        id: app
+        if: env.TEM_APP == 'true'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       # PRIMEIRO passo do job, antes de qualquer checkout: quem dispara é
       # restrito. `workflow_dispatch` já exige permissão de escrita no repo,
       # mas isso não é a mesma coisa que ser o responsável de release — e a
@@ -133,7 +145,7 @@ jobs:
       # degradação visível (o aviso acima), não silenciosa.
       - name: Abrir o PR de promoção
         env:
-          GH_TOKEN: ${{ secrets.BOT_TOKEN || github.token }}
+          GH_TOKEN: ${{ steps.app.outputs.token || secrets.BOT_TOKEN || github.token }}
           DE: ${{ steps.calculo.outputs.de }}
           PARA: ${{ steps.calculo.outputs.para }}
           VERSAO: ${{ steps.calculo.outputs.versao }}
