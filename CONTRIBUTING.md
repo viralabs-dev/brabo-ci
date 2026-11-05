@@ -1,19 +1,19 @@
-# Contribuindo com o Brabo
+# Contributing to Brabo
 
-Obrigado pelo interesse. Este documento existe para economizar o tempo dos
-dois lados: o que ajuda, o que provavelmente não vai ser aceito, e como o
-processo funciona de verdade.
+Thank you for your interest. This document exists to save both sides' time:
+what helps, what will probably not be accepted, and how the process really
+works.
 
-## Antes de escrever código: abra uma issue
+## Before writing code: open an issue
 
-**Com todas as letras: PR grande sem issue prévia provavelmente será
-recusado.** Não por burocracia — por respeito ao seu tempo. Este projeto tem
-decisões arquiteturais registradas em [247 ADRs](docs/adr/index.md), e uma
-mudança que contradiz uma delas custa muito trabalho para depois ser
-rejeitada.
+**In plain words: a large PR without a prior issue will probably be
+declined.** Not out of bureaucracy — out of respect for your time. This project
+has architectural decisions recorded in [247 ADRs](docs/adr/index.md), and a
+change that contradicts one of them costs a lot of work only to be rejected
+afterwards.
 
-Abra uma issue, descreva o problema, e espere alinhamento. Para correção
-óbvia (typo, link quebrado, mensagem de erro errada), pode mandar o PR direto.
+Open an issue, describe the problem, and wait for alignment. For an obvious
+fix (typo, broken link, wrong error message), you can send the PR directly.
 
 ## Setup
 
@@ -25,23 +25,23 @@ pnpm install
 pnpm dev
 ```
 
-Depois: <http://localhost:5173>. `pnpm --filter api seed` cria os usuários de
-demonstração — o login é `owner@brabo.dev` / `brabo12345678`.
+Then: <http://localhost:5173>. `pnpm --filter api seed` creates the demo
+users — the login is `owner@brabo.dev` / `brabo12345678`.
 
-`pnpm bootstrap` abre um menu de terminal com o que se faz no dia a dia (Docker,
-Kubernetes, banco e testes), se você preferir não decorar comando. Ele só chama o
-que já existe, e `pnpm bootstrap --print-commands` mostra exatamente o quê.
+`pnpm bootstrap` opens a terminal menu with the day-to-day tasks (Docker,
+Kubernetes, database and tests), if you would rather not memorize commands. It
+only calls what already exists, and `pnpm bootstrap --print-commands` shows
+exactly what.
 
-**Quanto tempo leva de verdade:** os comandos acima somam poucos minutos, mas a
-**primeira** subida baixa as imagens (Postgres, Elixir, Node) e o
-modelo padrão do Ollama. Numa conexão razoável, conte **10 a 20 minutos** na
-primeira vez e menos de um minuto nas seguintes. Precisa de ~6 GiB de RAM
-livres.
+**How long it really takes:** the commands above add up to a few minutes, but
+the **first** start downloads the images (Postgres, Elixir, Node) and the
+default Ollama model. On a reasonable connection, allow **10 to 20 minutes** the
+first time and under a minute afterwards. It needs ~6 GiB of free RAM.
 
-O passo a passo comentado, com o que conferir quando cada etapa falha, está em
-[Primeiros passos](docs/getting-started.md).
+The annotated walkthrough, with what to check when each step fails, is in
+[Getting started](docs/getting-started.md).
 
-## Rodando os testes
+## Running the tests
 
 ```bash
 pnpm --filter api test      # vitest
@@ -49,34 +49,34 @@ pnpm --filter web test      # vitest
 pnpm engine:test            # ExUnit
 ```
 
-Elixir **não** é obrigatório no host — o engine roda no container. Se for
-rodar fora do Docker, use a versão exata do projeto (**1.20.4 / OTP 29.1.1**):
-o `mix format` de versões diferentes produz saída diferente e deixa o
-`--check-formatted` do CI vermelho. Para formatar sem instalar:
+Elixir is **not** required on the host — the engine runs in the container. If
+you run outside Docker, use the project's exact version (**1.20.4 / OTP 29.1.1**):
+`mix format` from different versions produces different output and turns the
+CI's `--check-formatted` red. To format without installing:
 
 ```bash
 docker run --rm -v "$PWD/apps/engine:/app" -w /app \
   hexpm/elixir:1.20.4-erlang-29.1.1-alpine-3.24.2 mix format
 ```
 
-## Quando o git pendura ou é recusado (máquina local, agentes em worktree)
+## When git hangs or is refused (local machine, agents in a worktree)
 
-Dois contornos medidos na máquina do mantenedor (AT-187). Os dois são de
-**configuração local** — nada aqui muda o repositório, e nenhum dos dois é
-pré-requisito para quem não tem o sintoma.
+Two workarounds measured on the maintainer's machine (AT-187). Both are
+**local configuration** — nothing here changes the repository, and neither is a
+prerequisite for anyone without the symptom.
 
-**O `origin` por SSH pendura.** `git fetch`/`push`/`ls-remote` ficam parados
-sem erro, enquanto o GitHub responde por HTTPS. Diagnostique antes de trocar —
-com teto, para o diagnóstico não pendurar também:
+**The SSH `origin` hangs.** `git fetch`/`push`/`ls-remote` stall with no
+error, while GitHub answers over HTTPS. Diagnose before switching — with a
+timeout, so the diagnosis does not hang too:
 
 ```bash
 timeout 30 ssh -vT git@github.com      # trava antes do "Authenticated"? o SSH é o problema
 curl -sS -o /dev/null -w '%{time_total}s\n' https://github.com   # responde? a rede está de pé
 ```
 
-A saída `-v` diz em que passo parou (conexão na porta 22, troca de chaves,
-oferta da chave do agente). Se o SSH não volta e o HTTPS responde, troque o
-`origin` para HTTPS e deixe o `gh` ser o helper de credencial:
+The `-v` output says at which step it stopped (connection on port 22, key
+exchange, offer of the agent's key). If SSH does not come back and HTTPS
+answers, switch `origin` to HTTPS and let `gh` be the credential helper:
 
 ```bash
 gh auth setup-git
@@ -84,50 +84,50 @@ git remote set-url origin https://github.com/daneiel/brabo.git
 git ls-remote origin dev               # confere que voltou a responder
 ```
 
-**Um hook local reescreve `git`, e o agente em worktree é recusado.** Se o seu
-ambiente de agente tem um hook que reescreve as chamadas a `git` (no caso
-medido, para `rtk git`) e um guard de worktree que recusa `git` dentro de
-comando composto (`&&`, `;`, `|`), chame o binário direto e um comando por vez:
+**A local hook rewrites `git`, and the agent in a worktree is refused.** If your
+agent environment has a hook that rewrites calls to `git` (in the measured case,
+to `rtk git`) and a worktree guard that refuses `git` inside a compound command
+(`&&`, `;`, `|`), call the binary directly and one command at a time:
 
 ```bash
 /usr/bin/git status
 /usr/bin/git push -u origin <sua-branch>
 ```
 
-Esse hook e esse guard são configuração do ambiente de quem desenvolve, **fora
-deste repositório** — o `.claude/` versionado aqui só tem as definições de
-agente (`.claude/agents/`) e um comando (`.claude/commands/`), nenhum hook.
-O conserto, se vier, é nessa configuração local, nunca aqui.
+That hook and that guard are configuration of the developer's environment,
+**outside this repository** — the `.claude/` versioned here only has the agent
+definitions (`.claude/agents/`) and one command (`.claude/commands/`), no hook.
+The fix, if one comes, is in that local configuration, never here.
 
-> **TODO(humano):** em que arquivo mora o hook que reescreve `git` para
-> `rtk git` (ex.: `~/.claude/settings.json`, um `PreToolUse`?), o que é o `rtk`,
-> e qual guard recusa o comando composto — não está no repositório e não pôde
-> ser conferido daqui.
+> **TODO(humano):** in which file does the hook that rewrites `git` to
+> `rtk git` live (e.g. `~/.claude/settings.json`, a `PreToolUse`?), what is
+> `rtk`, and which guard refuses the compound command — it is not in the
+> repository and could not be checked from here.
 
-## Documentação faz parte do PR
+## Documentation is part of the PR
 
-Não é etapa posterior nem tarefa de outra pessoa.
+It is not a later step nor someone else's task.
 
-**PR que muda comportamento observável precisa atualizar a doc
-correspondente, no mesmo PR.** O mapa de responsabilidade é o
-[`docs/.docmap.yml`](docs/.docmap.yml): ele liga caminhos de código aos
-documentos que dependem deles. Consulte antes de abrir o PR e mostre o diff da
-doc junto com o do código.
+**A PR that changes observable behavior must update the matching doc, in the
+same PR.** The responsibility map is
+[`docs/.docmap.yml`](docs/.docmap.yml): it links code paths to the documents
+that depend on them. Check it before opening the PR and show the doc diff
+together with the code diff.
 
-Três regras que caem daí:
+Three rules follow from that:
 
-- Arquivos marcados `generated: true` são gerados por `pnpm docs:generate` —
-  **nunca** edite à mão, o build sobrescreve.
-- Mudança estrutural (fronteira de camada, banco, modelo de consistência,
-  dependência pesada) pede um [ADR](docs/adr/index.md) novo. Nunca edite um ADR
-  aceito: escreva outro dizendo qual substitui.
-- Regra de negócio nova vira uma RN em
-  [`docs/business-rules.md`](docs/business-rules.md), com `arquivo:linha` e o
-  teste que a cobre.
+- Files marked `generated: true` are generated by `pnpm docs:generate` —
+  **never** edit them by hand, the build overwrites them.
+- A structural change (layer boundary, database, consistency model, heavy
+  dependency) calls for a new [ADR](docs/adr/index.md). Never edit an accepted
+  ADR: write another one saying which it supersedes.
+- A new business rule becomes an RN in
+  [`docs/business-rules.md`](docs/business-rules.md), with `arquivo:linha` and
+  the test that covers it.
 
-Rodar o site de documentação localmente — `website/` tem lockfile próprio
-desde o [ADR 0117](docs/adr/0117-lockfile-proprio-para-o-website.md), então o
-`pnpm install` da raiz (Setup, acima) não instala as dependências dele:
+To run the documentation site locally — `website/` has its own lockfile
+since [ADR 0117](docs/adr/0117-lockfile-proprio-para-o-website.md), so the
+root `pnpm install` (Setup, above) does not install its dependencies:
 
 ```bash
 cd website && pnpm install && cd ..  # só na primeira vez, ou quando o lockfile mudar
@@ -135,137 +135,138 @@ pnpm docs:start     # servidor de desenvolvimento
 pnpm docs:build     # build de produção — link quebrado FALHA o build
 ```
 
-Sem informação suficiente para escrever algo, use
-`> **TODO(humano):** <pergunta específica>`. Documentação inventada é pior que
-documentação faltando.
+When you lack enough information to write something, use
+`> **TODO(humano):** <specific question>`. Invented documentation is worse than
+missing documentation.
 
-### Versionar a documentação
+### Versioning the documentation
 
-O site **não** é versionado hoje: existe uma versão só, a `current`, que
-reflete a branch. Numa `0.x` com um único release publicado, versionar
-adicionaria manutenção sem dar nada em troca — cada versão congelada é uma
-cópia inteira de `docs/` que passa a envelhecer sozinha.
+The site is **not** versioned today: there is a single version, `current`,
+which reflects the branch. On a `0.x` with a single published release,
+versioning would add maintenance and give nothing in return — each frozen
+version is a whole copy of `docs/` that starts aging on its own.
 
-Quando fizer sentido, o comando é:
+When it makes sense, the command is:
 
 ```bash
 pnpm --dir website docusaurus docs:version 0.2
 ```
 
-E a regra de **quando**: só em **major ou minor**, nunca em patch. `0.2`,
-`1.0`, `1.1` — sim. `1.0.1` — não. Versionar demais multiplica o custo de
-manutenção da documentação por N, e ninguém procura a doc de um patch.
+And the rule for **when**: only on a **major or minor**, never on a patch. `0.2`,
+`1.0`, `1.1` — yes. `1.0.1` — no. Versioning too much multiplies the
+documentation maintenance cost by N, and nobody looks for the docs of a patch.
 
-## Fluxo
+## Workflow
 
-1. **Fork** e clone.
-2. **Branch** a partir de `dev`, nunca de `main`:
-   `feature/<assunto>`, `bugfix/<assunto>` ou `docs/<assunto>`.
+1. **Fork** and clone.
+2. **Branch** from `dev`, never from `main`:
+   `feature/<topic>`, `bugfix/<topic>` or `docs/<topic>`.
 
-   A lista de funções é **fechada**: `breaking`, `feature`, `bugfix`, `perf`,
-   `refactor`, `chore`, `docs`, `test`, `hotfix`. O `pr-police` reprova o que
-   estiver fora — `fix/` inclusive, que é o engano mais comum.
-3. **Commits** em [conventional commits](https://www.conventionalcommits.org/),
-   **em pt-BR** — é o padrão que o histórico inteiro usa:
+   The list of functions is **closed**: `breaking`, `feature`, `bugfix`, `perf`,
+   `refactor`, `chore`, `docs`, `test`, `hotfix`. `pr-police` rejects anything
+   outside it — `fix/` included, which is the most common mistake.
+3. **Commits** in [conventional commits](https://www.conventionalcommits.org/),
+   **in pt-BR** — it is the standard the whole history uses:
    ```
    feat(api): rate limit por usuário e por IP
    fix(engine): drain não deixava sessão órfã com uma réplica
    docs(runbook): funde os seis runbooks num só
    ```
 
-   **Quebra de compatibilidade se marca no commit**, com `!` antes dos
-   dois-pontos ou `BREAKING CHANGE:` no corpo — e a branch tem que ser
-   `breaking/`:
+   **A breaking change is marked in the commit**, with `!` before the colon or
+   `BREAKING CHANGE:` in the body — and the branch must be `breaking/`:
    ```
    feat(auth)!: o refresh sai do corpo e vai para cookie httpOnly
    ```
-   É o marcador que faz a quebra aparecer no CHANGELOG; a função da branch é
-   que faz a versão subir MAJOR. O `pr-police` exige os dois juntos, porque
-   ter só um deles produz uma release que mente — em algum dos dois sentidos.
-4. **PR contra `dev`** (não `main`).
-5. **Review** meu.
+   The marker is what makes the break appear in the CHANGELOG; the branch
+   function is what bumps the version MAJOR. `pr-police` requires both together,
+   because having only one produces a release that lies — in one direction or the
+   other.
+4. **PR against `dev`** (not `main`).
+5. **Review** by me.
 6. **Squash merge.**
 
-Branches permanentes são `dev`, `qa`, `rc` e `main`. Merge nelas é sempre
-manual — inclusive para mim, e há teste garantindo isso.
+The permanent branches are `dev`, `qa`, `rc` and `main`. Merging into them is
+always manual — me included, and there is a test guaranteeing it.
 
 ## Definition of Done
 
-Antes de marcar o PR como pronto:
+Before marking the PR as ready:
 
-- [ ] Testes passando — caminho feliz **e** ao menos um caso de falha
-- [ ] Lint limpo (`pnpm build` e o format do Elixir)
-- [ ] Documentação afetada atualizada (ver `docs/.docmap.yml`)
-- [ ] `CHANGELOG.md` tocado, se o comportamento observável mudou
-- [ ] `pnpm docs:build` sem link quebrado
-- [ ] Nenhum segredo no diff — o gitleaks roda no CI, mas ele é a última linha
+- [ ] Tests passing — happy path **and** at least one failure case
+- [ ] Lint clean (`pnpm build` and the Elixir format)
+- [ ] Affected documentation updated (see `docs/.docmap.yml`)
+- [ ] `CHANGELOG.md` touched, if observable behavior changed
+- [ ] `pnpm docs:build` with no broken link
+- [ ] No secret in the diff — gitleaks runs in CI, but it is the last line
 
-## O que eu aceito com prazer
+## What I gladly accept
 
-- Correção de bug com teste que reproduz
-- Documentação: erro, lacuna, exemplo que não funciona
-- Melhoria de mensagem de erro — especialmente as que hoje não dizem o que fazer
-- Cobertura de teste em caminho de falha
-- Acessibilidade e correção de contraste na UI
-- Provider de git novo, **se** implementar as quinze operações, declarar as
-  capabilities honestamente e passar na suite de contrato
+- A bug fix with a test that reproduces it
+- Documentation: an error, a gap, an example that does not work
+- Better error messages — especially the ones that today do not say what to do
+- Test coverage on failure paths
+- Accessibility and contrast fixes in the UI
+- A new git provider, **if** it implements the fifteen operations, declares its
+  capabilities honestly and passes the contract suite
 
-## O que provavelmente não aceito
+## What I will probably not accept
 
-Não é fechamento a ideias — é que estas custam caro e as decisões já foram
-tomadas com motivo registrado:
+This is not closing the door on ideas — it is that these cost a lot and the
+decisions were already made with a recorded reason:
 
-- **Troca de stack.** NestJS, Elixir/OTP, React, Postgres e pnpm estão
-  decididos. Não proponha alternativas.
-- **Redis.** As filas ficam no Postgres via Oban, e o rate limit é uma janela
-  deslizante em SQL. É decisão, não omissão.
-- **Refactor amplo sem discussão prévia.** "Limpei o código" num PR de 40
-  arquivos é irreviewável.
-- **Dependência nova pesada** sem justificativa do que ela resolve e por que
-  não dá sem ela.
-- **Enfraquecer o pipeline de aprovação.** Qualquer coisa que permita ação com
-  efeito externo escapar do `proposed_action`, ou que torne merge em branch
-  protegida automatizável, é rejeitada por princípio — há teste garantindo os
-  dois.
-- **Bitbucket ou um `GenericGitProvider`** — fora de escopo por decisão.
-- Mudança de escopo do produto sem issue e alinhamento.
+- **A stack change.** NestJS, Elixir/OTP, React, Postgres and pnpm are
+  decided. Do not propose alternatives.
+- **Redis.** Queues live in Postgres via Oban, and the rate limit is a sliding
+  window in SQL. It is a decision, not an omission.
+- **Broad refactors without prior discussion.** "I cleaned up the code" in a
+  40-file PR cannot be reviewed.
+- **A new heavy dependency** without a justification of what it solves and why
+  it cannot be done without it.
+- **Weakening the approval pipeline.** Anything that lets an action with an
+  external effect escape `proposed_action`, or that makes merging into a
+  protected branch automatable, is rejected on principle — a test guarantees
+  both.
+- **Bitbucket or a `GenericGitProvider`** — out of scope by decision.
+- A product scope change without an issue and alignment.
 
-## Prazo de resposta
+## Response time
 
-Projeto mantido em tempo livre. O compromisso honesto: **reviso em geral em até
-uma semana**. Se eu sumir por mais que isso, dá um ping educado no PR — não é
-falta de interesse, é vida.
+A project maintained in spare time. The honest commitment: **I usually review
+within a week**. If I vanish for longer than that, give a polite ping on the PR
+— it is not lack of interest, it is life.
 
-Nada de prometer 24 horas.
+No promising 24 hours.
 
-## Reconhecimento
+## Recognition
 
-Seu commit fica no histórico com sua autoria — é o registro que importa. PRs
-relevantes são creditados na entrada do `CHANGELOG.md` da versão em que saírem.
+Your commit stays in the history under your authorship — that is the record
+that matters. Relevant PRs are credited in the `CHANGELOG.md` entry of the
+version they ship in.
 
-Commits feitos por agentes do próprio sistema usam a identidade
-`<agente>[bot]` com o humano como co-author, para que dê para distinguir.
+Commits made by the system's own agents use the identity `<agent>[bot]` with
+the human as co-author, so they can be told apart.
 
-## Licenciamento
+## Licensing
 
-Ao enviar um PR, você concorda em licenciar sua contribuição sob a mesma
-**[MIT](LICENSE)** do projeto. Inbound = outbound.
+By sending a PR, you agree to license your contribution under the same
+**[MIT](LICENSE)** as the project. Inbound = outbound.
 
-**Não há CLA.** Você não assina nada nem cede direitos além do que a MIT já
-prevê.
+**There is no CLA.** You sign nothing and give up no rights beyond what the MIT
+already provides.
 
-O [DCO](https://developercertificate.org/) (`git commit -s`) é **opcional**.
-Se você já usa, ótimo. Se não usa, não vou exigir: para contribuidor casual,
-descobrir o que é DCO e refazer commits por causa de um trailer é atrito real
-que espanta mais gente do que protege.
+The [DCO](https://developercertificate.org/) (`git commit -s`) is **optional**.
+If you already use it, great. If you do not, I will not require it: for a casual
+contributor, finding out what DCO is and redoing commits because of a trailer is
+real friction that scares off more people than it protects.
 
-## Segurança
+## Security
 
-**Nunca abra issue pública para falha de segurança.** O canal está em
+**Never open a public issue for a security flaw.** The channel is in
 [SECURITY.md](SECURITY.md).
 
-## Código de conduta
+## Code of conduct
 
-Participar deste projeto — issue, PR, review — implica concordar com o
-[Código de Conduta](CODE_OF_CONDUCT.md) (Contributor Covenant 2.1). O contato
-para reportar comportamento inaceitável está lá.
+Taking part in this project — issue, PR, review — implies agreeing to the
+[Code of Conduct](CODE_OF_CONDUCT.md) (Contributor Covenant 2.1). The contact
+for reporting unacceptable behavior is there.

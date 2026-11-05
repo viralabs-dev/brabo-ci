@@ -1,31 +1,31 @@
 # brabo-ci
 
-Política de PR, branch, escada de aprovação, promoção, carimbo de tag, arquivamento e Dependabot do Brabo, como **workflows reutilizáveis** (`on: workflow_call`), mais os modelos de comunidade. A lógica mora em `scripts/ci/` (TypeScript executado pelo Node por type stripping, testado com vitest).
+Brabo's PR policy, branch policy, approval ladder, promotion, tag stamping, archiving and Dependabot handling, as **reusable workflows** (`on: workflow_call`), plus the community templates. The logic lives in `scripts/ci/` (TypeScript run by Node through type stripping, tested with vitest).
 
-## Como funciona
+## How it works
 
-Cada workflow reutilizável faz um segundo checkout deste repositório em `.brabo-ci/` e roda `node .brabo-ci/scripts/ci/<script>.ts` a partir da raiz do repositório que chama. Por isso todos têm o input `ci_ref`: o **mesmo SHA (ou tag)** que você pôs no `uses:`. O padrão é `v1.0.0`.
+Each reusable workflow does a second checkout of this repository into `.brabo-ci/` and runs `node .brabo-ci/scripts/ci/<script>.ts` from the root of the calling repository. That is why they all have the `ci_ref` input: the **same SHA (or tag)** you put in `uses:`. The default is `v1.0.0`.
 
-Os gatilhos (`on:`) ficam no repositório que chama. `vars` (`APPROVAL_MODE`, `OWNER_HANDLE`, `APROVADORES_*`) são lidas do repositório ou da organização que chama.
+The triggers (`on:`) live in the calling repository. `vars` (`APPROVAL_MODE`, `OWNER_HANDLE`, `APROVADORES_*`) are read from the calling repository or organization.
 
-Pine sempre por SHA: `uses: viralabs-dev/brabo-ci/.github/workflows/pr-police.yml@<sha>  # v1.0.0`.
+Always pin by SHA: `uses: viralabs-dev/brabo-ci/.github/workflows/pr-police.yml@<sha>  # v1.0.0`.
 
 ## Workflows
 
-| Workflow | Inputs | Secrets | Faz |
+| Workflow | Inputs | Secrets | What it does |
 |---|---|---|---|
-| `pr-police.yml` | `ci_ref` | - | forma do PR (nome, origem, destino) e a label de família |
-| `approval-ladder.yml` | `ci_ref` | - | aprovações certas por degrau (usa as vars acima); dispensa PR do Dependabot e a de regeneração do bot (`chore/regenera-gerados`, ADR 0255) na `dev` |
-| `backmerge-gate.yml` | `ci_ref` | - | trava de retropropagação depois de hotfix |
-| `promotion-check.yml` | `ci_ref` | - | estado do PR de promoção (range, tag do degrau) |
-| `promote.yml` | `ci_ref`, `par` (padrão `dev->main`) | `BOT_TOKEN` (opcional) | abre o PR de promoção; o merge é humano |
-| `tag-release.yml` | `ci_ref` | `BOT_TOKEN` (opcional; obrigatório para hotfix) | carimba a tag do estágio, trava e destrava o gate |
-| `archive-merged-branch.yml` | `ci_ref` | - | arquiva branch mergeada em `refs/archive/` |
-| `dependabot-para-dev.yml` | `ci_ref` | - | fecha ou redireciona PR de segurança do Dependabot para a `dev` |
-| `claude.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | responde a `@claude` |
-| `claude-code-review.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | revisão automática de PR |
+| `pr-police.yml` | `ci_ref` | - | PR shape (name, source, target) and the family label |
+| `approval-ladder.yml` | `ci_ref` | - | the right approvals per rung (uses the vars above); exempts Dependabot PRs and the bot's regeneration PR (`chore/regenera-gerados`, ADR 0255) on `dev` |
+| `backmerge-gate.yml` | `ci_ref` | - | back-merge lock after a hotfix |
+| `promotion-check.yml` | `ci_ref` | - | state of the promotion PR (range, rung tag) |
+| `promote.yml` | `ci_ref`, `par` (default `dev->main`) | `BOT_TOKEN` (optional) | opens the promotion PR; the merge is human |
+| `tag-release.yml` | `ci_ref` | `BOT_TOKEN` (optional; required for hotfix) | stamps the stage tag, locks and unlocks the gate |
+| `archive-merged-branch.yml` | `ci_ref` | - | archives a merged branch under `refs/archive/` |
+| `dependabot-para-dev.yml` | `ci_ref` | - | closes or redirects a Dependabot security PR to `dev` |
+| `claude.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | answers `@claude` |
+| `claude-code-review.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | automatic PR review |
 
-Os reutilizáveis que escrevem com o bot (`tag-release`, `promote`) aceitam `APP_ID` e `APP_PRIVATE_KEY` e geram o token do GitHub App DENTRO do próprio job (o token é mascarado e não atravessa jobs, então o chamador não consegue passá-lo como `BOT_TOKEN`). O chamador passa:
+The reusable workflows that write as the bot (`tag-release`, `promote`) accept `APP_ID` and `APP_PRIVATE_KEY` and generate the GitHub App token INSIDE the job itself (the token is masked and does not cross jobs, so the caller cannot pass it as `BOT_TOKEN`). The caller passes:
 
 ```yaml
 secrets:
@@ -33,9 +33,9 @@ secrets:
   APP_PRIVATE_KEY: ${{ secrets.BRABO_APP_PRIVATE_KEY }}
 ```
 
-`BOT_TOKEN` segue aceito como alternativa. Ele é um PAT ou o token do GitHub App da organização. O nome do App e do secret ainda não foram registrados (lacuna declarada): passe o token que a organização definir.
+`BOT_TOKEN` is still accepted as an alternative. It is a PAT or the organization's GitHub App token. The App and secret names have not been registered yet (declared gap): pass the token the organization defines.
 
-## Exemplo de chamada
+## Call example
 
 ```yaml
 # .github/workflows/politica.yml no repositório que chama
@@ -59,7 +59,7 @@ jobs:
       ci_ref: <sha>
 ```
 
-Promoção e carimbo:
+Promotion and stamping:
 
 ```yaml
 on:
@@ -79,11 +79,11 @@ jobs:
     secrets: { BOT_TOKEN: '${{ secrets.BOT_TOKEN }}' }
 ```
 
-Gatilhos dos outros: `backmerge-gate` e `promotion-check` em `pull_request` (`opened, reopened, synchronize, edited`); `archive-merged-branch` em `schedule` (`0 12 * * 1`) e `workflow_dispatch`; `dependabot-para-dev` em `push` na `dev`, `workflow_dispatch` e `pull_request_target` (`opened, reopened`, base `main`). Em PR, nunca ponha `if:` no job que chama `pr-police`, `approval-ladder`, `backmerge-gate` ou `promotion-check` (check obrigatório que se pula deixa veredito velho colado).
+Triggers for the others: `backmerge-gate` and `promotion-check` on `pull_request` (`opened, reopened, synchronize, edited`); `archive-merged-branch` on `schedule` (`0 12 * * 1`) and `workflow_dispatch`; `dependabot-para-dev` on `push` to `dev`, `workflow_dispatch` and `pull_request_target` (`opened, reopened`, base `main`). On a PR, never put `if:` on the job that calls `pr-police`, `approval-ladder`, `backmerge-gate` or `promotion-check` (a required check that gets skipped leaves a stale verdict stuck).
 
-Atenção a `permissions`: o job que chama precisa conceder pelo menos o que o reutilizável declara (por exemplo `contents: write` em `tag-release` e `archive-merged-branch`).
+Watch `permissions`: the calling job must grant at least what the reusable workflow declares (for example `contents: write` for `tag-release` and `archive-merged-branch`).
 
-## Desenvolvimento
+## Development
 
 ```
 pnpm install
@@ -92,8 +92,8 @@ pnpm typecheck
 pnpm actions:pinadas
 ```
 
-Branches permanentes: `dev` e `main`. Toda tag nasce de workflow. Licença MIT.
+Permanent branches: `dev` and `main`. Every tag comes from a workflow. MIT license.
 
-## Origem
+## Origin
 
-Extraído com histórico de `daneiel/brabo` em 04/11/2026; `#NNN` nas mensagens virou `daneiel/brabo#NNN`.
+Extracted with history from `daneiel/brabo` on 2026-11-04; `#NNN` in messages became `daneiel/brabo#NNN`.

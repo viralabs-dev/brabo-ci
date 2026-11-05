@@ -1,47 +1,45 @@
-# Onde pedir ajuda
+# Where to get help
 
-Cada tipo de assunto tem um caminho. Usar o certo faz você ser respondido mais
-rápido.
+Each kind of topic has its own path. Using the right one gets you an answer faster.
 
-| você tem | vá para |
+| you have | go to |
 |---|---|
-| **dúvida de uso** — "como faço X?", "isso é esperado?" | [issue com o template de dúvida](https://github.com/daneiel/brabo/issues/new/choose) |
-| **bug reprodutível** — passos claros, comportamento errado | [issue de bug](https://github.com/daneiel/brabo/issues/new/choose) |
-| **ideia ou pedido de funcionalidade** | [issue de funcionalidade](https://github.com/daneiel/brabo/issues/new/choose) |
-| **erro ou lacuna na documentação** | [issue de documentação](https://github.com/daneiel/brabo/issues/new/choose) |
-| **falha de segurança** | [SECURITY.md](SECURITY.md) — **nunca** issue pública |
-| **quer contribuir com código** | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| **comportamento inaceitável de alguém** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — o contato está lá |
+| **a usage question** — "how do I do X?", "is this expected?" | [issue with the question template](https://github.com/viralabs-dev/brabo-ci/issues/new/choose) |
+| **a reproducible bug** — clear steps, wrong behavior | [bug issue](https://github.com/viralabs-dev/brabo-ci/issues/new/choose) |
+| **an idea or feature request** | [feature issue](https://github.com/viralabs-dev/brabo-ci/issues/new/choose) |
+| **an error or gap in the documentation** | [documentation issue](https://github.com/viralabs-dev/brabo-ci/issues/new/choose) |
+| **a security flaw** | [SECURITY.md](SECURITY.md) — **never** a public issue |
+| **you want to contribute code** | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| **unacceptable behavior by someone** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — the contact is there |
 
-> **TODO(humano):** o GitHub Discussions está **desabilitado** neste
-> repositório. Dúvida de uso é o caso que mais se beneficia dele — não vira
-> issue, não tem "resolvido", e a resposta serve para a próxima pessoa. Se
-> quiser habilitar (*Settings → Features → Discussions*), troque a primeira
-> linha da tabela por um link para Discussions e ajuste
-> `.github/ISSUE_TEMPLATE/config.yml`, que já tem o link comentado.
+> **TODO(humano):** GitHub Discussions is **disabled** in this
+> repository. Usage questions are the case that benefits most from it — they do
+> not become issues, they do not carry a "resolved" status, and the answer serves the next
+> person. If you want to enable it (*Settings → Features → Discussions*),
+> replace the first row of the table with a link to Discussions and adjust
+> `.github/ISSUE_TEMPLATE/config.yml`, which already has the link commented out.
 
-## Antes de abrir
+## Before opening one
 
-Três coisas que resolvem boa parte dos casos:
+Three things that solve a good share of cases:
 
-1. **Procure nas issues existentes**, inclusive nas fechadas.
-2. **Veja a documentação** — em especial
-   [Primeiros passos](docs/getting-started.md) para problemas de setup e o
-   [Runbook](docs/runbook.md) para operação. Os dois têm tabela de sintoma →
-   causa.
-3. **Agente com comportamento estranho** (resposta vazia, truncada, lentíssima)
-   quase nunca é bug de código: é
-   [ambiente de inferência](docs/runbook.md#ambiente-de-inferencia). Confira
-   essa seção antes de relatar.
+1. **Search the existing issues**, closed ones included.
+2. **Check the documentation** — in particular
+   [Getting started](docs/getting-started.md) for setup problems and the
+   [Runbook](docs/runbook.md) for operation. Both have a symptom → cause table.
+3. **An agent behaving strangely** (empty, truncated or very slow response)
+   is almost never a code bug: it is the
+   [inference environment](docs/runbook.md#ambiente-de-inferencia). Check
+   that section before reporting.
 
-## O que ajuda no relato
+## What helps in a report
 
-Versão (`BRABO_VERSION` ou a tag), como está rodando (compose de dev, compose
-de produção, Kubernetes), o que você esperava, o que aconteceu, e o log
-relevante. Os templates de issue perguntam isso — preencher poupa uma rodada
-inteira de "qual versão?".
+Version (`BRABO_VERSION` or the tag), how you are running it (dev compose,
+production compose, Kubernetes), what you expected, what happened, and the
+relevant log. The issue templates ask for this — filling it in saves a whole
+round of "which version?".
 
-## Prazo
+## Response time
 
-Projeto mantido em tempo livre. Respondo em geral em até uma semana. Sem SLA,
-sem suporte comercial.
+This project is maintained in spare time. I usually respond within a week. No
+SLA, no commercial support.

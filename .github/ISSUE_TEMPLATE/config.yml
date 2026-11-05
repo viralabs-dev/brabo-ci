@@ -1,13 +1,13 @@
 blank_issues_enabled: false
 contact_links:
   - name: Falha de segurança
-    url: https://github.com/daneiel/brabo/security/advisories/new
+    url: https://github.com/viralabs-dev/brabo-ci/security/advisories/new
     about: Nunca abra issue pública para vulnerabilidade — use o canal privado.
   - name: Documentação
-    url: https://github.com/daneiel/brabo/blob/dev/docs/intro.md
+    url: https://github.com/viralabs-dev/brabo/blob/dev/docs/intro.md
     about: Arquitetura, regras de negócio, runbook e referência antes de perguntar.
   - name: Como contribuir
-    url: https://github.com/daneiel/brabo/blob/dev/CONTRIBUTING.md
+    url: https://github.com/viralabs-dev/brabo-ci/blob/dev/CONTRIBUTING.md
     about: Fluxo, Definition of Done, e o que é aceito ou não.
 
 # TODO(humano): Discussions está desabilitado. Ao habilitar
