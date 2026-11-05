@@ -25,7 +25,15 @@ Pine sempre por SHA: `uses: viralabs-dev/brabo-ci/.github/workflows/pr-police.ym
 | `claude.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | responde a `@claude` |
 | `claude-code-review.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | revisão automática de PR |
 
-`BOT_TOKEN` é um PAT ou o token do GitHub App da organização. O nome do App e do secret ainda não foram registrados (lacuna declarada): passe o token que a organização definir.
+Os reutilizáveis que escrevem com o bot (`tag-release`, `promote`) aceitam `APP_ID` e `APP_PRIVATE_KEY` e geram o token do GitHub App DENTRO do próprio job (o token é mascarado e não atravessa jobs, então o chamador não consegue passá-lo como `BOT_TOKEN`). O chamador passa:
+
+```yaml
+secrets:
+  APP_ID: ${{ secrets.BRABO_APP_ID }}
+  APP_PRIVATE_KEY: ${{ secrets.BRABO_APP_PRIVATE_KEY }}
+```
+
+`BOT_TOKEN` segue aceito como alternativa. Ele é um PAT ou o token do GitHub App da organização. O nome do App e do secret ainda não foram registrados (lacuna declarada): passe o token que a organização definir.
 
 ## Exemplo de chamada
 

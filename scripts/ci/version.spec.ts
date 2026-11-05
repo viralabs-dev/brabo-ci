@@ -95,8 +95,15 @@ describe('ciclos', () => {
   });
 
   it('primeiro ciclo do repositório, sem tag final anterior', () => {
-    expect(proximaVersao(null, [pr(1, 'feature/a')])).toBe('v0.1.0');
-    expect(proximaVersao(null, [pr(1, 'bugfix/a')])).toBe('v0.0.1');
+    expect(proximaVersao(null, [pr(1, 'feature/a')])).toBe('v1.0.0');
+    expect(proximaVersao(null, [pr(1, 'bugfix/a')])).toBe('v1.0.0');
+    expect(proximaVersao(null, [pr(1, 'breaking/a')])).toBe('v1.0.0');
+  });
+
+  it('com a v1.0.0 já carimbada, a função da branch decide', () => {
+    expect(proximaVersao('v1.0.0', [pr(1, 'bugfix/a')])).toBe('v1.0.1');
+    expect(proximaVersao('v1.0.0', [pr(1, 'feature/a')])).toBe('v1.1.0');
+    expect(proximaVersao('v1.0.0', [pr(1, 'breaking/a')])).toBe('v2.0.0');
   });
 
   it('DOIS CICLOS SEGUIDOS partem da final, não da anterior', () => {

@@ -29,6 +29,12 @@ on:
         type: string
         default: 'v1.0.0'
     secrets:
+      APP_ID:
+        description: 'ID do GitHub App do bot. Com APP_ID e APP_PRIVATE_KEY o token é gerado AQUI: output de job que carrega token é descartado pelo Actions, então o chamador não consegue passá-lo como BOT_TOKEN'
+        required: false
+      APP_PRIVATE_KEY:
+        description: 'Chave privada do GitHub App do bot'
+        required: false
       BOT_TOKEN:
         description: 'PAT ou token do GitHub App do bot (sem ele a tag nasce mas não dispara a Release; obrigatório para hotfix)'
         required: false
@@ -55,8 +61,17 @@ jobs:
     env:
       # `secrets` não existe no `if:` de um step — só em `env`. Passar por aqui
       # é o que torna a presença do PAT testável dentro do job.
-      TEM_PAT: ${{ secrets.BOT_TOKEN != '' }}
+      TEM_PAT: ${{ (secrets.BOT_TOKEN != '' || secrets.APP_ID != '') }}
+      TEM_APP: ${{ secrets.APP_ID != '' }}
     steps:
+      - name: Token do GitHub App
+        id: app
+        if: env.TEM_APP == 'true'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           # O cálculo lê TODAS as tags e o histórico desde a última final.
@@ -66,7 +81,7 @@ jobs:
           # recursão), e foi por isso que a Release da v0.2.0 nunca publicou.
           # Sem o segredo, cai no token padrão: a tag ainda nasce, só não
           # dispara a Release — degradação visível, não silenciosa.
-          token: ${{ secrets.BOT_TOKEN || github.token }}
+          token: ${{ steps.app.outputs.token || secrets.BOT_TOKEN || github.token }}
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
@@ -125,8 +140,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      TEM_PAT: ${{ secrets.BOT_TOKEN != '' }}
+      TEM_PAT: ${{ (secrets.BOT_TOKEN != '' || secrets.APP_ID != '') }}
+      TEM_APP: ${{ secrets.APP_ID != '' }}
     steps:
+      - name: Token do GitHub App
+        id: app
+        if: env.TEM_APP == 'true'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       # Falha ANTES de mexer em qualquer coisa. Sem o PAT, os PRs de
       # retropropagação nasceriam sem check e nunca ficariam verdes: a cadeia
       # travaria para sempre e ninguém saberia por quê. Vermelho aqui é o
@@ -143,7 +167,7 @@ jobs:
           fetch-depth: 0
           # Escrever em `main` e abrir PR que NASÇA COM CHECKS exige o PAT: PR
           # aberto com o `GITHUB_TOKEN` não dispara workflow.
-          token: ${{ secrets.BOT_TOKEN }}
+          token: ${{ steps.app.outputs.token || secrets.BOT_TOKEN }}
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
@@ -160,7 +184,7 @@ jobs:
 
       - name: Abrir os PRs e calcular a trava
         env:
-          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+          GH_TOKEN: ${{ steps.app.outputs.token || secrets.BOT_TOKEN }}
           HOTFIX_TAG: ${{ needs.carimbar.outputs.tag }}
           HOTFIX_SHA: ${{ github.sha }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -198,8 +222,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      TEM_PAT: ${{ secrets.BOT_TOKEN != '' }}
+      TEM_PAT: ${{ (secrets.BOT_TOKEN != '' || secrets.APP_ID != '') }}
+      TEM_APP: ${{ secrets.APP_ID != '' }}
     steps:
+      - name: Token do GitHub App
+        id: app
+        if: env.TEM_APP == 'true'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: O PAT é obrigatório aqui
         if: env.TEM_PAT != 'true'
         run: |
@@ -209,7 +242,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
-          token: ${{ secrets.BOT_TOKEN }}
+          token: ${{ steps.app.outputs.token || secrets.BOT_TOKEN }}
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
