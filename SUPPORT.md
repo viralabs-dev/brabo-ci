@@ -4,10 +4,10 @@ Each kind of topic has its own path. Using the right one gets you an answer fast
 
 | you have | go to |
 |---|---|
-| **a usage question** — "how do I do X?", "is this expected?" | [issue with the question template](https://github.com/daneiel/brabo/issues/new/choose) |
-| **a reproducible bug** — clear steps, wrong behavior | [bug issue](https://github.com/daneiel/brabo/issues/new/choose) |
-| **an idea or feature request** | [feature issue](https://github.com/daneiel/brabo/issues/new/choose) |
-| **an error or gap in the documentation** | [documentation issue](https://github.com/daneiel/brabo/issues/new/choose) |
+| **a usage question** — "how do I do X?", "is this expected?" | [issue with the question template](https://github.com/viralabs-dev/brabo-ci/issues/new/choose) |
+| **a reproducible bug** — clear steps, wrong behavior | [bug issue](https://github.com/viralabs-dev/brabo-ci/issues/new/choose) |
+| **an idea or feature request** | [feature issue](https://github.com/viralabs-dev/brabo-ci/issues/new/choose) |
+| **an error or gap in the documentation** | [documentation issue](https://github.com/viralabs-dev/brabo-ci/issues/new/choose) |
 | **a security flaw** | [SECURITY.md](SECURITY.md) — **never** a public issue |
 | **you want to contribute code** | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | **unacceptable behavior by someone** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — the contact is there |

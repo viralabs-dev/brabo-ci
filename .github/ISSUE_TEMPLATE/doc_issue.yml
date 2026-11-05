@@ -42,7 +42,7 @@ body:
     attributes:
       value: |
         **Atenção:** arquivos marcados `generated: true` no
-        [`docs/.docmap.yml`](https://github.com/daneiel/brabo/blob/dev/docs/.docmap.yml)
+        [`docs/.docmap.yml`](https://github.com/viralabs-dev/brabo/blob/dev/docs/.docmap.yml)
         são gerados por `pnpm docs:generate` — o conserto é no gerador ou na
         fonte, nunca no arquivo. Se for um deles, mencione: muda quem
         arruma.
