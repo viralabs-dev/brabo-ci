@@ -14,7 +14,7 @@
  * Sintaxe apagável apenas (o Node executa este `.ts` por type stripping).
  */
 
-import { ESCADA, ehBranchDoDependabot, type Permanente } from './pr-police.ts';
+import { ESCADA, ehBranchDoDependabot, ehPrDeRegeneracaoDoBot, type Permanente } from './pr-police.ts';
 
 /**
  * O único degrau em que o Dependabot dispensa revisão (ADR 0236, AT-668): a
@@ -118,6 +118,8 @@ export interface VereditoDeEscada {
   dispensadoPorAutoria: boolean;
   /** Ninguém precisou aprovar — PR do Dependabot para a `dev` (ADR 0236). */
   dispensadoPorDependabot: boolean;
+  /** Ninguém precisou aprovar — PR de regeneração do bot para a `dev` (ADR 0255). */
+  dispensadoPorBotDeRegeneracao: boolean;
 }
 
 
@@ -216,6 +218,7 @@ export function avaliarEscada(entrada: EntradaEscada): VereditoDeEscada {
     avisos: [] as string[],
     dispensadoPorAutoria: false,
     dispensadoPorDependabot: false,
+    dispensadoPorBotDeRegeneracao: false,
   };
 
   if (!ehPermanente(entrada.destino)) {
@@ -243,6 +246,23 @@ export function avaliarEscada(entrada: EntradaEscada): VereditoDeEscada {
       faltando: [],
       avisos: [
         'PR do Dependabot para a `dev`: dispensado de review (ADR 0236). ' +
+          'Fica mergeável quando os outros checks passam.',
+      ],
+    };
+  }
+
+  // Regeneração do bot → dev (ADR 0255): mesma régua, autor E branch fixa.
+  if (
+    entrada.destino === 'dev' &&
+    ehPrDeRegeneracaoDoBot(entrada.origem ?? '', entrada.autorDoPr, entrada.tipoDoAutor)
+  ) {
+    return {
+      ...base,
+      ok: true,
+      dispensadoPorBotDeRegeneracao: true,
+      faltando: [],
+      avisos: [
+        'PR de regeneração do bot para a `dev`: dispensado de review (ADR 0255). ' +
           'Fica mergeável quando os outros checks passam.',
       ],
     };
@@ -400,6 +420,13 @@ export function formatarEscada(
     l.push('');
     l.push('    Os outros checks são a revisão: com todos verdes, o PR fica mergeável.');
     l.push('    O caminho até a main continua pela promoção, com a escada inteira.');
+    return l.join('\n');
+  }
+
+  if (veredito.dispensadoPorBotDeRegeneracao) {
+    l.push('  ✓ APROVADO — PR de regeneração do bot para a dev, dispensado de review (ADR 0255).');
+    l.push('');
+    l.push('    Os outros checks são a revisão. O caminho até a main segue pela promoção.');
     return l.join('\n');
   }
 

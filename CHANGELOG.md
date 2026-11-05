@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `approval-ladder`: a PR do GitHub App `viralabs-dev-brabo` na branch fixa `chore/regenera-gerados`, mirando `dev`, dispensa a escada (ADR 0255) — autor E branch, como o Dependabot; na `main`, em outra branch ou com humano, a escada segue inteira.
 - `version.ts`: repositório sem tag final carimba `v1.0.0` na primeira vez, qualquer que seja a função da branch (antes partia de 0.0.0); com tag, nada muda.
 - `tag-release.yml` (reutilizável) aceita os secrets `APP_ID` e `APP_PRIVATE_KEY` e gera o token do GitHub App dentro do próprio job (output de job com token é descartado pelo Actions, medido); `BOT_TOKEN` segue valendo.
 - O próprio `brabo-ci` carimba as suas tags chamando `./.github/workflows/tag-release.yml` (`tag.yml`).
