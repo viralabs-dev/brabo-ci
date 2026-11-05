@@ -210,7 +210,7 @@ Before marking the PR as ready:
 - A new git provider, **if** it implements the fifteen operations, declares its
   capabilities honestly and passes the contract suite
 
-## What I will probably not accept {#o-que-provavelmente-não-aceito}
+## What I will probably not accept
 
 This is not closing the door on ideas — it is that these cost a lot and the
 decisions were already made with a recorded reason:
