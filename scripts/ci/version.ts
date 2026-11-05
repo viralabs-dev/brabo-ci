@@ -179,7 +179,9 @@ export function proximaVersao(ultimaFinal: string | null, prs: PrDoCiclo[]): str
   if (impacto === null) throw new CicloVazioError(ultimaFinal ?? 'o início do repositório');
 
   const base = ultimaFinal ? lerVersaoFinal(ultimaFinal) : null;
-  const v: Versao = base ?? { major: 0, minor: 0, patch: 0 };
+  // Repositório sem tag final: a primeira é SEMPRE 1.0.0, qualquer que seja a função da branch.
+  if (!base) return escreverVersao({ major: 1, minor: 0, patch: 0 });
+  const v: Versao = base;
 
   if (impacto === 'major') return escreverVersao({ major: v.major + 1, minor: 0, patch: 0 });
   if (impacto === 'minor') return escreverVersao({ major: v.major, minor: v.minor + 1, patch: 0 });

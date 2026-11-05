@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- `version.ts`: repositório sem tag final carimba `v1.0.0` na primeira vez, qualquer que seja a função da branch (antes partia de 0.0.0); com tag, nada muda.
+- `tag-release.yml` (reutilizável) aceita os secrets `APP_ID` e `APP_PRIVATE_KEY` e gera o token do GitHub App dentro do próprio job (output de job com token é descartado pelo Actions, medido); `BOT_TOKEN` segue valendo.
+- O próprio `brabo-ci` carimba as suas tags chamando `./.github/workflows/tag-release.yml` (`tag.yml`).
+
 ## v1.0.0 - 2026-11-04
 
 Primeira versão, extraída do monorepo `daneiel/brabo` (EP-033, AT-695, ADR 0252) com o histórico dos caminhos.
