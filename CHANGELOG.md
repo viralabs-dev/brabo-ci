@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue templates: the runbook links (`question.yml`, `bug_report.yml`) point to `viralabs-dev/brabo-infra` (`deploy/docs/runbook.md`); the inference anchor is `#inference-environment-ambiente-de-inferencia`, the slug GitHub generates (it ignores `{#id}` and keeps it as heading text).
 - Docs: `README.md`, `CONTRIBUTING.md`, `GOVERNANCE.md`, `SECURITY.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md` and `.github/pull_request_template.md` are now English only (AT-745). No workflow or script reads these files.
 
 - `politica.yml` novo: `pr-police` e `escada` do `brabo-ci` pinados por SHA (AT-733); inclui a dispensa da PR do bot (ADR 0255).
