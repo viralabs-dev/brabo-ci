@@ -16,6 +16,7 @@ Pine sempre por SHA: `uses: viralabs-dev/brabo-ci/.github/workflows/pr-police.ym
 |---|---|---|---|
 | `pr-police.yml` | `ci_ref` | - | forma do PR (nome, origem, destino) e a label de família |
 | `approval-ladder.yml` | `ci_ref` | - | aprovações certas por degrau (usa as vars acima); dispensa PR do Dependabot e a de regeneração do bot (`chore/regenera-gerados`, ADR 0255) na `dev` |
+| `qa-e2e-gatilho.yml` | `ci_ref` | `APP_ID`, `APP_PRIVATE_KEY` | `disparar`: PR com base `main` resolve as imagens por digest, cria o check `E2E do brabo-qa` e dispara `e2e-pr` no brabo-qa; `aceitar`: `/qa-aceitar <justificativa>` do `OWNER_HANDLE` aceita falha de `spec`/`ambiente` (nunca `digest` nem `assinatura`) |
 | `backmerge-gate.yml` | `ci_ref` | - | trava de retropropagação depois de hotfix |
 | `promotion-check.yml` | `ci_ref` | - | estado do PR de promoção (range, tag do degrau) |
 | `promote.yml` | `ci_ref`, `par` (padrão `dev->main`) | `BOT_TOKEN` (opcional) | abre o PR de promoção; o merge é humano |
