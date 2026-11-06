@@ -23,7 +23,7 @@ export function avaliarAceite(e: EntradaAceite): VereditoAceite {
   if (e.acao !== 'created') return { ignorar: true };
   const m = /^\/qa-aceitar\s+(.+)$/s.exec(e.corpo.trim());
   if (!m) return { ignorar: true };
-  const justificativa = m[1].trim();
+  const justificativa = (m[1] ?? '').trim();
 
   const recusa = (motivo: string): VereditoAceite => ({ aceito: false, motivo });
   if (e.autor !== e.owner) return recusa('só o OWNER_HANDLE pode aceitar.');
