@@ -89,6 +89,17 @@ export function escolherTags(e: EntradaTags): EscolhaDeTags {
   return { tags: servicos as Record<Servico, string>, composeRef };
 }
 
+/** Payload do `e2e-pr`: imagens por TAG; o brabo-qa espera a publicação e resolve tag->digest. */
+export function montarPayload(
+  escolha: EscolhaDeTags,
+  ctx: { repo: string; pr: number; headSha: string; checkRunId: number },
+) {
+  const imagens = Object.fromEntries(
+    Object.entries(escolha.tags).map(([s, t]) => [s, `ghcr.io/viralabs-dev/brabo-${s}:${t}`]),
+  ) as Record<Servico, string>;
+  return { repo: ctx.repo, pr: ctx.pr, head_sha: ctx.headSha, check_run_id: ctx.checkRunId, compose_ref: escolha.composeRef, imagens };
+}
+
 export async function paraDigest(
   imagem: string,
   tag: string,

@@ -4,6 +4,7 @@ import {
   SemTagParaOHead,
   escolherTags,
   maisNova,
+  montarPayload,
   paginar,
   proximaPagina,
   RespostaDoGhcrSemDigest,
@@ -105,5 +106,15 @@ describe('consultarGhcr', () => {
     } finally {
       globalThis.fetch = original;
     }
+  });
+});
+
+describe('montarPayload', () => {
+  it('leva as imagens por tag, sem resolver digest', () => {
+    const p = montarPayload(escolherTags(base), { repo: 'viralabs-dev/brabo-api', pr: 7, headSha: 'abc', checkRunId: 99 });
+    expect(p.imagens.api).toBe('ghcr.io/viralabs-dev/brabo-api:v1.2.0-dev.4');
+    expect(p.imagens.engine).toBe('ghcr.io/viralabs-dev/brabo-engine:v2.0.0-dev.1');
+    expect(p.imagens.backup).toBe('ghcr.io/viralabs-dev/brabo-backup:v4.0.0');
+    expect(p).toMatchObject({ repo: 'viralabs-dev/brabo-api', pr: 7, head_sha: 'abc', check_run_id: 99, compose_ref: 'v4.0.0-dev.5' });
   });
 });

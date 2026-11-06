@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `qa-e2e-gatilho.yml` novo (reutilizável) e scripts `qa-e2e-imagens`, `qa-e2e-aceite`, `qa-e2e-resumo`, `qa-e2e-disparar` e `qa-e2e-aceitar`: o check `E2E do brabo-qa` vira portão da `main`. Resolve as imagens por digest, dispara o `e2e-pr` no brabo-qa e aceita falha de `spec` ou `ambiente` com `/qa-aceitar <justificativa>` (AT-765).
+- `qa-e2e-gatilho.yml` novo (reutilizável) e scripts `qa-e2e-imagens`, `qa-e2e-aceite`, `qa-e2e-resumo`, `qa-e2e-disparar` e `qa-e2e-aceitar`: o check `E2E do brabo-qa` vira portão da `main`. Escolhe as tags das imagens, dispara o `e2e-pr` no brabo-qa e aceita falha de `spec` ou `ambiente` com `/qa-aceitar <justificativa>` (AT-765).
 - Docs: `README.md`, `CONTRIBUTING.md`, `GOVERNANCE.md`, `SECURITY.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md` e `.github/pull_request_template.md` voltam ao pt-BR, que passa a ser o padrão da documentação de repo público (decisão do dono de 06/11/2026, revertendo o ADR 0260; AT-766). Nenhum workflow ou script lê esses arquivos.
 - Docs: os links para `docs/...` do monorepo antigo apontam para onde a doc mora hoje: `viralabs-dev/brabo` (ADRs, `getting-started`, `.docmap.yml`, `business-rules`, `branching-policy` em `scripts/ci/docs/explanation/`), `viralabs-dev/brabo-infra` (runbook, `deploy/docs/runbook.md`) e `viralabs-dev/brabo-api` (`security-surface.md`). O Setup do CONTRIBUTING clona pelo `brabo-workspace` (AT-766).
 - README: seção "Repositórios do Brabo", com o papel, o "depende de" e o "é usado por" de cada repo (AT-766).

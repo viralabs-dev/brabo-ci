@@ -1,28 +1,26 @@
 /**
  * qa-e2e-disparar — PR com base `main`: resolve as imagens, cria o check
  * "E2E do brabo-qa" em andamento e dispara o `e2e-pr` no brabo-qa (AT-765).
- * A espera longa pela imagem fica no brabo-qa; aqui tag ausente já nasce vermelho `ambiente`.
+ * As imagens vão por TAG: a espera (30 min) e a resolução tag->digest ficam no brabo-qa, para o
+ * check não nascer vermelho enquanto a release ainda publica. Tag git ausente já nasce vermelho `ambiente`.
  *
  * Env: GH_TOKEN (token do App), GITHUB_REPOSITORY, PR_NUMERO, PR_HEAD_SHA, PR_HEAD_REF, GITHUB_RUN_URL.
  * Sintaxe apagável apenas (o Node executa este `.ts` por type stripping).
  */
 
 import {
-  ImagemNaoPublicada,
   SemTagParaOHead,
-  consultarGhcr,
   escolherTags,
   maisNova,
   paginar,
-  paraDigest,
+  montarPayload,
+  type EscolhaDeTags,
   type RepoGatilho,
-  type Servico,
 } from './qa-e2e-imagens.ts';
 import { montarCheck } from './qa-e2e-resumo.ts';
 
 export const NOME_DO_CHECK = 'E2E do brabo-qa';
 const CHAVES = ['api', 'engine', 'web', 'broker', 'infra'] as const;
-const SERVICOS: Servico[] = ['api', 'engine', 'web', 'broker', 'backup'];
 
 interface Ref {
   ref: string;
@@ -57,7 +55,7 @@ async function principal(): Promise<void> {
   const headRef = env('PR_HEAD_REF');
   const urlDoRun = env('GITHUB_RUN_URL');
 
-  let payload: Record<string, unknown> | null = null;
+  let escolha: EscolhaDeTags | null = null;
   let erro = '';
   try {
     const ultimaDev = {} as Record<(typeof CHAVES)[number], string>;
@@ -77,17 +75,14 @@ async function principal(): Promise<void> {
         for (const r of refs) if ((await commitDe(r)) === headSha) tagsDoHead.push(r.ref.replace('refs/tags/', ''));
       }
     }
-    const { tags, composeRef } = escolherTags({ repo: nome as RepoGatilho, headSha, headRef, tagsDoHead, ultimaDev, ultimaFinal });
-    const imagens = {} as Record<Servico, string>;
-    for (const s of SERVICOS) imagens[s] = await paraDigest(`brabo-${s}`, tags[s], consultarGhcr);
-    payload = { repo: `${dono}/${nome}`, pr: Number(env('PR_NUMERO')), head_sha: headSha, compose_ref: composeRef, imagens };
+    escolha = escolherTags({ repo: nome as RepoGatilho, headSha, headRef, tagsDoHead, ultimaDev, ultimaFinal });
   } catch (e) {
-    if (!(e instanceof SemTagParaOHead || e instanceof ImagemNaoPublicada)) throw e;
+    if (!(e instanceof SemTagParaOHead)) throw e;
     erro = e.message;
   }
 
   const check = (corpo: object) => gh(`repos/${dono}/${nome}/check-runs`, { method: 'POST', body: JSON.stringify({ name: NOME_DO_CHECK, head_sha: headSha, ...corpo }) });
-  if (!payload) {
+  if (!escolha) {
     const c = montarCheck({ causa: 'ambiente', linhas: [], specsQueFalharam: [], urlDoRun });
     await check({ status: 'completed', conclusion: 'failure', external_id: c.external_id, output: { title: c.title, summary: `${erro}\n\n${c.summary}` } });
     console.log(`E2E vermelho (ambiente): ${erro}`);
@@ -95,7 +90,7 @@ async function principal(): Promise<void> {
   }
   const criado = await check({ status: 'in_progress', details_url: urlDoRun, output: { title: 'E2E em andamento', summary: `Disparado no brabo-qa. Run do gatilho: ${urlDoRun}` } });
   try {
-    await gh('repos/viralabs-dev/brabo-qa/dispatches', { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: { ...payload, check_run_id: criado.id } }) });
+    await gh('repos/viralabs-dev/brabo-qa/dispatches', { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: montarPayload(escolha, { repo: `${dono}/${nome}`, pr: Number(env('PR_NUMERO')), headSha, checkRunId: criado.id }) }) });
   } catch (e) {
     // Sem dispatch ninguém conclui o check: não deixar em andamento.
     const msg = e instanceof Error ? e.message : String(e);
