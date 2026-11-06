@@ -33,6 +33,13 @@ describe('avaliarAceite', () => {
     expect(motivo(check({ externalId: 'causa:assinatura' }))).toContain('assinatura');
     expect(motivo(com({ check: null }))).toContain('não há check');
   });
+  it('só aceita check que terminou vermelho', () => {
+    expect(motivo(check({ conclusao: null }))).toContain('ainda não terminou vermelho');
+    expect(motivo(check({ conclusao: 'cancelled' }))).toContain('ainda não terminou vermelho');
+  });
+  it('compara o autor com o owner sem diferenciar maiúsculas', () => {
+    expect(avaliarAceite(com({ autor: 'DONO' }))).toMatchObject({ aceito: true });
+  });
   it('aceita spec, ambiente e sem-resposta, com a justificativa aparada', () => {
     expect(avaliarAceite(com({ corpo: `  /qa-aceitar   ${J}  \n` }))).toEqual({ aceito: true, justificativa: J });
     expect(avaliarAceite(check({ externalId: 'causa:ambiente' }))).toMatchObject({ aceito: true });

@@ -31,7 +31,7 @@ async function principal(): Promise<void> {
   // O head e a base vêm da API, não do evento: o comentário não os traz.
   const dados = await gh(`repos/${repo}/pulls/${pr}`);
   const headSha: string = dados.head.sha;
-  const { check_runs } = await gh(`repos/${repo}/commits/${headSha}/check-runs?check_name=${encodeURIComponent(NOME_DO_CHECK)}`);
+  const { check_runs } = await gh(`repos/${repo}/commits/${headSha}/check-runs?check_name=${encodeURIComponent(NOME_DO_CHECK)}&app_id=${env('APP_ID')}`);
   const atual = (check_runs as any[]).sort((a, b) => b.id - a.id)[0];
 
   const veredito = avaliarAceite({

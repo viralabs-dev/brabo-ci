@@ -27,6 +27,26 @@ export interface EscolhaDeTags {
 
 export class SemTagParaOHead extends Error {}
 export class ImagemNaoPublicada extends Error {}
+export class RespostaDoGhcrSemDigest extends Error {}
+
+/** URL do `rel="next"` de um header `Link`, ou null na última página. */
+export function proximaPagina(link: string | null): string | null {
+  return /<([^>]+)>;\s*rel="next"/.exec(link ?? '')?.[1] ?? null;
+}
+
+/** Junta as páginas seguindo o `Link` até o fim. */
+export async function paginar<T>(
+  url: string,
+  buscar: (url: string) => Promise<{ itens: T[]; link: string | null }>,
+): Promise<T[]> {
+  const todos: T[] = [];
+  for (let u: string | null = url; u; ) {
+    const { itens, link } = await buscar(u);
+    todos.push(...itens);
+    u = proximaPagina(link);
+  }
+  return todos;
+}
 
 const SEMVER = /^v(\d+)\.(\d+)\.(\d+)(?:-dev\.(\d+))?$/;
 
@@ -96,5 +116,7 @@ export async function consultarGhcr(imagem: string, tag: string): Promise<string
   });
   if (r.status === 404) return null;
   if (!r.ok) throw new Error(`ghcr ${imagem}:${tag} respondeu ${r.status}`);
-  return r.headers.get('docker-content-digest');
+  const digest = r.headers.get('docker-content-digest');
+  if (!digest) throw new RespostaDoGhcrSemDigest(`ghcr respondeu ${imagem}:${tag} sem docker-content-digest`);
+  return digest;
 }

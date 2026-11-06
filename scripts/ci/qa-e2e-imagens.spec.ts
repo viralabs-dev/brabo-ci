@@ -4,6 +4,10 @@ import {
   SemTagParaOHead,
   escolherTags,
   maisNova,
+  paginar,
+  proximaPagina,
+  RespostaDoGhcrSemDigest,
+  consultarGhcr,
   paraDigest,
   type EntradaTags,
 } from './qa-e2e-imagens.ts';
@@ -72,5 +76,34 @@ describe('paraDigest', () => {
   });
   it('sem manifesto lança ImagemNaoPublicada', async () => {
     await expect(paraDigest('brabo-api', 'v1', async () => null)).rejects.toThrow(ImagemNaoPublicada);
+  });
+});
+
+describe('proximaPagina / paginar', () => {
+  it('lê o rel="next" do Link', () => {
+    const l = '<https://api.github.com/x?page=2>; rel="next", <https://api.github.com/x?page=5>; rel="last"';
+    expect(proximaPagina(l)).toBe('https://api.github.com/x?page=2');
+    expect(proximaPagina('<https://api.github.com/x?page=1>; rel="prev"')).toBeNull();
+    expect(proximaPagina(null)).toBeNull();
+  });
+  it('segue o Link por 2 páginas', async () => {
+    const paginas: Record<string, { itens: number[]; link: string | null }> = {
+      a: { itens: [1, 2], link: '<b>; rel="next"' },
+      b: { itens: [3], link: null },
+    };
+    expect(await paginar<number>('a', async (u) => paginas[u]!)).toEqual([1, 2, 3]);
+  });
+});
+
+describe('consultarGhcr', () => {
+  it('sem docker-content-digest lança RespostaDoGhcrSemDigest', async () => {
+    const original = globalThis.fetch;
+    globalThis.fetch = (async (u: string) =>
+      u.includes('/token') ? Response.json({ token: 't' }) : new Response(null, { status: 200 })) as typeof fetch;
+    try {
+      await expect(consultarGhcr('brabo-api', 'v1')).rejects.toThrow(RespostaDoGhcrSemDigest);
+    } finally {
+      globalThis.fetch = original;
+    }
   });
 });

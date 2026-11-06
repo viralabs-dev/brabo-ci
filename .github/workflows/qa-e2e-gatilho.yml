@@ -23,21 +23,16 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: qa-e2e-${{ github.event.pull_request.number || github.event.issue.number }}
-  cancel-in-progress: false
-
 jobs:
   disparar:
     name: Disparar o E2E
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: qa-e2e-disparar-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          persist-credentials: false
-
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: 26.10.0
@@ -75,9 +70,12 @@ jobs:
 
   aceitar:
     name: Aceitar com justificativa
-    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/qa-aceitar')
+    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/qa-aceitar')
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    concurrency:
+      group: qa-e2e-aceitar-${{ github.event.issue.number }}
+      cancel-in-progress: false
     steps:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
@@ -108,5 +106,6 @@ jobs:
           COMENTARIO_ACAO: ${{ github.event.action }}
           COMENTARIO_AUTOR: ${{ github.event.comment.user.login }}
           COMENTARIO_CORPO: ${{ github.event.comment.body }}
+          APP_ID: ${{ secrets.APP_ID }}
           OWNER_HANDLE: ${{ vars.OWNER_HANDLE }}
         run: node .brabo-ci/scripts/ci/qa-e2e-aceitar.ts

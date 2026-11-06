@@ -13,6 +13,7 @@ import {
   consultarGhcr,
   escolherTags,
   maisNova,
+  paginar,
   paraDigest,
   type RepoGatilho,
   type Servico,
@@ -42,7 +43,11 @@ async function gh(caminho: string, init: RequestInit = {}): Promise<any> {
 }
 
 async function tagsDe(repo: string): Promise<Ref[]> {
-  return gh(`repos/viralabs-dev/${repo}/git/matching-refs/tags/v?per_page=100`);
+  return paginar<Ref>(`https://api.github.com/repos/viralabs-dev/${repo}/git/matching-refs/tags/v?per_page=100`, async (url) => {
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json' } });
+    if (!r.ok) throw new Error(`GitHub GET ${url}: ${r.status} ${await r.text()}`);
+    return { itens: (await r.json()) as Ref[], link: r.headers.get('link') };
+  });
 }
 
 async function principal(): Promise<void> {
@@ -89,7 +94,15 @@ async function principal(): Promise<void> {
     return;
   }
   const criado = await check({ status: 'in_progress', details_url: urlDoRun, output: { title: 'E2E em andamento', summary: `Disparado no brabo-qa. Run do gatilho: ${urlDoRun}` } });
-  await gh('repos/viralabs-dev/brabo-qa/dispatches', { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: { ...payload, check_run_id: criado.id } }) });
+  try {
+    await gh('repos/viralabs-dev/brabo-qa/dispatches', { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: { ...payload, check_run_id: criado.id } }) });
+  } catch (e) {
+    // Sem dispatch ninguém conclui o check: não deixar em andamento.
+    const msg = e instanceof Error ? e.message : String(e);
+    const c = montarCheck({ causa: 'ambiente', linhas: [], specsQueFalharam: [], urlDoRun });
+    await gh(`repos/${dono}/${nome}/check-runs/${criado.id}`, { method: 'PATCH', body: JSON.stringify({ status: 'completed', conclusion: 'failure', external_id: c.external_id, output: { title: c.title, summary: `Falha ao disparar o e2e-pr: ${msg}\n\n${c.summary}` } }) });
+    throw e;
+  }
   console.log(`e2e-pr disparado (check ${criado.id})`);
 }
 

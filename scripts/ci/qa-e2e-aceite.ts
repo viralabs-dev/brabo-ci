@@ -26,7 +26,7 @@ export function avaliarAceite(e: EntradaAceite): VereditoAceite {
   const justificativa = (m[1] ?? '').trim();
 
   const recusa = (motivo: string): VereditoAceite => ({ aceito: false, motivo });
-  if (e.autor !== e.owner) return recusa('só o OWNER_HANDLE pode aceitar.');
+  if (e.autor.toLowerCase() !== e.owner.toLowerCase()) return recusa('só o OWNER_HANDLE pode aceitar.');
   if (e.baseRef !== 'main') return recusa('o aceite vale só para PR com base em `main`.');
   if (justificativa.length < MINIMO_DA_JUSTIFICATIVA) {
     return recusa(`a justificativa precisa ter pelo menos ${MINIMO_DA_JUSTIFICATIVA} caracteres.`);
@@ -35,6 +35,7 @@ export function avaliarAceite(e: EntradaAceite): VereditoAceite {
   if (e.check.conclusao === 'success') {
     return recusa(e.check.titulo === TITULO_ACEITO ? 'já aceito.' : 'o check está verde, não há o que aceitar.');
   }
+  if (e.check.conclusao !== 'failure') return recusa('o check ainda não terminou vermelho.');
   const causa = (e.check.externalId ?? '').replace(/^causa:/, '');
   if (causa === 'digest') return recusa('falha de digest nunca é aceita: rode o E2E de novo.');
   if (causa === 'assinatura') return recusa('falha de assinatura nunca é aceita: rode o E2E de novo.');
