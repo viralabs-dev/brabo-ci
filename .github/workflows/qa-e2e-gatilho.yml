@@ -1,0 +1,111 @@
+name: qa-e2e-gatilho
+
+# REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos:
+#   pull_request (types: opened, synchronize, reopened) com branches: [main]  -> job `disparar`
+#   issue_comment (types: created)                                            -> job `aceitar`
+# O check "E2E do brabo-qa" é o portão da main (ruleset "main exige E2E"); o veredito
+# final vem do brabo-qa. Aqui: resolve as imagens por digest, cria o check e dispara o e2e-pr.
+# Fonte: AT-765.
+on:
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        required: false
+        type: string
+        default: 'v1.0.0'
+    secrets:
+      APP_ID:
+        required: true
+      APP_PRIVATE_KEY:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  disparar:
+    name: Disparar o E2E
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: qa-e2e-disparar-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 26.10.0
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      # Escopo: o brabo-qa (dispatch) e o repo do evento (check). As tags dos outros repos
+      # são lidas por leitura pública (repos públicos).
+      - name: Token do App
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: viralabs-dev
+          repositories: |
+            brabo-qa
+            ${{ github.event.repository.name }}
+
+      - name: Resolver as imagens e disparar
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMERO: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node .brabo-ci/scripts/ci/qa-e2e-disparar.ts
+
+  aceitar:
+    name: Aceitar com justificativa
+    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/qa-aceitar')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: qa-e2e-aceitar-${{ github.event.issue.number }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 26.10.0
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - name: Token do App
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: viralabs-dev
+          repositories: ${{ github.event.repository.name }}
+
+      - name: Avaliar o aceite
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMERO: ${{ github.event.issue.number }}
+          COMENTARIO_ACAO: ${{ github.event.action }}
+          COMENTARIO_AUTOR: ${{ github.event.comment.user.login }}
+          COMENTARIO_CORPO: ${{ github.event.comment.body }}
+          APP_ID: ${{ secrets.APP_ID }}
+          OWNER_HANDLE: ${{ vars.OWNER_HANDLE }}
+        run: node .brabo-ci/scripts/ci/qa-e2e-aceitar.ts
