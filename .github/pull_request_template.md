@@ -1,40 +1,40 @@
-# Description
+# Descrição
 
-<!-- What changes and why. If there is an alignment issue, it carries the
-context — a summary is enough here. -->
+<!-- O que muda e por quê. Se houver issue de alinhamento, é ela que carrega o
+contexto — aqui basta o resumo. -->
 
 Closes #
 
-## Type of change
+## Tipo de mudança
 
-- [ ] Bug fix
-- [ ] Feature
-- [ ] Documentation
-- [ ] Infrastructure / CI
-- [ ] Refactor with no behavior change
-- [ ] **Breaking change** — breaks existing behavior
+- [ ] Correção de bug
+- [ ] Funcionalidade
+- [ ] Documentação
+- [ ] Infraestrutura / CI
+- [ ] Refactor sem mudança de comportamento
+- [ ] **Breaking change** — quebra comportamento existente
 
-## How to test
+## Como testar
 
-<!-- Steps for the reviewer to reproduce. A specific test command, if any:
+<!-- Passos para quem revisa reproduzir. Comando de teste específico, se houver:
      pnpm --filter api test -- rate-limit -->
 
 ## Screenshots
 
-<!-- Only if you touched the UI. Before and after helps more than only after. -->
+<!-- Só se mexeu em UI. Antes e depois ajuda mais que só o depois. -->
 
 ## Definition of Done
 
-- [ ] Tests passing — happy path **and** at least one failure case
-- [ ] Lint clean
-- [ ] **I updated the affected documentation** (see [`docs/.docmap.yml`](../docs/.docmap.yml)) — the doc diff is in this PR
-- [ ] `CHANGELOG.md` touched, if observable behavior changed
-- [ ] `pnpm docs:build` with no broken link
-- [ ] New ADR, if the change is structural (no accepted ADR was edited)
-- [ ] No secret in the diff
+- [ ] Testes passando — caminho feliz **e** ao menos um caso de falha
+- [ ] Lint limpo
+- [ ] **Atualizei a documentação afetada** (ver [`docs/.docmap.yml`](https://github.com/viralabs-dev/brabo/blob/dev/docs/.docmap.yml)) — o diff da doc está neste PR
+- [ ] `CHANGELOG.md` tocado, se o comportamento observável mudou
+- [ ] `pnpm docs:build` sem link quebrado
+- [ ] ADR novo, se a mudança é estrutural (nenhum ADR aceito foi editado)
+- [ ] Nenhum segredo no diff
 
-## License
+## Licença
 
-- [ ] I agree to license this contribution under the project's [MIT](../LICENSE)
+- [ ] Concordo em licenciar esta contribuição sob a [MIT](../LICENSE) do projeto
 
-<!-- The PR targets `dev`, never `main`. Merging into a protected branch is always manual. -->
+<!-- PR mira `dev`, nunca `main`. Merge em branch protegida é sempre manual. -->

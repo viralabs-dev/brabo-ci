@@ -1,59 +1,58 @@
-# Security policy
+# Política de segurança
 
-## Supported versions
+## Versões suportadas
 
-| version | supported |
+| versão | suportada |
 |---|---|
 | 0.1.x | ✅ |
-| < 0.1 | ❌ (pre-release) |
+| < 0.1 | ❌ (pré-release) |
 
-The project is in `0.x`: only the latest series gets fixes. There is no
-backport to earlier versions.
+O projeto está em `0.x`: só a série mais recente recebe correção. Não há
+backport para versões anteriores.
 
-## Reporting a vulnerability
+## Reportar uma vulnerabilidade
 
-**Do not open a public issue for a security flaw.**
+**Não abra issue pública para falha de segurança.**
 
-Use GitHub's private channel: **[Report a vulnerability][pvr]**
-(*Security → Advisories → Report a vulnerability*). It creates an advisory
-visible only to the maintainers, without leaving the platform, and it is the
-preferred path — the history of the discussion stays with the repository.
+Use o canal privado do GitHub: **[Report a vulnerability][pvr]**
+(*Security → Advisories → Report a vulnerability*). Ele cria um aviso visível
+apenas para os mantenedores, sem sair da plataforma, e é o caminho preferido —
+o histórico da discussão fica junto do repositório.
 
-If you prefer email, or if the form fails:
-**daneoliveira.s@gmail.com**, with a subject starting with `[SEGURANÇA]`.
+Se preferir e-mail, ou se o formulário falhar:
+**daneoliveira.s@gmail.com**, com o assunto começando em `[SEGURANÇA]`.
 
-What helps in a report: what you observed, how to reproduce it, and the impact
-you see. A proof of concept is welcome; exploitation against someone else's
-installation is not.
+O que ajuda no relato: o que você observou, como reproduzir, e o impacto que
+enxerga. Prova de conceito é bem-vinda; exploração contra instalação de
+terceiro, não.
 
-**Response time:** this is a project maintained in spare time. The honest
-commitment is to acknowledge receipt; there is no fix SLA.
+**Prazo de resposta:** este é um projeto mantido em tempo livre. O compromisso
+honesto é confirmar o recebimento; não há SLA de correção.
 
-## Scope
+## Escopo
 
-What **is** this project's: the code in `apps/`, `packages/`, `docker/` and
-`deploy/`, and the images built from it.
+O que **é** deste projeto: o código em `apps/`, `packages/`, `docker/` e
+`deploy/`, e as imagens construídas a partir dele.
 
-What is **not**: PostgreSQL, Ollama, MinIO and the other third-party components
-that Brabo orchestrates — report to them directly. The development images
-(`docker-compose.yml`) use default secrets **on purpose**, and this is
-documented in
-[ADR 0024](docs/adr/0024-fase5-imagens-producao-ci.md); it is not a
-vulnerability.
+O que **não** é: PostgreSQL, Ollama, MinIO e os demais componentes de terceiros
+que o Brabo orquestra — reporte a eles diretamente. As imagens de
+desenvolvimento (`docker-compose.yml`) usam segredos padrão **de propósito**, e
+isso está documentado no
+[ADR 0024](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0024-fase5-imagens-producao-ci.md); não é vulnerabilidade.
 
-## What the project already does
+## O que o projeto já faz
 
-To calibrate your report, what exists today:
+Para calibrar o relato, o que existe hoje:
 
-- **User secrets** (LLM keys, git tokens) under envelope
-  encryption; never in plain text in the database or in logs. Master key
-  rotation is documented in the [runbook](docs/runbook.md).
-- **Audited HTTP surface**: the 118 api routes are classified in
-  [`docs/security-surface.md`](docs/security-surface.md), and a table test
-  fails any new route without a classification.
-- **Every action with an external effect** goes through approval
-  (`proposed_action` + `permissions.json`, `deny` beats `allow`).
-- **CI** runs gitleaks on the tree, Trivy on the images (fixable
-  `HIGH`/`CRITICAL` findings fail) and dependency auditing with a gate on critical.
+- **Segredos do usuário** (chaves de LLM, tokens de git) sob envelope
+  encryption; nunca em texto plano no banco ou em log. Rotação da chave mestra
+  documentada no [runbook do `brabo-infra`](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/runbook.md).
+- **Superfície HTTP auditada**: as 118 rotas da api estão classificadas em
+  [`docs/security-surface.md`](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/security-surface.md), e um teste de tabela
+  reprova rota nova sem classificação.
+- **Toda ação com efeito externo** passa por aprovação
+  (`proposed_action` + `permissions.json`, `deny` vence `allow`).
+- **CI** roda gitleaks na árvore, Trivy nas imagens (`HIGH`/`CRITICAL`
+  corrigíveis reprovam) e auditoria de dependências com gate em crítica.
 
 [pvr]: https://github.com/viralabs-dev/brabo-ci/security/advisories/new
