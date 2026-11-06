@@ -8,7 +8,8 @@ body:
         Antes de continuar: se o sintoma é **agente respondendo vazio,
         truncado ou lentíssimo**, quase sempre é ambiente de inferência
         (contexto truncado, modelo sem GPU, memória). Confira
-        [essa seção do runbook](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/runbook.md#inference-environment-ambiente-de-inferencia)
+        a seção "Ambiente de inferência" do
+        [runbook do `brabo-infra`](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/runbook.md)
         antes de abrir.
 
   - type: checkboxes

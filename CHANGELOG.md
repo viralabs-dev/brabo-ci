@@ -2,8 +2,10 @@
 
 ## Unreleased
 
-- Issue templates: the runbook links (`question.yml`, `bug_report.yml`) point to `viralabs-dev/brabo-infra` (`deploy/docs/runbook.md`); the inference anchor is `#inference-environment-ambiente-de-inferencia`, the slug GitHub generates (it ignores `{#id}` and keeps it as heading text).
-- Docs: `README.md`, `CONTRIBUTING.md`, `GOVERNANCE.md`, `SECURITY.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md` and `.github/pull_request_template.md` are now English only (AT-745). No workflow or script reads these files.
+- Docs: `README.md`, `CONTRIBUTING.md`, `GOVERNANCE.md`, `SECURITY.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md` e `.github/pull_request_template.md` voltam ao pt-BR, que passa a ser o padrão da documentação de repo público (decisão do dono de 06/11/2026, revertendo o ADR 0260; AT-766). Nenhum workflow ou script lê esses arquivos.
+- Docs: os links para `docs/...` do monorepo antigo apontam para onde a doc mora hoje: `viralabs-dev/brabo` (ADRs, `getting-started`, `.docmap.yml`, `business-rules`, `branching-policy` em `scripts/ci/docs/explanation/`), `viralabs-dev/brabo-infra` (runbook, `deploy/docs/runbook.md`) e `viralabs-dev/brabo-api` (`security-surface.md`). O Setup do CONTRIBUTING clona pelo `brabo-workspace` (AT-766).
+- README: seção "Repositórios do Brabo", com o papel, o "depende de" e o "é usado por" de cada repo (AT-766).
+- Templates de issue: os links do runbook (`question.yml`, `bug_report.yml`) apontam para `viralabs-dev/brabo-infra` (`deploy/docs/runbook.md`), sem âncora: o GitHub ignora o `{#id}` e o slug muda com a tradução do título; o `bug_report.yml` cita a seção "Ambiente de inferência" pelo nome. O `feature_request.yml` usa a âncora `#o-que-provavelmente-não-aceito` do CONTRIBUTING em pt-BR.
 
 - `politica.yml` novo: `pr-police` e `escada` do `brabo-ci` pinados por SHA (AT-733); inclui a dispensa da PR do bot (ADR 0255).
 - `approval-ladder`: a PR do GitHub App `viralabs-dev-brabo` na branch fixa `chore/regenera-gerados`, mirando `dev`, dispensa a escada (ADR 0255) — autor E branch, como o Dependabot; na `main`, em outra branch ou com humano, a escada segue inteira.

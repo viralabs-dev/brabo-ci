@@ -1,120 +1,119 @@
-# Governance
+# Governança
 
-This document resolves a `TODO(humano)` that
-[branching-policy.md](docs/explanation/branching-policy.md#migração-para-modo-community)
-had left open since ADR 0030: the criterion for who joins each approver list of
-the `community` mode of the `approval-ladder` — who joins, who leaves, and on
-what basis. Until that criterion exists somewhere, migrating from `solo` to
-`community` would be a decision with no written rule behind it.
+Este documento resolve um `TODO(humano)` que
+[branching-policy.md](https://github.com/viralabs-dev/brabo/blob/dev/scripts/ci/docs/explanation/branching-policy.md) (seção "Migrando para o modo `community`")
+deixava em aberto desde o ADR 0030: o critério de quem entra em cada lista de
+aprovadores do modo `community` do `approval-ladder` — quem entra, quem sai, e
+com base em quê. Até esse critério existir em algum lugar, migrar de `solo`
+para `community` seria decisão sem regra escrita por trás.
 
-It is a **proposal**, not a committee that already exists: today the project has
-a single maintainer, and most of this document describes what takes effect
-**when** that changes, not a structure already in operation.
+É **proposta**, não um comitê que já existe: hoje o projeto tem um mantenedor
+só, e a maior parte deste documento descreve o que passa a valer **quando**
+isso mudar, não uma estrutura já em funcionamento.
 
-## Model today: a single maintainer
+## Modelo hoje: mantenedor único
 
-The project is maintained by [@daneiel](https://github.com/daneiel) alone.
-Technical, product and release decisions are theirs — this is what
-[branching-policy.md](docs/explanation/branching-policy.md#modo-solo--o-que-vale-hoje)
-calls the `solo` mode: one owner approval for a third party's PR, and the owner's
-own manual merge stands in for approval on their own PR (the platform does not
-let you approve your own PR through the interface).
+O projeto é mantido por [@daneiel](https://github.com/daneiel) sozinho.
+Decisão técnica, de produto e de release é dele — é o que
+[branching-policy.md](https://github.com/viralabs-dev/brabo/blob/dev/scripts/ci/docs/explanation/branching-policy.md) (seção "Modo `solo`")
+chama de modo `solo`: uma aprovação do owner para PR de terceiro, e o merge
+manual do próprio owner faz as vezes de aprovação no PR dele mesmo (a
+plataforma não permite aprovar o próprio PR pela interface).
 
-This is not a provisional model out of carelessness — it is the **honest** model
-for a project with one person. The three-role ladder below only makes sense
-once there are real people to fill it; until then, activating it would produce
-a rule that nobody can meet.
+Isso não é modelo provisório por descuido — é o modelo **honesto** para um
+projeto com uma pessoa. A escada de três papéis abaixo só faz sentido quando
+existir gente de verdade para preenchê-la; até lá, ativá-la produziria uma
+regra que ninguém consegue cumprir.
 
-## The three roles of `community` mode
+## Os três papéis do modo `community`
 
-When `APPROVAL_MODE=community`, the approval required per target
-(`docs/explanation/branching-policy.md#modo-community--quando-houver-gente`) is:
+Quando `APPROVAL_MODE=community`, a exigência de aprovação por destino
+(`docs/explanation/branching-policy.md#modo-community--quando-houver-gente`) é:
 
-| target | requires |
+| destino | exige |
 |---|---|
-| `dev` | 1 approval from **devs** |
-| `qa` | 2 approvals from **devs**, distinct people |
-| `main` | 1 approval from **po** **+** 1 from **gestão**, distinct people |
+| `dev` | 1 aprovação de **devs** |
+| `qa` | 2 aprovações de **devs**, pessoas distintas |
+| `main` | 1 aprovação de **po** **+** 1 de **gestão**, pessoas distintas |
 
-The roles are lists of handles in repository variables
-(`APROVADORES_DEVS`, `APROVADORES_PO`, `APROVADORES_GESTAO`) — not GitHub
-Teams, for the reason already recorded in `branching-policy.md`: this
-repository belongs to a user, not to an organization.
+Os papéis são listas de handles em variáveis de repositório
+(`APROVADORES_DEVS`, `APROVADORES_PO`, `APROVADORES_GESTAO`) — não Times do
+GitHub, pelo motivo já registrado em `branching-policy.md`: este repositório
+pertence a um usuário, não a uma organização.
 
 ### `devs`
 
-Approves code changes on `dev` and `qa`.
+Aprova mudança de código em `dev` e `qa`.
 
-- **Entry criterion:** sustained contribution — several merged PRs that show
-  real familiarity with the decisions recorded in the ADRs and with the
-  conventions of this `CLAUDE.md`/`CONTRIBUTING.md`. It is not a fixed PR count;
-  it is the maintainer recognizing that the person already understands the
-  product well enough to judge someone else's PR, not just their own.
-- **Who decides:** the current maintainer invites — there is no
-  self-nomination. While the model is `solo`, it is the same person who decides
-  everything; the difference shows up when there is more than one real
-  maintainer.
-- **Exit criterion:** the person's own request, prolonged inactivity (no
-  contribution or review in 6 months), or a violation of the
-  [Code of Conduct](CODE_OF_CONDUCT.md) established through the channel it
-  describes.
+- **Critério de entrada:** contribuição sustentada — várias PRs mergeadas que
+  mostrem familiaridade real com as decisões registradas nos ADRs e com as
+  convenções deste `CLAUDE.md`/`CONTRIBUTING.md`. Não é contador fixo de PRs;
+  é o mantenedor reconhecendo que a pessoa já entende o suficiente do produto
+  para julgar o PR de outra pessoa, não só o próprio.
+- **Quem decide:** o mantenedor atual convida — não há auto-indicação.
+  Enquanto o modelo for `solo`, é a mesma pessoa que decide tudo; a diferença
+  aparece quando houver mais de um mantenedor de fato.
+- **Critério de saída:** pedido da própria pessoa, inatividade prolongada (sem
+  contribuição nem review em 6 meses), ou violação do
+  [Código de Conduta](CODE_OF_CONDUCT.md) apurada pelo canal que ele descreve.
 
 ### `po`
 
-Approves what reaches `main` from the **product direction** side — what Brabo
-does, for whom, and why.
+Aprova o que chega em `main` do lado de **direção de produto** — o que o
+Brabo faz, para quem, e por quê.
 
-- **Entry criterion:** being the person who actually answers for those
-  decisions outside the code — today nobody besides the maintainer. This role
-  only gets a second name when someone really owns that responsibility, not as
-  a symbolic recognition.
-- **Who decides:** the current maintainer.
-- **Exit criterion:** the same as the `devs` list, plus no longer exercising
-  the product responsibility that justified the entry.
+- **Critério de entrada:** ser a pessoa que de fato responde por essas
+  decisões fora do código — hoje ninguém além do mantenedor. Este papel só
+  ganha um segundo nome quando houver alguém realmente dono dessa
+  responsabilidade, não como reconhecimento simbólico.
+- **Quem decide:** o mantenedor atual.
+- **Critério de saída:** o mesmo da lista `devs`, mais deixar de exercer a
+  responsabilidade de produto que justificou a entrada.
 
 ### `gestão`
 
-Approves what reaches `main` from the **organizational** side — release,
-priority between initiatives, and the same characteristic as the `po` role:
-today it is an empty list in any realistic short-term scenario, and it only
-gets people when the project has a real organizational structure behind it.
+Aprova o que chega em `main` do lado **organizacional** — release, prioridade
+entre iniciativas, e a mesma característica do papel `po`: hoje é uma lista
+vazia em qualquer cenário realista de curto prazo, e só ganha gente quando o
+projeto tiver estrutura organizacional de verdade por trás.
 
-- **Entry and exit criteria:** the same as the `po` role, applied to
-  organizational responsibility instead of product.
+- **Critério de entrada e saída:** os mesmos do papel `po`, aplicados à
+  responsabilidade organizacional em vez de produto.
 
-## Distinct people on `main`
+## Pessoas distintas em `main`
 
-`branching-policy.md` already documents why the distinct-people requirement on
-`main` is not just counting approvals — it is an assignment problem, solved by
-backtracking in `approval-ladder.ts`. The direct governance consequence:
-**the same person should not be on both the `po` and `gestão` lists at the same
-time** — even if the check accepted it (it does not, by design), it would be
-one person deciding both sides of what should be a cross-check.
+`branching-policy.md` já documenta por que a exigência de pessoas distintas em
+`main` não é só contar aprovações — é um problema de atribuição, resolvido por
+backtracking no `approval-ladder.ts`. A consequência de governança direta
+disso: **a mesma pessoa não deveria estar, ao mesmo tempo, nas listas `po` e
+`gestão`** — mesmo que o check aceitasse (não aceita, por desenho), teria
+uma pessoa só decidindo os dois lados do que deveria ser checagem cruzada.
 
-## When the migration to `community` happens
+## Quando a migração para `community` acontece
 
-Prerequisite, beyond the technical ones that `branching-policy.md` already lists
-(each role with real people, `qa` with two distinct `devs`): the entry and exit
-criteria of this document must have been applied for real at least once — that
-is, the first person on each list must have been invited following the
-criterion above, not populated just so the check stops failing.
+Pré-requisito, além dos técnicos que `branching-policy.md` já lista (cada
+papel com gente real, `qa` com dois `devs` distintos): os critérios de entrada
+e saída deste documento precisam ter sido aplicados de verdade pelo menos uma
+vez — ou seja, a primeira pessoa em cada lista tem que ter sido convidada
+seguindo o critério acima, não populada só para o check parar de reprovar.
 
-The decision to migrate remains the current maintainer's. This document does not
-change who decides that — only the criterion for who joins each role once they
-decide it is time.
+A decisão de migrar continua sendo do mantenedor atual. Este documento não
+muda quem decide isso — só o critério de quem entra em cada papel quando ele
+decidir que é hora.
 
-## Final authority
+## Autoridade final
 
-Even with `community` mode active, [merging into a protected branch stays
-manual](CLAUDE.md) and the lock is guaranteed by a test — no role, including
-`gestão`, automates that act. The approval ladder decides who CAN approve; who
-presses the merge button remains a human decision, always.
+Mesmo com o modo `community` ativo, o [merge em branch protegida continua
+manual](CLAUDE.md) e a trava é garantida por teste — nenhum papel, incluindo
+`gestão`, automatiza esse ato. A escada de aprovação decide quem PODE
+aprovar; quem aperta o botão do merge continua sendo decisão humana,
+sempre.
 
-## Reviewing this document
+## Revisão deste documento
 
-Changing a criterion here is itself a decision of the current maintainer — it
-needs no approval from anyone this document does not yet describe as able to
-approve. `docs/.docmap.yml` asks for a review (`aviso`, not a block) of this
-file when `scripts/ci/approval-ladder.ts` or
-`docs/explanation/branching-policy.md` change, so the criterion does not age in
-silence while the mechanism evolves.
+Mudança de critério aqui é, ela mesma, uma decisão do mantenedor atual — não
+precisa de aprovação de ninguém que este documento ainda não descreve como
+apto a aprovar. `docs/.docmap.yml` cobra revisão (`aviso`, não bloqueio) deste
+arquivo quando `scripts/ci/approval-ladder.ts` ou
+`docs/explanation/branching-policy.md` mudam, para o critério não envelhecer
+em silêncio enquanto o mecanismo evolui.
