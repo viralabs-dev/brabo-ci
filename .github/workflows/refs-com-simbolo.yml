@@ -1,0 +1,70 @@
+name: refs-com-simbolo
+
+# REUTILIZÁVEL (workflow_call) — brabo-ci (AT-782). Num irmão, confere que cada
+# ref `caminho:N` (`símbolo`) das RNs (docs/business-rules*) aponta para onde o
+# símbolo mora. Ref interna quebrada REPROVA; ref para outro irmão só é listada
+# no Summary (sem anotação: quem confere é a subida da trava do brabo). O
+# artefato `refs-patch` traz a reancoragem pronta. Não é check obrigatório.
+on:
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA do `uses:` do chamador)'
+        required: false
+        type: string
+        default: 'v1.0.0'
+
+permissions:
+  contents: read
+
+jobs:
+  refs:
+    name: Refs com símbolo
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      # --escrever reancora o checkout; o código de saída continua sendo o do veredito de ANTES.
+      - name: Conferir as refs
+        run: node .brabo-ci/scripts/ci/refs-com-simbolo.ts --escrever --repo "${GITHUB_REPOSITORY##*/}"
+
+      - name: Patch de reancoragem
+        id: patch
+        if: failure()
+        run: |
+          git diff -- docs/ > "$RUNNER_TEMP/refs.patch"
+          if [ -s "$RUNNER_TEMP/refs.patch" ]; then
+            echo "tem=true" >> "$GITHUB_OUTPUT"
+            {
+              echo
+              echo '### Reancoragem sugerida'
+              echo
+              echo 'Baixe e aplique (ou corrija pelo SÍMBOLO as refs que o patch não cobre):'
+              echo
+              echo '```'
+              echo "gh run download $GITHUB_RUN_ID -n refs-patch && git apply refs.patch"
+              echo '```'
+              echo
+              echo '```diff'
+              head -c 60000 "$RUNNER_TEMP/refs.patch"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Subir o refs-patch
+        if: failure() && steps.patch.outputs.tem == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: refs-patch
+          path: ${{ runner.temp }}/refs.patch
