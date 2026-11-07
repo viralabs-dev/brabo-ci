@@ -30,7 +30,7 @@ jobs:
   disparar:
     name: Disparar o E2E
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     concurrency:
       group: qa-e2e-disparar-${{ github.event.pull_request.number }}
@@ -54,7 +54,7 @@ jobs:
         id: app
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: viralabs-dev
           repositories: |
@@ -74,7 +74,7 @@ jobs:
   regressivo-dev:
     name: Regressivo por funcionalidade (dev)
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'dev'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     continue-on-error: true # nunca é exigido
     concurrency:
@@ -103,7 +103,7 @@ jobs:
         id: app
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: viralabs-dev
           repositories: |
@@ -125,7 +125,7 @@ jobs:
   aceitar:
     name: Aceitar com justificativa
     if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/qa-aceitar')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     concurrency:
       group: qa-e2e-aceitar-${{ github.event.issue.number }}
@@ -147,7 +147,7 @@ jobs:
         id: app
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: viralabs-dev
           repositories: ${{ github.event.repository.name }}

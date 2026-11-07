@@ -42,7 +42,7 @@ concurrency:
 jobs:
   promover:
     name: Abrir PR de promoção
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     env:
       # `secrets` não existe no `if:` de um step — só em `env`. Passar por aqui
@@ -56,7 +56,7 @@ jobs:
         if: env.TEM_APP == 'true'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
       # PRIMEIRO passo do job, antes de qualquer checkout: quem dispara é
       # restrito. `workflow_dispatch` já exige permissão de escrita no repo,
