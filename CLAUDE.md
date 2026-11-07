@@ -134,6 +134,7 @@ Workflows reutilizáveis (`workflow_call`) e a lógica de política em `scripts/
   como co-author.
 
 ## CI/CD e cadeia de suprimentos (regras)
+- Vínculos no Summary (AT-773): `.github/actions/vinculos` + `scripts/ci/vinculos.ts` são o ÚNICO helper que escreve `## Vínculos` (tabela + Mermaid) e `vinculos.md`; repo nenhum copia essa lógica. Todo valor de fora passa por regex (repo `viralabs-dev/brabo*`, SHA de 40 hex, PR numérica, URL `https://github.com/viralabs-dev/`, ator, rótulo sem `|`/crase/`<>`/colchetes), nunca entra cru em Markdown ou Mermaid, e o helper NUNCA reprova o job (erro vira `::warning::`, saída 0). Roda no `node` do runner (≥ 22.18, sem `setup-node`); o `.ts` só usa sintaxe apagável. Mudou regex ou formato: ajuste `vinculos.spec.ts` e os `esperado-*.md`.
 - Publicação do contracts no GitHub Packages (AT-770): `publish-npm.yml` publica o `.tgz` atestado por `actions/attest` (nunca `--provenance`, sem suporte fora do npmjs); versão vem da tag, `-dev.N` vai para o dist-tag `dev` e a final para `latest` (RN-1037). `contracts-alinhado.yml` exige uma versão só do contracts no `package.json`, no lock e nos scripts de download (RN-1038, não obrigatório). `scripts/ci/subir-contracts.sh <versão>` é o único jeito de subir a versão num consumidor: recusa o lock que mudou fora das entradas `@viralabs-dev/brabo-*`; nunca reescreva o lock inteiro.
 - CI/CD de release: GitHub Actions com lógica em scripts testáveis
   (scripts/ci/, vitest). Todo `uses:` de terceiro é preso a COMMIT SHA, com
