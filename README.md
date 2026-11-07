@@ -118,3 +118,7 @@ O Brabo é dividido em repositórios por camada (ADR 0252), e o [brabo](https://
 ## Origem
 
 Extraído com histórico do monorepo `daneiel/brabo` (hoje [`viralabs-dev/brabo-legacy`](https://github.com/viralabs-dev/brabo-legacy), arquivado) em 04/11/2026; `#NNN` nas mensagens virou `daneiel/brabo#NNN`, que o GitHub redireciona para o `brabo-legacy`.
+
+## Apoie
+
+Se o projeto te ajuda, você pode [pagar um café no Ko-fi](https://ko-fi.com/daneiel).
