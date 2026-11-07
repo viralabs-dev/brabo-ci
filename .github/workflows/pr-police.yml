@@ -42,7 +42,7 @@ concurrency:
 jobs:
   policiar:
     name: Política de branches
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
       # ATENÇÃO: sem `if:` neste job, nunca. Status check é indexado por
@@ -124,6 +124,9 @@ jobs:
           done
 
           if [ -n "${FAMILIA:-}" ]; then
+            # O rótulo pode não existir no repo (o `gh pr edit` falhava com
+            # "'trabalho' not found"): cria antes, sem mexer se já existe (AT-772).
+            gh label create "$FAMILIA" || true
             gh pr edit "$PR" --add-label "$FAMILIA" "${remover[@]}"
             echo "família aplicada: $FAMILIA"
           else
