@@ -1,0 +1,121 @@
+name: dependencias-de-merge
+
+# REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos e passa os secrets do App:
+#   pull_request (types: opened, edited, synchronize, reopened, closed)
+#       closed  -> job `avisar-dependentes` (só se mergeada)
+#       demais  -> job `avaliar`
+# O PR declara `Depende-de: viralabs-dev/<repo>#<n>` no corpo; o check-run "Dependências de merge" (publicado
+# pelo App, não é o nome do job) fica amarelo (in_progress, "esperando ...") até cada PR citada estar MERGED.
+# Os jobs nunca reprovam (continue-on-error): o veredito é o check. Sem `checks: write` no App (403) o script
+# só loga um aviso. PR de fork não recebe secrets: avisa e não publica check. Fonte: AT-787.
+on:
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        required: false
+        type: string
+        default: 'v1.0.0'
+    secrets:
+      APP_ID:
+        required: true
+      APP_PRIVATE_KEY:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  avaliar:
+    name: Avaliar as dependências
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    continue-on-error: true
+    concurrency:
+      group: dependencias-de-merge-${{ github.repository }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - name: PR de fork não recebe secrets
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "::notice::PR de fork não recebe os secrets do App; o check 'Dependências de merge' não é publicado."
+
+      - if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 26.10.0
+
+      - name: Scripts do brabo-ci
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      # Sem `repositories`: o check é escrito no repo da PR e lido/escrito nos dependentes, que podem ser
+      # qualquer um dos 11. O escopo é o da instalação do App.
+      - name: Token do App
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: viralabs-dev
+
+      - name: Avaliar e publicar o check
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMERO: ${{ github.event.pull_request.number }}
+        run: node .brabo-ci/scripts/ci/dependencias-de-merge.ts avaliar
+
+  avisar-dependentes:
+    name: Avisar as PRs dependentes
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    continue-on-error: true
+    concurrency:
+      group: dependencias-de-merge-avisar-${{ github.repository }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    steps:
+      - name: PR de fork não recebe secrets
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "::notice::PR de fork não recebe os secrets do App; as dependentes esperam o cron de rede do brabo-ci."
+
+      - if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 26.10.0
+
+      - name: Scripts do brabo-ci
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      # Sem `repositories`: o check é escrito no repo da PR e lido/escrito nos dependentes, que podem ser
+      # qualquer um dos 11. O escopo é o da instalação do App.
+      - name: Token do App
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: viralabs-dev
+
+      - name: Reavaliar as dependentes
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMERO: ${{ github.event.pull_request.number }}
+        run: node .brabo-ci/scripts/ci/dependencias-de-merge.ts avisar-dependentes

@@ -1,0 +1,46 @@
+name: dependencias-de-merge-rede
+
+# Rede de segurança (AT-787): de hora em hora reavalia toda PR aberta com `Depende-de:` nos 11 repos e atualiza o
+# check "Dependências de merge", para o merge cujo job `avisar-dependentes` não rodou ou quebrou.
+# ATENÇÃO: o GitHub só dispara `schedule` a partir da branch PADRÃO (`main`); enquanto este arquivo só existe
+# na `dev`, a rede NÃO liga. Ela passa a rodar na primeira promoção do brabo-ci para a `main`.
+# `workflow_dispatch` serve para rodar à mão depois dessa promoção.
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependencias-de-merge-rede
+  cancel-in-progress: false
+
+jobs:
+  varrer:
+    name: Varrer as PRs com Depende-de
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 26.10.0
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Token do App
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          client-id: ${{ secrets.BRABO_APP_ID }}
+          private-key: ${{ secrets.BRABO_APP_PRIVATE_KEY }}
+          owner: viralabs-dev
+
+      - name: Reavaliar
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: node scripts/ci/dependencias-de-merge.ts varrer
