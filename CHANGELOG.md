@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Vínculos na origem, só `.ts` (AT-773, Rodada A): `montarPayload` ganha `origem` opcional `{repo, pr, sha, sha_curto, ator, run_id, run_attempt, run_url, correlacao}` (`correlacao` = `<run_id>-<attempt>`); `qa-e2e-vinculos.ts` acha o run do `e2e-pr` pelo `c=<correlacao>` no `display_title` (5 s, até 60 s) e o `qa-e2e-disparar.ts` escreve o Vínculos no Summary do run de origem (sem achar, fica o link do check; nunca reprova); `montarCheck` ganha `vinculos?` (a tabela entra no texto do check); a mensagem da tag anotada ganha `Carimbo: <url do run>` (`comCarimbo` em `tag-release.ts`). Nenhum YAML mudou: o `run-name` e o `PR_AUTOR` ficam para a Rodada B. O modo `main` do portão da AT-765 segue igual.
 - `.github/actions/vinculos` (action composta) e `scripts/ci/vinculos.ts` novos: escrevem `## Vínculos` (origem, irmãos `repo@SHA`, destino e runs disparados) e um diagrama Mermaid no Summary do run, mais `vinculos.md`. Entrada validada por regex, nunca reprova o job, usa o node do runner (≥ 22.18). Spec com fixtures e git temporário (AT-773).
 - `publish-npm.yml` novo (reutilizável): `pnpm pack`, `actions/attest` sobre o `.tgz` e `npm publish` desse mesmo arquivo em `npm.pkg.github.com`, dist-tag `dev` para `-dev.N` e `latest` para a final; `scripts/ci/publish-npm.ts` calcula versão e dist-tag. RN-1037 (AT-770).
 - `contracts-alinhado.yml` e `scripts/ci/contracts-alinhado.ts` novos: versão do brabo-contracts igual no `package.json`, no lock e nas constantes dos scripts; aviso contra o `componentes.json`. RN-1038 (AT-770).

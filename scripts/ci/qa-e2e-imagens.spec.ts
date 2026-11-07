@@ -136,6 +136,15 @@ describe('consultarGhcr', () => {
 });
 
 describe('montarPayload', () => {
+  it('sem origem, o payload não ganha a chave (portão da main idêntico)', () => {
+    const p = montarPayload(escolherTags(base), { repo: 'viralabs-dev/brabo-api', pr: 7, headSha: 'abc', checkRunId: 99 });
+    expect('origem' in p).toBe(false);
+  });
+  it('com origem, leva repo, PR, SHA, ator, run_url e a correlação', () => {
+    const sha = 'abcdef1234567890abcdef1234567890abcdef12';
+    const p = montarPayload(escolherTags(base), { repo: 'viralabs-dev/brabo-api', pr: 7, headSha: sha, checkRunId: 99, origem: { ator: 'daneiel', runId: '123', runAttempt: '2', runUrl: 'https://github.com/viralabs-dev/brabo-api/actions/runs/123' } });
+    expect(p.origem).toEqual({ repo: 'viralabs-dev/brabo-api', pr: 7, sha, sha_curto: 'abcdef1', ator: 'daneiel', run_id: '123', run_attempt: '2', run_url: 'https://github.com/viralabs-dev/brabo-api/actions/runs/123', correlacao: '123-2' });
+  });
   it('leva as imagens por tag, sem resolver digest', () => {
     const p = montarPayload(escolherTags(base), { repo: 'viralabs-dev/brabo-api', pr: 7, headSha: 'abc', checkRunId: 99 });
     expect(p.imagens.api).toBe('ghcr.io/viralabs-dev/brabo-api:v1.2.0-dev.4');

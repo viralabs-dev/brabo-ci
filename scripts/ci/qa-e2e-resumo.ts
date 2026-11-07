@@ -41,6 +41,8 @@ export interface ResultadoE2e {
   linhas: LinhaDigest[];
   specsQueFalharam: string[];
   urlDoRun: string;
+  /** Markdown do helper `vinculos`; só a tabela entra no texto do check (o Mermaid não renderiza lá). AT-773. */
+  vinculos?: string;
   aceite?: { justificativa: string; por: string; em: string; urlDoRunVermelho: string };
 }
 
@@ -64,7 +66,8 @@ function tabelaDeCobertura(c: LinhaFuncionalidade[]): string[] {
 export function montarCheck(r: ResultadoE2e): { conclusion: 'success' | 'failure' | 'neutral'; title: string; summary: string; external_id: string } {
   const dev = r.modo === 'dev';
   const nome = (t: string) => (dev ? t.replace(/^E2E/, 'Regressivo') : t);
-  if (r.neutro) return { conclusion: 'neutral', title: nome('E2E neutro'), summary: `${r.neutro}\n\nRun: ${r.urlDoRun}`, external_id: 'causa:' };
+  const v = r.vinculos ? `\n\n${r.vinculos.split('```mermaid')[0]!.trimEnd()}` : '';
+  if (r.neutro) return { conclusion: 'neutral', title: nome('E2E neutro'), summary: `${r.neutro}\n\nRun: ${r.urlDoRun}${v}`, external_id: 'causa:' };
   const tabela = [
     '| serviço | digest esperado | digest em execução | assinatura |',
     '|---|---|---|---|',
@@ -81,12 +84,12 @@ export function montarCheck(r: ResultadoE2e): { conclusion: 'success' | 'failure
   if (r.aceite) {
     const a = r.aceite;
     partes.push('', `Aceito por @${a.por} em ${a.em}.`, `Justificativa: ${a.justificativa}`, `Run vermelho: ${a.urlDoRunVermelho}`);
-    return { conclusion: 'success', title: TITULO_ACEITO, summary: partes.join('\n'), external_id };
+    return { conclusion: 'success', title: TITULO_ACEITO, summary: partes.join('\n') + v, external_id };
   }
   return {
     conclusion: r.causa ? 'failure' : 'success',
     title: nome(r.causa ? TITULOS[r.causa] : 'E2E verde'),
-    summary: partes.join('\n'),
+    summary: partes.join('\n') + v,
     external_id,
   };
 }
