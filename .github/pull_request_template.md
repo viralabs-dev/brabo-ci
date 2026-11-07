@@ -5,6 +5,10 @@ contexto — aqui basta o resumo. -->
 
 Closes #
 
+<!-- Opcional, uma linha por PR de outro repo que precisa mergear antes desta (AT-787):
+Depende-de: viralabs-dev/brabo-api#56
+Tire o comentário e escreva a linha no corpo; o check "Dependências de merge" espera o merge dela. -->
+
 ## Tipo de mudança
 
 - [ ] Correção de bug
