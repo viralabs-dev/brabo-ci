@@ -182,7 +182,7 @@ manutenção da documentação por N, e ninguém procura a doc de um patch.
    É o marcador que faz a quebra aparecer no CHANGELOG; a função da branch é
    que faz a versão subir MAJOR. O `pr-police` exige os dois juntos, porque
    ter só um deles produz uma release que mente — em algum dos dois sentidos.
-4. **PR contra `dev`** (não `main`).
+4. **PR contra `dev`** (não `main`). PR que toca uma funcionalidade do catálogo (`brabo-qa/funcionalidades.yml`, mapa por caminho) ajusta o regressivo dela no `brabo-qa` contra a `dev`, ou diz no card por que não precisa. Na PR para a `dev` o check `Regressivo do brabo-qa` só atesta (nunca obrigatório); na PR para a `main` o `E2E do brabo-qa` roda o catálogo inteiro e bloqueia, salvo `/qa-aceitar`.
 5. **Review** meu.
 6. **Squash merge.**
 

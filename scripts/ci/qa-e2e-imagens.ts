@@ -13,6 +13,8 @@ export interface EntradaTags {
   repo: RepoGatilho;
   headSha: string;
   headRef: string;
+  /** Base da PR; `dev` (AT-769) usa a imagem `sha-<12>` do head. Ausente = `main`. */
+  baseRef?: 'dev' | 'main';
   /** Tags `v*` que apontam para o head da PR. */
   tagsDoHead: string[];
   ultimaDev: Record<Chave, string>;
@@ -66,7 +68,8 @@ export function maisNova(tags: string[]): string | undefined {
 }
 
 export function escolherTags(e: EntradaTags): EscolhaDeTags {
-  const hotfix = e.headRef.startsWith('hotfix/');
+  const dev = e.baseRef === 'dev';
+  const hotfix = !dev && e.headRef.startsWith('hotfix/');
   const ehQa = e.repo === 'brabo-qa';
   const base = hotfix && !ehQa ? e.ultimaFinal : e.ultimaDev;
   const tags = { ...base, backup: e.ultimaFinal.infra } as Record<Chave, string> & { backup: string };
@@ -76,13 +79,13 @@ export function escolherTags(e: EntradaTags): EscolhaDeTags {
   if (e.repo === 'brabo-infra') {
     composeRef = e.headSha;
   } else if (!ehQa) {
-    if (hotfix) {
+    if (hotfix || dev) {
       tags[dono] = `sha-${e.headSha.slice(0, 12)}`;
     } else {
-      const dev = maisNova(e.tagsDoHead.filter((t) => t.includes('-dev.')));
+      const devDoHead = maisNova(e.tagsDoHead.filter((t) => t.includes('-dev.')));
       // Sem a -dev do head não há o que testar: usar a mais nova de outro commit testaria outra coisa.
-      if (!dev) throw new SemTagParaOHead(`nenhuma tag -dev aponta para o head ${e.headSha.slice(0, 12)} de ${e.repo}; o carimbo ainda não rodou`);
-      tags[dono] = dev;
+      if (!devDoHead) throw new SemTagParaOHead(`nenhuma tag -dev aponta para o head ${e.headSha.slice(0, 12)} de ${e.repo}; o carimbo ainda não rodou`);
+      tags[dono] = devDoHead;
     }
   }
   const { infra: _infra, ...servicos } = tags;
@@ -93,11 +96,13 @@ export function escolherTags(e: EntradaTags): EscolhaDeTags {
 export function montarPayload(
   escolha: EscolhaDeTags,
   ctx: { repo: string; pr: number; headSha: string; checkRunId: number },
+  /** Modo dev (AT-769): `{modo: 'funcionalidades', funcionalidades}` segue no payload. */
+  extra: object = {},
 ) {
   const imagens = Object.fromEntries(
     Object.entries(escolha.tags).map(([s, t]) => [s, `ghcr.io/viralabs-dev/brabo-${s}:${t}`]),
   ) as Record<Servico, string>;
-  return { repo: ctx.repo, pr: ctx.pr, head_sha: ctx.headSha, check_run_id: ctx.checkRunId, compose_ref: escolha.composeRef, imagens };
+  return { repo: ctx.repo, pr: ctx.pr, head_sha: ctx.headSha, check_run_id: ctx.checkRunId, compose_ref: escolha.composeRef, imagens, ...extra };
 }
 
 export async function paraDigest(

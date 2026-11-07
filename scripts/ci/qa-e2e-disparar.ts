@@ -4,7 +4,11 @@
  * As imagens vão por TAG: a espera (30 min) e a resolução tag->digest ficam no brabo-qa, para o
  * check não nascer vermelho enquanto a release ainda publica. Tag git ausente já nasce vermelho `ambiente`.
  *
- * Env: GH_TOKEN (token do App), GITHUB_REPOSITORY, PR_NUMERO, PR_HEAD_SHA, PR_HEAD_REF, GITHUB_RUN_URL.
+ * PR com base `dev` (AT-769, `PR_BASE_REF=dev`): seleciona as funcionalidades tocadas pelo catálogo do brabo-qa,
+ * usa a imagem `sha-<12>` do head e publica o check `Regressivo do brabo-qa` (nunca exigido).
+ *
+ * Env: GH_TOKEN (token do App), GITHUB_REPOSITORY, PR_NUMERO, PR_HEAD_SHA, PR_HEAD_REF, GITHUB_RUN_URL;
+ * só na dev: PR_BASE_REF, PR_HEAD_REPO (full_name do repo do head, para a guarda de fork).
  * Sintaxe apagável apenas (o Node executa este `.ts` por type stripping).
  */
 
@@ -17,9 +21,11 @@ import {
   type EscolhaDeTags,
   type RepoGatilho,
 } from './qa-e2e-imagens.ts';
-import { montarCheck } from './qa-e2e-resumo.ts';
+import { NOME_DO_CHECK_POR_MODO, montarCheck } from './qa-e2e-resumo.ts';
+import { lerCatalogo, selecionar } from './qa-regressivo-selecao.ts';
 
-export const NOME_DO_CHECK = 'E2E do brabo-qa';
+export const NOME_DO_CHECK = NOME_DO_CHECK_POR_MODO.main;
+const CATALOGO_URL = 'https://raw.githubusercontent.com/viralabs-dev/brabo-qa/dev/funcionalidades.yml';
 const CHAVES = ['api', 'engine', 'web', 'broker', 'infra'] as const;
 
 interface Ref {
@@ -48,12 +54,43 @@ async function tagsDe(repo: string): Promise<Ref[]> {
   });
 }
 
+async function arquivosDaPr(dono: string, nome: string, pr: string): Promise<string[]> {
+  const todos: string[] = [];
+  for (let pagina = 1; ; pagina++) {
+    const itens = (await gh(`repos/${dono}/${nome}/pulls/${pr}/files?per_page=100&page=${pagina}`)) as { filename: string; previous_filename?: string }[];
+    for (const f of itens) todos.push(f.filename, ...(f.previous_filename ? [f.previous_filename] : []));
+    if (itens.length < 100) return todos;
+  }
+}
+
 async function principal(): Promise<void> {
   const env = (n: string) => process.env[n] ?? '';
   const [dono, nome] = env('GITHUB_REPOSITORY').split('/') as [string, string];
   const headSha = env('PR_HEAD_SHA');
   const headRef = env('PR_HEAD_REF');
   const urlDoRun = env('GITHUB_RUN_URL');
+  const dev = env('PR_BASE_REF') === 'dev';
+  const nomeDoCheck = NOME_DO_CHECK_POR_MODO[dev ? 'dev' : 'main'];
+  const check = (corpo: object) => gh(`repos/${dono}/${nome}/check-runs`, { method: 'POST', body: JSON.stringify({ name: nomeDoCheck, head_sha: headSha, ...corpo }) });
+  const neutro = async (motivo: string) => {
+    const c = montarCheck({ modo: 'dev', causa: null, linhas: [], specsQueFalharam: [], urlDoRun, neutro: motivo });
+    await check({ status: 'completed', conclusion: c.conclusion, external_id: c.external_id, output: { title: c.title, summary: c.summary } });
+    console.log(`Regressivo neutro: ${motivo}`);
+  };
+
+  let extra: object = {};
+  let sobreDono = '';
+  if (dev) {
+    // Fork não recebe segredo nem publica imagem; a seleção só lê arquivos e o catálogo público.
+    if (env('PR_HEAD_REPO') !== env('GITHUB_REPOSITORY')) return neutro('Regressivo não roda em PR de fork.');
+    const r = await fetch(CATALOGO_URL);
+    if (!r.ok) throw new Error(`catálogo do brabo-qa: ${r.status}`);
+    const s = selecionar({ repo: nome, arquivos: await arquivosDaPr(dono, nome, env('PR_NUMERO')), catalogo: lerCatalogo(await r.text()) });
+    if (nome === 'brabo-contracts') return neutro('Consumido por TAG; o regressivo roda na PR que sobe a TAG.');
+    if (s.modo === 'nenhum') return neutro('Sem funcionalidade tocada.');
+    extra = { modo: s.modo, funcionalidades: s.funcionalidades };
+    sobreDono = s.semDono.length > 0 ? `\n\nSem dono no mapa:\n${s.semDono.map((c) => `- ${c}`).join('\n')}` : '';
+  }
 
   let escolha: EscolhaDeTags | null = null;
   let erro = '';
@@ -70,27 +107,26 @@ async function principal(): Promise<void> {
       if (!dev || !final) throw new SemTagParaOHead(`${repo} não tem tag ${dev ? 'final' : '-dev'} publicada`);
       ultimaDev[c] = dev;
       ultimaFinal[c] = final;
-      if (repo === nome) {
+      if (repo === nome && !dev) {
         const commitDe = async (r: Ref) => (r.object.type === 'tag' ? (await gh(`repos/viralabs-dev/${repo}/git/tags/${r.object.sha}`)).object.sha : r.object.sha);
         for (const r of refs) if ((await commitDe(r)) === headSha) tagsDoHead.push(r.ref.replace('refs/tags/', ''));
       }
     }
-    escolha = escolherTags({ repo: nome as RepoGatilho, headSha, headRef, tagsDoHead, ultimaDev, ultimaFinal });
+    escolha = escolherTags({ repo: nome as RepoGatilho, headSha, headRef, baseRef: dev ? 'dev' : 'main', tagsDoHead, ultimaDev, ultimaFinal });
   } catch (e) {
     if (!(e instanceof SemTagParaOHead)) throw e;
     erro = e.message;
   }
 
-  const check = (corpo: object) => gh(`repos/${dono}/${nome}/check-runs`, { method: 'POST', body: JSON.stringify({ name: NOME_DO_CHECK, head_sha: headSha, ...corpo }) });
   if (!escolha) {
     const c = montarCheck({ causa: 'ambiente', linhas: [], specsQueFalharam: [], urlDoRun });
     await check({ status: 'completed', conclusion: 'failure', external_id: c.external_id, output: { title: c.title, summary: `${erro}\n\n${c.summary}` } });
     console.log(`E2E vermelho (ambiente): ${erro}`);
     return;
   }
-  const criado = await check({ status: 'in_progress', details_url: urlDoRun, output: { title: 'E2E em andamento', summary: `Disparado no brabo-qa. Run do gatilho: ${urlDoRun}` } });
+  const criado = await check({ status: 'in_progress', details_url: urlDoRun, output: { title: dev ? 'Regressivo em andamento' : 'E2E em andamento', summary: `Disparado no brabo-qa. Run do gatilho: ${urlDoRun}${sobreDono}` } });
   try {
-    await gh('repos/viralabs-dev/brabo-qa/dispatches', { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: montarPayload(escolha, { repo: `${dono}/${nome}`, pr: Number(env('PR_NUMERO')), headSha, checkRunId: criado.id }) }) });
+    await gh('repos/viralabs-dev/brabo-qa/dispatches', { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: montarPayload(escolha, { repo: `${dono}/${nome}`, pr: Number(env('PR_NUMERO')), headSha, checkRunId: criado.id }, extra) }) });
   } catch (e) {
     // Sem dispatch ninguém conclui o check: não deixar em andamento.
     const msg = e instanceof Error ? e.message : String(e);

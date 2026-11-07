@@ -56,9 +56,35 @@ describe('escolherTags', () => {
     expect(r.composeRef).toBe(base.ultimaDev.infra);
   });
 
+  it('PR para a dev usa sha-<12> do head e a -dev mais nova dos outros, sem exigir tag no head', () => {
+    const r = escolherTags({ ...base, baseRef: 'dev', headRef: 'feature/x', tagsDoHead: [] });
+    expect(r.tags.api).toBe('sha-abcdef123456');
+    expect(r.tags.engine).toBe(base.ultimaDev.engine);
+    expect(r.composeRef).toBe(base.ultimaDev.infra);
+    expect(r.tags.backup).toBe(base.ultimaFinal.infra);
+  });
+
+  it('PR para a dev com branch hotfix/ não vira o caso do hotfix da main', () => {
+    const r = escolherTags({ ...base, baseRef: 'dev', repo: 'brabo-web', headRef: 'hotfix/x', tagsDoHead: [] });
+    expect(r.tags.api).toBe(base.ultimaDev.api);
+    expect(r.composeRef).toBe(base.ultimaDev.infra);
+  });
+
+  it('PR do infra e do qa para a dev seguem como na main', () => {
+    expect(escolherTags({ ...base, baseRef: 'dev', repo: 'brabo-infra', tagsDoHead: [] }).composeRef).toBe(base.headSha);
+    expect(escolherTags({ ...base, baseRef: 'dev', repo: 'brabo-qa', tagsDoHead: [] }).tags.web).toBe(base.ultimaDev.web);
+  });
+
   it('promoção sem tag -dev no head lança SemTagParaOHead', () => {
     expect(() => escolherTags({ ...base, tagsDoHead: [] })).toThrow(SemTagParaOHead);
     expect(() => escolherTags({ ...base, tagsDoHead: ['v1.1.0'] })).toThrow(SemTagParaOHead);
+  });
+});
+
+describe('montarPayload', () => {
+  it('acrescenta o modo e as funcionalidades do regressivo dev', () => {
+    const p = montarPayload(escolherTags(base), { repo: 'o/r', pr: 1, headSha: 'a', checkRunId: 2 }, { modo: 'funcionalidades', funcionalidades: ['x'] });
+    expect(p).toMatchObject({ modo: 'funcionalidades', funcionalidades: ['x'], check_run_id: 2 });
   });
 });
 

@@ -55,6 +55,7 @@ Workflows reutilizáveis (`workflow_call`) e a lógica de política em `scripts/
   archived".
 - PR do Dependabot entra pela `dev`, nunca direto na `main`; na `dev` ele não espera aprovação humana (ADR 0236) e a `main` segue com a escada inteira. Dependência de linguagem só por segurança (`open-pull-requests-limit: 0`), `github-actions` e `docker` semanais, `target-branch: dev`. O `dependabot-para-dev.yml` do `brabo-ci` fecha ou redireciona o PR de segurança que o GitHub abre contra a `main`.
 - Merge em branch protegida (`dev`/`main`) é SEMPRE manual do usuário, sem opção de automatizar. A política de PR, escada, promoção e carimbo de tag vem dos workflows reutilizáveis do `brabo-ci`, fixados por SHA com `# vX` no `uses:`. Imagem de terceiro por digest com a tag inline. Segredo nunca é impresso; teste nunca roda contra o Postgres da instalação.
+- PR que toca uma funcionalidade do catálogo (`brabo-qa/funcionalidades.yml`, mapa por caminho) ajusta o regressivo dela no `brabo-qa` contra a `dev`, ou diz no card por que não precisa. Na PR para a `dev` o check `Regressivo do brabo-qa` só atesta (nunca obrigatório); na PR para a `main` o `E2E do brabo-qa` roda o catálogo inteiro e bloqueia, salvo `/qa-aceitar` (AT-769). A seleção mora em `scripts/ci/qa-regressivo-selecao.ts` (testado).
 
 ## Convenções (repositório, dados e domínio)
 - Branches permanentes: dev, main — um branch, um ambiente; a esteira é
@@ -292,6 +293,7 @@ Workflows reutilizáveis (`workflow_call`) e a lógica de política em `scripts/
   BAIXAR e rodar um arquivo (`curl -fsSLO … && bash install.sh`, RN-526) — o
   `sh -c "$(curl …)"` antigo nunca funcionou, porque a autoverificação calcula o
   hash de `$0`; não reabra essa forma nem dê à verificação uma porta de pular
+- Regressivo por funcionalidade (AT-769): `qa-e2e-gatilho.yml` tem o job `regressivo-dev` para PR com base `dev`. Ele seleciona as funcionalidades tocadas (`qa-regressivo-selecao.ts`; regras de arquivo transversal: nada, catálogo inteiro, sem dono = smoke + aviso), publica o check `Regressivo do brabo-qa` e usa a imagem `sha-<12>` do head. Esse check NUNCA entra em ruleset (`regressivo-nao-exigido.spec.ts` guarda); o portão da `main` segue sendo o `E2E do brabo-qa`. O catálogo é lido de `brabo-qa/funcionalidades.yml` na `dev`.
 
 ## Documentação é parte da definição de pronto (permanente)
 - A doc deste repo mora em `docs/` (fonte pt-BR; `en`, `ru` e `zh-Hans` em `docs/i18n/`). Ao alterar código, atualize a doc da área NA MESMA mudança e mostre o diff dela junto com o do código. Não pergunte se deve: faça. NUNCA crie `website/docs/`: o site é agregado pelo `brabo`, que lê a `docs/` de cada repositório.

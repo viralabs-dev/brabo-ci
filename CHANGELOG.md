@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `qa-e2e-gatilho.yml` ganha o job `regressivo-dev` (PR com base `dev`): `qa-regressivo-selecao.ts` tira `{modo, funcionalidades, semDono}` dos arquivos tocados e do catálogo `funcionalidades.yml` do brabo-qa; `qa-e2e-imagens.ts` usa a imagem `sha-<12>` do head (`baseRef: 'dev'`); `qa-e2e-resumo.ts` monta a tabela por funcionalidade ("sem cobertura" não reprova) e o nome do check por modo (`Regressivo do brabo-qa` na dev, `E2E do brabo-qa` na main). O check da dev nunca é exigido, e `regressivo-nao-exigido.spec.ts` falha se o repo o citar como exigido. O portão da `main` não muda (AT-769).
 - Ko-fi do mantenedor: seção Apoie no README (AT-768).
 
 - `qa-e2e-gatilho.yml` novo (reutilizável) e scripts `qa-e2e-imagens`, `qa-e2e-aceite`, `qa-e2e-resumo`, `qa-e2e-disparar` e `qa-e2e-aceitar`: o check `E2E do brabo-qa` vira portão da `main`. Escolhe as tags das imagens, dispara o `e2e-pr` no brabo-qa e aceita falha de `spec` ou `ambiente` com `/qa-aceitar <justificativa>` (AT-765).
