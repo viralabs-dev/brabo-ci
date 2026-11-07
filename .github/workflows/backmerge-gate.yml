@@ -28,7 +28,7 @@ concurrency:
 jobs:
   conferir:
     name: Backmerge gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
       # Sem `if:` no job — check required indexado por sha que não roda deixa

@@ -52,7 +52,7 @@ concurrency:
 jobs:
   carimbar:
     name: Tag do estágio
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     outputs:
       tag: ${{ steps.calculo.outputs.tag }}
@@ -69,7 +69,7 @@ jobs:
         if: env.TEM_APP == 'true'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -137,7 +137,7 @@ jobs:
     name: Travar o gate e abrir as retropropagações
     needs: carimbar
     if: github.ref_name == 'main' && needs.carimbar.outputs.hotfix == 'sim'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     env:
       TEM_PAT: ${{ (secrets.BOT_TOKEN != '' || secrets.APP_ID != '') }}
@@ -148,7 +148,7 @@ jobs:
         if: env.TEM_APP == 'true'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       # Falha ANTES de mexer em qualquer coisa. Sem o PAT, os PRs de
@@ -219,7 +219,7 @@ jobs:
     name: Destravar o gate
     needs: carimbar
     if: needs.carimbar.outputs.retropropagacao == 'sim'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     env:
       TEM_PAT: ${{ (secrets.BOT_TOKEN != '' || secrets.APP_ID != '') }}
@@ -230,7 +230,7 @@ jobs:
         if: env.TEM_APP == 'true'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: O PAT é obrigatório aqui
@@ -309,7 +309,7 @@ jobs:
     needs: carimbar
     # `!cancelled()`: o verde também passa por aqui, para FECHAR a issue (AT-664).
     if: ${{ !cancelled() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     permissions:
       contents: read
