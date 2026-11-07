@@ -28,6 +28,22 @@ Pine sempre por SHA: `uses: viralabs-dev/brabo-ci/.github/workflows/pr-police.ym
 | `claude.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | responde a `@claude` |
 | `claude-code-review.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | revisão automática de PR |
 
+## Actions compostas
+
+| Action | Inputs | Faz |
+|---|---|---|
+| `.github/actions/vinculos` | `origem` (JSON `{repo, pr?, sha, ator, run_url?, evento?}`; vazio = este run), `irmaos` (uma linha por irmão: caminho de checkout ou `owner/repo@sha`), `destino` e `disparados` (uma linha `rótulo\|url`) | escreve `## Vínculos` (tabela e diagrama Mermaid) no Summary do run e grava `vinculos.md` (output `arquivo`). Valida cada valor por regex (o que não casa vira `?` e `::warning::`) e **nunca reprova o job**. Usa o `node` do runner, que precisa ser ≥ 22.18 (sem `setup-node`). AT-773 |
+
+```yaml
+- uses: viralabs-dev/brabo-ci/.github/actions/vinculos@<sha>  # v1.0.0
+  with:
+    irmaos: |
+      ../brabo-infra
+      viralabs-dev/brabo-api@<sha de 40 hex>
+    destino: |
+      Check E2E na PR|https://github.com/viralabs-dev/brabo-api/runs/5
+```
+
 Os reutilizáveis que escrevem com o bot (`tag-release`, `promote`) aceitam `APP_ID` e `APP_PRIVATE_KEY` e geram o token do GitHub App DENTRO do próprio job (o token é mascarado e não atravessa jobs, então o chamador não consegue passá-lo como `BOT_TOKEN`). O chamador passa:
 
 ```yaml
