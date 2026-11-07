@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `politica.yml` do próprio repo repina `pr-police` e `escada` de `b030fbf` para `13f3697` (`ubuntu-26.04`, rótulo de família criado antes de aplicar); a PR deixa de sair com a anotação `exit code 1` e o aviso do `ubuntu-latest` (AT-783).
+
 - `CONTRIBUTING.md`: as seções Testes, Documentação e Definition of Done descrevem o repo separado (Vitest, README/CLAUDE/CHANGELOG, ADRs no `brabo`), não mais o monorepo (AT-783).
 
 - `pr-police`: a etapa da label de família só remove as famílias que o PR já tem; `--remove-label` de rótulo inexistente no repo (`'promocao' not found`) abortava o `gh` e deixava a anotação `exit code 1` em todo PR (AT-772).
