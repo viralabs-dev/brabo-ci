@@ -118,9 +118,13 @@ jobs:
 
           # Label obsoleta engana mais que label nenhuma: um `promocao` velho
           # num PR que trocou de base é pior que ausência.
+          # Só remove a família que o PR TEM: `--remove-label` de rótulo que não
+          # existe no repo aborta o `gh` com "'promocao' not found" (AT-772).
+          atuais="$(gh pr view "$PR" --json labels -q '.labels[].name')"
           remover=()
           for f in "${todas[@]}"; do
-            [ "$f" = "${FAMILIA:-}" ] || remover+=(--remove-label "$f")
+            [ "$f" = "${FAMILIA:-}" ] && continue
+            grep -qxF "$f" <<<"$atuais" && remover+=(--remove-label "$f")
           done
 
           if [ -n "${FAMILIA:-}" ]; then
@@ -129,9 +133,11 @@ jobs:
             gh label create "$FAMILIA" || true
             gh pr edit "$PR" --add-label "$FAMILIA" "${remover[@]}"
             echo "família aplicada: $FAMILIA"
-          else
+          elif [ "${#remover[@]}" -gt 0 ]; then
             gh pr edit "$PR" "${remover[@]}"
             echo "sem família — PR reprovado ou isento"
+          else
+            echo "sem família e nada a remover"
           fi
 
       # O veredito reprova o check aqui, depois de a label ter sido acertada.
