@@ -24,9 +24,11 @@ import {
 } from './qa-e2e-imagens.ts';
 import { NOME_DO_CHECK_POR_MODO, montarCheck } from './qa-e2e-resumo.ts';
 import { escreverNoSummary, procurarRun, vinculosDoGatilho, type RunDoQa } from './qa-e2e-vinculos.ts';
+import { buscaTagsDoHead } from './qa-e2e-busca-tags.ts';
 import { lerCatalogo, selecionar } from './qa-regressivo-selecao.ts';
 
 export const NOME_DO_CHECK = NOME_DO_CHECK_POR_MODO.main;
+
 const CATALOGO_URL = 'https://raw.githubusercontent.com/viralabs-dev/brabo-qa/dev/funcionalidades.yml';
 const CHAVES = ['api', 'engine', 'web', 'broker', 'infra'] as const;
 
@@ -104,12 +106,14 @@ async function principal(): Promise<void> {
       const repo = `brabo-${c}`;
       const refs = await tagsDe(repo);
       const nomes = refs.map((r) => r.ref.replace('refs/tags/', ''));
-      const dev = maisNova(nomes.filter((t) => t.includes('-dev.')));
+      // `devMaisNova`, nunca `dev`: o `dev` de fora é "a base é a dev" (AT-769). O shadowing
+      // fazia `!dev` ser sempre falso e o portão da main nunca achar a -dev do head (AT-789).
+      const devMaisNova = maisNova(nomes.filter((t) => t.includes('-dev.')));
       const final = maisNova(nomes.filter((t) => !t.includes('-')));
-      if (!dev || !final) throw new SemTagParaOHead(`${repo} não tem tag ${dev ? 'final' : '-dev'} publicada`);
-      ultimaDev[c] = dev;
+      if (!devMaisNova || !final) throw new SemTagParaOHead(`${repo} não tem tag ${devMaisNova ? 'final' : '-dev'} publicada`);
+      ultimaDev[c] = devMaisNova;
       ultimaFinal[c] = final;
-      if (repo === nome && !dev) {
+      if (buscaTagsDoHead({ repo, repoDaPr: nome, baseDev: dev })) {
         const commitDe = async (r: Ref) => (r.object.type === 'tag' ? (await gh(`repos/viralabs-dev/${repo}/git/tags/${r.object.sha}`)).object.sha : r.object.sha);
         for (const r of refs) if ((await commitDe(r)) === headSha) tagsDoHead.push(r.ref.replace('refs/tags/', ''));
       }
