@@ -31,6 +31,12 @@ import {
   type PrDoCiclo,
 } from './version.ts';
 
+/** Acrescenta `Carimbo: <url do run>` à mensagem da tag anotada: o run disparado pela tag (publish, release) lê esta linha no helper `vinculos` (AT-773). */
+export function comCarimbo(mensagem: string, env: NodeJS.ProcessEnv): string {
+  const { GITHUB_SERVER_URL: srv, GITHUB_REPOSITORY: repo, GITHUB_RUN_ID: id } = env;
+  return srv && repo && id ? `${mensagem}\n\nCarimbo: ${srv}/${repo}/actions/runs/${id}` : mensagem;
+}
+
 async function principal(): Promise<void> {
   const { execFileSync } = await import('node:child_process');
   const { appendFileSync } = await import('node:fs');
@@ -39,7 +45,8 @@ async function principal(): Promise<void> {
   const sha = process.env.SHA ?? '';
   const repo = process.env.GITHUB_REPOSITORY ?? '';
 
-  const emitir = (chave: string, valor: string): void => {
+  const emitir = (chave: string, bruto: string): void => {
+    const valor = chave === 'mensagem' ? comCarimbo(bruto, process.env) : bruto;
     console.log(`${chave}=${valor}`);
     if (process.env.GITHUB_OUTPUT) {
       appendFileSync(process.env.GITHUB_OUTPUT, `${chave}<<FIM\n${valor}\nFIM\n`);

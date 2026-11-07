@@ -82,3 +82,21 @@ describe('modo dev (AT-769)', () => {
     expect(c.summary).not.toContain('funcionalidade');
   });
 });
+
+describe('montarCheck com vínculos', () => {
+  const v = '## Vínculos\n\n| Papel | Repo |\n|---|---|\n| Origem | x |\n\n```mermaid\nflowchart LR\n  O --> E\n```\n';
+  it('a tabela entra no texto; o Mermaid não', () => {
+    const c = montarCheck({ ...base, vinculos: v });
+    expect(c.summary).toContain('## Vínculos');
+    expect(c.summary).toContain('| Origem | x |');
+    expect(c.summary).not.toContain('mermaid');
+  });
+  it('entra também no neutro e no aceito', () => {
+    expect(montarCheck({ ...base, neutro: 'só docs', vinculos: v }).summary).toContain('| Origem | x |');
+    const aceite = { justificativa: 'j', por: 'p', em: 'e', urlDoRunVermelho: 'u' };
+    expect(montarCheck({ ...base, causa: 'spec', aceite, vinculos: v }).summary).toContain('| Origem | x |');
+  });
+  it('sem vínculos o resumo é o de antes', () => {
+    expect(montarCheck(base).summary).not.toContain('Vínculos');
+  });
+});

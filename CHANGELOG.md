@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Vínculos na origem, só `.ts` (AT-773, Rodada A): `montarPayload` ganha `origem` opcional `{repo, pr, sha, sha_curto, ator, run_id, run_attempt, run_url, correlacao}` (`correlacao` = `<run_id>-<attempt>`); `qa-e2e-vinculos.ts` acha o run do `e2e-pr` pelo `c=<correlacao>` no `display_title` (5 s, até 60 s) e o `qa-e2e-disparar.ts` escreve o Vínculos no Summary do run de origem (sem achar, fica o link do check; nunca reprova); `montarCheck` ganha `vinculos?` (a tabela entra no texto do check); a mensagem da tag anotada ganha `Carimbo: <url do run>` (`comCarimbo` em `tag-release.ts`). Nenhum YAML mudou: o `run-name` e o `PR_AUTOR` ficam para a Rodada B. O modo `main` do portão da AT-765 segue igual.
 - `pr-police`: a etapa "Aplicar a label de família" cria o rótulo antes de aplicá-lo; antes saía com 1 (`'trabalho' not found`) escondido por `continue-on-error`, e o PR nunca recebia a label (AT-772).
 
 - CI: todo `runs-on` fixa `ubuntu-26.04` no lugar de `ubuntu-latest`, e o `create-github-app-token` usa `client-id` no lugar do `app-id` obsoleto; os runs saem sem anotação de aviso (AT-772).

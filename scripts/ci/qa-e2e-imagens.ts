@@ -95,14 +95,34 @@ export function escolherTags(e: EntradaTags): EscolhaDeTags {
 /** Payload do `e2e-pr`: imagens por TAG; o brabo-qa espera a publicação e resolve tag->digest. */
 export function montarPayload(
   escolha: EscolhaDeTags,
-  ctx: { repo: string; pr: number; headSha: string; checkRunId: number },
+  ctx: {
+    repo: string;
+    pr: number;
+    headSha: string;
+    checkRunId: number;
+    /** Run de origem (AT-773): vira `origem` no payload; ausente = payload como antes. */
+    origem?: { ator: string; runId: string; runAttempt: string; runUrl: string };
+  },
   /** Modo dev (AT-769): `{modo: 'funcionalidades', funcionalidades}` segue no payload. */
   extra: object = {},
 ) {
   const imagens = Object.fromEntries(
     Object.entries(escolha.tags).map(([s, t]) => [s, `ghcr.io/viralabs-dev/brabo-${s}:${t}`]),
   ) as Record<Servico, string>;
-  return { repo: ctx.repo, pr: ctx.pr, head_sha: ctx.headSha, check_run_id: ctx.checkRunId, compose_ref: escolha.composeRef, imagens, ...extra };
+  const o = ctx.origem;
+  // `correlacao` entra no `run-name` do e2e-pr (`c=<run_id>-<attempt>`) para o gatilho achar o run disparado.
+  const origem = o && {
+    repo: ctx.repo,
+    pr: ctx.pr,
+    sha: ctx.headSha,
+    sha_curto: ctx.headSha.slice(0, 7),
+    ator: o.ator,
+    run_id: o.runId,
+    run_attempt: o.runAttempt,
+    run_url: o.runUrl,
+    correlacao: `${o.runId}-${o.runAttempt}`,
+  };
+  return { repo: ctx.repo, pr: ctx.pr, head_sha: ctx.headSha, check_run_id: ctx.checkRunId, compose_ref: escolha.composeRef, imagens, ...(origem ? { origem } : {}), ...extra };
 }
 
 export async function paraDigest(
