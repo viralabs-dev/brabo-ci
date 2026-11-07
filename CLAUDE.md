@@ -134,6 +134,7 @@ Workflows reutilizáveis (`workflow_call`) e a lógica de política em `scripts/
   como co-author.
 
 ## CI/CD e cadeia de suprimentos (regras)
+- Publicação do contracts no GitHub Packages (AT-770): `publish-npm.yml` publica o `.tgz` atestado por `actions/attest` (nunca `--provenance`, sem suporte fora do npmjs); versão vem da tag, `-dev.N` vai para o dist-tag `dev` e a final para `latest` (RN-1037). `contracts-alinhado.yml` exige uma versão só do contracts no `package.json`, no lock e nos scripts de download (RN-1038, não obrigatório). `scripts/ci/subir-contracts.sh <versão>` é o único jeito de subir a versão num consumidor: recusa o lock que mudou fora das entradas `@viralabs-dev/brabo-*`; nunca reescreva o lock inteiro.
 - CI/CD de release: GitHub Actions com lógica em scripts testáveis
   (scripts/ci/, vitest). Todo `uses:` de terceiro é preso a COMMIT SHA, com
   a versão num comentário ao lado (`@<sha>  # v4`) — tag é ponteiro que o

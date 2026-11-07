@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `publish-npm.yml` novo (reutilizável): `pnpm pack`, `actions/attest` sobre o `.tgz` e `npm publish` desse mesmo arquivo em `npm.pkg.github.com`, dist-tag `dev` para `-dev.N` e `latest` para a final; `scripts/ci/publish-npm.ts` calcula versão e dist-tag. RN-1037 (AT-770).
+- `contracts-alinhado.yml` e `scripts/ci/contracts-alinhado.ts` novos: versão do brabo-contracts igual no `package.json`, no lock e nas constantes dos scripts; aviso contra o `componentes.json`. RN-1038 (AT-770).
+- `scripts/ci/subir-contracts.sh` novo: sobe a versão do contracts num consumidor e recusa o lock que mudou fora das entradas `@viralabs-dev/brabo-*` (AT-770).
 - `qa-e2e-gatilho.yml` ganha o job `regressivo-dev` (PR com base `dev`): `qa-regressivo-selecao.ts` tira `{modo, funcionalidades, semDono}` dos arquivos tocados e do catálogo `funcionalidades.yml` do brabo-qa; `qa-e2e-imagens.ts` usa a imagem `sha-<12>` do head (`baseRef: 'dev'`); `qa-e2e-resumo.ts` monta a tabela por funcionalidade ("sem cobertura" não reprova) e o nome do check por modo (`Regressivo do brabo-qa` na dev, `E2E do brabo-qa` na main). O check da dev nunca é exigido, e `regressivo-nao-exigido.spec.ts` falha se o repo o citar como exigido. O portão da `main` não muda (AT-769).
 - Ko-fi do mantenedor: seção Apoie no README (AT-768).
 
