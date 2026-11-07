@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `refs-com-simbolo.yml` (reutilizável) e `scripts/ci/refs-com-simbolo.ts` novos: cada irmão reprova a ref de RN `caminho:N` (`símbolo`) interna quebrada no PR que a quebra; a ref entre irmãos só é listada no Summary. `--escrever` reancora e o artefato `refs-patch` leva o diff e a receita de `git apply`. Núcleo copiado do `brabo@120fa8c2`; spec com fixture real do brabo-web e mutações (AT-782).
 - `pr-police`: a etapa da label de família só remove as famílias que o PR já tem; `--remove-label` de rótulo inexistente no repo (`'promocao' not found`) abortava o `gh` e deixava a anotação `exit code 1` em todo PR (AT-772).
 - Vínculos na origem, só `.ts` (AT-773, Rodada A): `montarPayload` ganha `origem` opcional `{repo, pr, sha, sha_curto, ator, run_id, run_attempt, run_url, correlacao}` (`correlacao` = `<run_id>-<attempt>`); `qa-e2e-vinculos.ts` acha o run do `e2e-pr` pelo `c=<correlacao>` no `display_title` (5 s, até 60 s) e o `qa-e2e-disparar.ts` escreve o Vínculos no Summary do run de origem (sem achar, fica o link do check; nunca reprova); `montarCheck` ganha `vinculos?` (a tabela entra no texto do check); a mensagem da tag anotada ganha `Carimbo: <url do run>` (`comCarimbo` em `tag-release.ts`). Nenhum YAML mudou: o `run-name` e o `PR_AUTOR` ficam para a Rodada B. O modo `main` do portão da AT-765 segue igual.
 - `pr-police`: a etapa "Aplicar a label de família" cria o rótulo antes de aplicá-lo; antes saía com 1 (`'trabalho' not found`) escondido por `continue-on-error`, e o PR nunca recebia a label (AT-772).

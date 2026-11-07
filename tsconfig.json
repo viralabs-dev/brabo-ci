@@ -22,5 +22,6 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["scripts/ci/**/*.ts", "*.config.ts"]
+  "include": ["scripts/ci/**/*.ts", "*.config.ts"],
+  "exclude": ["scripts/ci/__fixtures__"]
 }
