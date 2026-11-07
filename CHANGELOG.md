@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `politica.yml` do próprio repo repina `pr-police` e `escada` de `b030fbf` para `13f3697` (`ubuntu-26.04`, rótulo de família criado antes de aplicar); a PR deixa de sair com a anotação `exit code 1` e o aviso do `ubuntu-latest` (AT-783).
+
+- `CONTRIBUTING.md`: as seções Testes, Documentação e Definition of Done descrevem o repo separado (Vitest, README/CLAUDE/CHANGELOG, ADRs no `brabo`), não mais o monorepo (AT-783).
 - O `politica.yml` do próprio brabo-ci repina o pr-police e a escada em `64a1e15` (merge da ci#19); ficara em `b030fbf` no repin da AT-772, e por isso as PRs do brabo-ci ainda mostravam a nota do `ubuntu-latest` e o `exit code 1` do rótulo de família.
 
 - `refs-com-simbolo.yml` (reutilizável) e `scripts/ci/refs-com-simbolo.ts` novos: cada irmão reprova a ref de RN `caminho:N` (`símbolo`) interna quebrada no PR que a quebra; a ref entre irmãos só é listada no Summary. `--escrever` reancora e o artefato `refs-patch` leva o diff e a receita de `git apply`. Núcleo copiado do `brabo@120fa8c2`; spec com fixture real do brabo-web e mutações (AT-782).

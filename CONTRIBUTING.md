@@ -43,21 +43,19 @@ O passo a passo comentado, com o que conferir quando cada etapa falha, está em
 
 ## Rodando os testes
 
-```bash
-pnpm --filter api test      # vitest
-pnpm --filter web test      # vitest
-pnpm engine:test            # ExUnit
-```
-
-Elixir **não** é obrigatório no host — o engine roda no container. Se for
-rodar fora do Docker, use a versão exata do projeto (**1.20.4 / OTP 29.1.1**):
-o `mix format` de versões diferentes produz saída diferente e deixa o
-`--check-formatted` do CI vermelho. Para formatar sem instalar:
+Este repo é só workflows reutilizáveis e os scripts TypeScript deles (`scripts/ci/`).
+Não tem API, web nem engine: a suíte é o Vitest.
 
 ```bash
-docker run --rm -v "$PWD/apps/engine:/app" -w /app \
-  hexpm/elixir:1.20.4-erlang-29.1.1-alpine-3.24.2 mix format
+pnpm install
+pnpm test               # vitest run: os specs de scripts/ci/ e dos workflows
+pnpm typecheck          # tsc --noEmit
+pnpm actions:pinadas    # falha em `uses:` preso a tag em vez de SHA
 ```
+
+Lógica nova de script leva spec com o caminho feliz **e** ao menos um caso de
+falha. Os reutilizáveis são testados pelos repos que os chamam: mudou um
+`workflow_call`, abra a PR de repinagem no consumidor depois do merge.
 
 ## Quando o git pendura ou é recusado (máquina local, agentes em worktree)
 
@@ -108,53 +106,22 @@ O conserto, se vier, é nessa configuração local, nunca aqui.
 
 Não é etapa posterior nem tarefa de outra pessoa.
 
-**PR que muda comportamento observável precisa atualizar a doc
-correspondente, no mesmo PR.** O mapa de responsabilidade é o
-[`docs/.docmap.yml`](https://github.com/viralabs-dev/brabo/blob/dev/docs/.docmap.yml): ele liga caminhos de código aos
-documentos que dependem deles. Consulte antes de abrir o PR e mostre o diff da
-doc junto com o do código.
+**PR que muda comportamento observável atualiza a doc no mesmo PR.** Aqui a doc
+é o `README.md` (o que cada workflow e script faz), o `CLAUDE.md` (as regras do
+repo) e o `CHANGELOG.md` (seção `Unreleased`). Não existe `docs/` nem site neste
+repo: a documentação agregada do produto mora no
+[`brabo`](https://github.com/viralabs-dev/brabo), e o que vale para a política
+de PR está nas regras de negócio e nos ADRs de lá.
 
-Três regras que caem daí:
-
-- Arquivos marcados `generated: true` são gerados por `pnpm docs:generate` —
-  **nunca** edite à mão, o build sobrescreve.
-- Mudança estrutural (fronteira de camada, banco, modelo de consistência,
-  dependência pesada) pede um [ADR](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/index.md) novo. Nunca edite um ADR
-  aceito: escreva outro dizendo qual substitui.
+- Mudança estrutural pede um
+  [ADR](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/index.md) novo no
+  `brabo`. Nunca edite um ADR aceito: escreva outro dizendo qual substitui.
 - Regra de negócio nova vira uma RN em
-  [`docs/business-rules.md`](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules.md), com `arquivo:linha` e o
-  teste que a cobre.
-
-Rodar o site de documentação localmente — `website/` tem lockfile próprio
-desde o [ADR 0117](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0117-lockfile-proprio-para-o-website.md), então o
-`pnpm install` da raiz (Setup, acima) não instala as dependências dele:
-
-```bash
-cd website && pnpm install && cd ..  # só na primeira vez, ou quando o lockfile mudar
-pnpm docs:start     # servidor de desenvolvimento
-pnpm docs:build     # build de produção — link quebrado FALHA o build
-```
-
-Sem informação suficiente para escrever algo, use
-`> **TODO(humano):** <pergunta específica>`. Documentação inventada é pior que
-documentação faltando.
-
-### Versionar a documentação
-
-O site **não** é versionado hoje: existe uma versão só, a `current`, que
-reflete a branch. Numa `0.x` com um único release publicado, versionar
-adicionaria manutenção sem dar nada em troca — cada versão congelada é uma
-cópia inteira de `docs/` que passa a envelhecer sozinha.
-
-Quando fizer sentido, o comando é:
-
-```bash
-pnpm --dir website docusaurus docs:version 0.2
-```
-
-E a regra de **quando**: só em **major ou minor**, nunca em patch. `0.2`,
-`1.0`, `1.1` — sim. `1.0.1` — não. Versionar demais multiplica o custo de
-manutenção da documentação por N, e ninguém procura a doc de um patch.
+  [`docs/business-rules`](https://github.com/viralabs-dev/brabo/tree/dev/docs/business-rules)
+  do `brabo`, com `arquivo:linha` e o teste que a cobre.
+- Sem informação suficiente para escrever algo, use
+  `> **TODO(humano):** <pergunta específica>`. Documentação inventada é pior que
+  documentação faltando.
 
 ## Fluxo
 
@@ -193,11 +160,10 @@ manual — inclusive para mim, e há teste garantindo isso.
 
 Antes de marcar o PR como pronto:
 
-- [ ] Testes passando — caminho feliz **e** ao menos um caso de falha
-- [ ] Lint limpo (`pnpm build` e o format do Elixir)
-- [ ] Documentação afetada atualizada (ver `docs/.docmap.yml`)
-- [ ] `CHANGELOG.md` tocado, se o comportamento observável mudou
-- [ ] `pnpm docs:build` sem link quebrado
+- [ ] `pnpm test` passando, com o caminho feliz **e** ao menos um caso de falha
+- [ ] `pnpm typecheck` e `pnpm actions:pinadas` limpos
+- [ ] `README.md`/`CLAUDE.md` atualizados se o comportamento mudou
+- [ ] `CHANGELOG.md` (`Unreleased`) tocado, se o comportamento observável mudou
 - [ ] Nenhum segredo no diff — o gitleaks roda no CI, mas ele é a última linha
 
 ## O que eu aceito com prazer
