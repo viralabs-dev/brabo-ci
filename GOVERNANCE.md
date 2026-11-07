@@ -1,7 +1,7 @@
 # Governança
 
 Este documento resolve um `TODO(humano)` que
-[branching-policy.md](docs/explanation/branching-policy.md#migração-para-modo-community)
+[branching-policy.md](https://github.com/viralabs-dev/brabo/blob/dev/scripts/ci/docs/explanation/branching-policy.md) (seção "Migrando para o modo `community`")
 deixava em aberto desde o ADR 0030: o critério de quem entra em cada lista de
 aprovadores do modo `community` do `approval-ladder` — quem entra, quem sai, e
 com base em quê. Até esse critério existir em algum lugar, migrar de `solo`
@@ -15,7 +15,7 @@ isso mudar, não uma estrutura já em funcionamento.
 
 O projeto é mantido por [@daneiel](https://github.com/daneiel) sozinho.
 Decisão técnica, de produto e de release é dele — é o que
-[branching-policy.md](docs/explanation/branching-policy.md#modo-solo--o-que-vale-hoje)
+[branching-policy.md](https://github.com/viralabs-dev/brabo/blob/dev/scripts/ci/docs/explanation/branching-policy.md) (seção "Modo `solo`")
 chama de modo `solo`: uma aprovação do owner para PR de terceiro, e o merge
 manual do próprio owner faz as vezes de aprovação no PR dele mesmo (a
 plataforma não permite aprovar o próprio PR pela interface).

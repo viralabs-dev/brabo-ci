@@ -1,0 +1,38 @@
+name: Vínculos
+description: >-
+  Escreve a tabela "Vínculos" (origem, irmãos repo@SHA, destino) e o diagrama
+  Mermaid no Summary do run e grava vinculos.md. Nunca reprova o job.
+inputs:
+  origem:
+    description: 'JSON {repo, pr?, sha, ator, run_url?, evento?}. Vazio = este próprio run.'
+    required: false
+    default: ''
+  irmaos:
+    description: 'Uma linha por irmão: caminho de checkout ou owner/repo@sha.'
+    required: false
+    default: ''
+  destino:
+    description: 'Uma linha "rótulo|url" por destino do resultado.'
+    required: false
+    default: ''
+  disparados:
+    description: 'Uma linha "rótulo|url" por run disparado por este.'
+    required: false
+    default: ''
+outputs:
+  arquivo:
+    description: Caminho do vinculos.md gerado.
+    value: ${{ steps.v.outputs.arquivo }}
+runs:
+  using: composite
+  steps:
+    # Usa o node do runner (sem setup-node): precisa de ≥ 22.18 (type stripping).
+    - id: v
+      continue-on-error: true
+      shell: bash
+      env:
+        VINCULOS_ORIGEM: ${{ inputs.origem }}
+        VINCULOS_IRMAOS: ${{ inputs.irmaos }}
+        VINCULOS_DESTINO: ${{ inputs.destino }}
+        VINCULOS_DISPARADOS: ${{ inputs.disparados }}
+      run: node "$GITHUB_ACTION_PATH/../../../scripts/ci/vinculos.ts" || echo "::warning::vinculos não rodou (node $(node -v))"

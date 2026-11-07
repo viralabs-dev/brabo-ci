@@ -9,9 +9,9 @@ body:
         repositório. Se for habilitado, dúvida de uso passa a ser lá.
 
         Antes de perguntar, dois lugares que respondem a maior parte:
-        [Primeiros passos](https://github.com/daneiel/brabo/blob/dev/docs/getting-started.md)
+        [Primeiros passos](https://github.com/viralabs-dev/brabo/blob/dev/docs/getting-started.md)
         para setup, e o
-        [Runbook](https://github.com/daneiel/brabo/blob/dev/docs/runbook.md)
+        [Runbook](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/runbook.md)
         para operação — os dois têm tabela de sintoma → causa.
 
   - type: textarea

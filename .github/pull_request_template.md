@@ -27,7 +27,7 @@ Closes #
 
 - [ ] Testes passando — caminho feliz **e** ao menos um caso de falha
 - [ ] Lint limpo
-- [ ] **Atualizei a documentação afetada** (ver [`docs/.docmap.yml`](../docs/.docmap.yml)) — o diff da doc está neste PR
+- [ ] **Atualizei a documentação afetada** (ver [`docs/.docmap.yml`](https://github.com/viralabs-dev/brabo/blob/dev/docs/.docmap.yml)) — o diff da doc está neste PR
 - [ ] `CHANGELOG.md` tocado, se o comportamento observável mudou
 - [ ] `pnpm docs:build` sem link quebrado
 - [ ] ADR novo, se a mudança é estrutural (nenhum ADR aceito foi editado)

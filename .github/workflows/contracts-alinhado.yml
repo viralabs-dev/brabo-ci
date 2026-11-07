@@ -1,0 +1,37 @@
+name: contracts-alinhado
+
+# REUTILIZÁVEL (workflow_call) — brabo-ci (AT-770, RN-1038). Confere que a versão
+# do brabo-contracts é a mesma no alias do `package.json`, no lock e nas constantes
+# dos scripts de download. Avisa (sem falhar) se difere do `componentes.json` do
+# brabo. Não é check obrigatório.
+on:
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA do `uses:` do chamador)'
+        required: false
+        type: string
+        default: 'v1.0.0'
+
+permissions:
+  contents: read
+
+jobs:
+  conferir:
+    name: Contracts alinhado
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - run: node .brabo-ci/scripts/ci/contracts-alinhado.ts

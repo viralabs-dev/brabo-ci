@@ -38,7 +38,7 @@ O que **não** é: PostgreSQL, Ollama, MinIO e os demais componentes de terceiro
 que o Brabo orquestra — reporte a eles diretamente. As imagens de
 desenvolvimento (`docker-compose.yml`) usam segredos padrão **de propósito**, e
 isso está documentado no
-[ADR 0024](docs/adr/0024-fase5-imagens-producao-ci.md); não é vulnerabilidade.
+[ADR 0024](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0024-fase5-imagens-producao-ci.md); não é vulnerabilidade.
 
 ## O que o projeto já faz
 
@@ -46,9 +46,9 @@ Para calibrar o relato, o que existe hoje:
 
 - **Segredos do usuário** (chaves de LLM, tokens de git) sob envelope
   encryption; nunca em texto plano no banco ou em log. Rotação da chave mestra
-  documentada no [runbook](docs/runbook.md).
+  documentada no [runbook do `brabo-infra`](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/runbook.md).
 - **Superfície HTTP auditada**: as 118 rotas da api estão classificadas em
-  [`docs/security-surface.md`](docs/security-surface.md), e um teste de tabela
+  [`docs/security-surface.md`](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/security-surface.md), e um teste de tabela
   reprova rota nova sem classificação.
 - **Toda ação com efeito externo** passa por aprovação
   (`proposed_action` + `permissions.json`, `deny` vence `allow`).

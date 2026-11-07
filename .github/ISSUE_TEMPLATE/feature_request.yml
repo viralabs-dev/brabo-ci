@@ -6,8 +6,8 @@ body:
     attributes:
       value: |
         Antes de escrever: vale conferir a seção
-        [o que provavelmente não aceito](https://github.com/daneiel/brabo/blob/dev/CONTRIBUTING.md#o-que-provavelmente-não-aceito)
-        do CONTRIBUTING e o [índice de ADRs](https://github.com/daneiel/brabo/blob/dev/docs/adr/index.md).
+        [o que provavelmente não aceito](https://github.com/viralabs-dev/brabo-ci/blob/dev/CONTRIBUTING.md#o-que-provavelmente-não-aceito)
+        do CONTRIBUTING e o [índice de ADRs](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/index.md).
         Várias decisões (stack, ausência de Redis, pipeline de aprovação) já
         estão tomadas com motivo registrado.
 

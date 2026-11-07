@@ -346,3 +346,42 @@ describe('PR do Dependabot dispensa review só na dev', () => {
     expect(v.ok).toBe(false);
   });
 });
+
+// ------------------------------------------ regeneração do bot → dev (ADR 0255)
+
+describe('PR de regeneração do bot dispensa review só na dev', () => {
+  const doBot = {
+    autorDoPr: 'viralabs-dev-brabo[bot]',
+    tipoDoAutor: 'Bot',
+    origem: 'chore/regenera-gerados',
+  };
+
+  it('caminho feliz: passa sem review e diz por quê', () => {
+    const v = avaliarEscada(solo(doBot));
+    expect(v.ok).toBe(true);
+    expect(v.dispensadoPorBotDeRegeneracao).toBe(true);
+    expect(formatarEscada(solo(doBot), v)).toContain('dispensado de review (ADR 0255)');
+  });
+
+  it('o bot certo em outra branch não ganha a dispensa', () => {
+    const v = avaliarEscada(solo({ ...doBot, origem: 'chore/outra' }));
+    expect(v.ok).toBe(false);
+    expect(v.dispensadoPorBotDeRegeneracao).toBe(false);
+  });
+
+  it('humano na branch do bot não ganha a dispensa', () => {
+    const v = avaliarEscada(solo({ ...doBot, autorDoPr: 'contribuidor', tipoDoAutor: 'User' }));
+    expect(v.ok).toBe(false);
+  });
+
+  it('outro bot na branch do bot não ganha a dispensa', () => {
+    const v = avaliarEscada(solo({ ...doBot, autorDoPr: 'renovate[bot]' }));
+    expect(v.ok).toBe(false);
+  });
+
+  it('para a main continua exigindo a escada', () => {
+    const v = avaliarEscada(solo({ ...doBot, destino: 'main' }));
+    expect(v.ok).toBe(false);
+    expect(v.dispensadoPorBotDeRegeneracao).toBe(false);
+  });
+});
