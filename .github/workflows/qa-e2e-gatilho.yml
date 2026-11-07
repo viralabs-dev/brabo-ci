@@ -48,6 +48,11 @@ jobs:
           path: .brabo-ci
           persist-credentials: false
 
+      # O disparar importa a seleção de funcionalidades (picomatch, yaml) desde a AT-769;
+      # sem isto o portão da main quebrava com ERR_MODULE_NOT_FOUND (AT-785).
+      - name: Dependências dos scripts
+        run: npx --yes pnpm@11.3.0 install --frozen-lockfile --prod --ignore-scripts --dir .brabo-ci
+
       # Escopo: o brabo-qa (dispatch) e o repo do evento (check). As tags dos outros repos
       # são lidas por leitura pública (repos públicos).
       - name: Token do App

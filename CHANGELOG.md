@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `qa-e2e-gatilho.yml`: o job `disparar` instala as dependências dos scripts antes de rodar; desde a AT-769 ele importa a seleção de funcionalidades (picomatch, yaml) e quebrava com `ERR_MODULE_NOT_FOUND` em toda PR para a `main`. Guarda nova `workflows-dependencias.spec.ts`: job que roda script com pacote npm sem instalar reprova (AT-785).
+
 - `politica.yml` do próprio repo repina `pr-police` e `escada` de `b030fbf` para `13f3697` (`ubuntu-26.04`, rótulo de família criado antes de aplicar); a PR deixa de sair com a anotação `exit code 1` e o aviso do `ubuntu-latest` (AT-783).
 
 - `CONTRIBUTING.md`: as seções Testes, Documentação e Definition of Done descrevem o repo separado (Vitest, README/CLAUDE/CHANGELOG, ADRs no `brabo`), não mais o monorepo (AT-783).
