@@ -66,7 +66,8 @@ export function selecionar(e: EntradaSelecao): Selecao {
 
   const globsDe = (f: Funcionalidade) =>
     Object.entries(f.caminhos ?? {}).filter(([r]) => semPrefixo(r) === repo).flatMap(([, g]) => g);
-  const donos = ativas.map((f) => ({ id: f.id, casa: casa(globsDe(f)), tem: globsDe(f).length > 0 }));
+  // Globs do catálogo SEM `dot`: é a semântica do `path.matchesGlob` que o brabo-qa usa para validar o mapa.
+  const donos = ativas.map((f) => ({ id: f.id, casa: picomatch(globsDe(f)), tem: globsDe(f).length > 0 }));
 
   const achadas = new Set<string>();
   const semDono: string[] = [];
