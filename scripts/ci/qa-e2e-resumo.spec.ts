@@ -183,6 +183,8 @@ describe('montarCheck com relatório', () => {
       { causa: 'spec' },
     );
     expect(c.summary).toContain('4 passaram · 2 falharam');
+    expect(c.summary).toContain('· 1 pulada');
+    expect(c.summary).not.toContain('1 puladas');
     expect(c.text).toContain('· 2 ❌/⚠️ · 1 pulada ⏭️</summary>');
     expect(c.text).not.toContain('(preparação) (preparação)');
   });
