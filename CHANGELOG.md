@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Reutilizável `cadeia.yml` (AT-819): jobs `actionlint` (com `-config-file .brabo-ci/.github/actionlint.yaml`, para o consumidor não copiar o yaml) e `pins` (`actions-pinadas.ts --raiz .`). `ci_ref` obrigatório, pela action `preparar`; não é check obrigatório. `actions-pinadas.ts` ganha `--raiz <dir>` (padrão: este repo) e passa a varrer também `.github/actions/**/action.y*ml`. O README ganha o exemplo de chamada e o quadro de destino dos seis reutilizáveis sem chamador (`dependencias-de-merge` a ligar; os outros cinco como biblioteca para adoção, nada apagado). Chamar o `cadeia` nos consumidores vai em PR por repo, junto do repin da AT-817.
+- `.vitest/` sai do versionamento e entra no `.gitignore` (AT-835).
+
 - O CI do brabo-ci cobre nele o que cobra dos outros (AT-820): jobs `shell` (shellcheck v0.10.0 por sha256; dois `SC2016` de `$ENV` do jq ficam com `disable` justificado) e `segredos` (gitleaks 8.30.1 por sha256, `gitleaks dir`); `coverage.thresholds` do vitest (`@vitest/coverage-v8`) com piso no valor medido, rodado por `pnpm test`; `coverage-floor.{ts,json,spec.ts}` saem (só serviam ao engine, que tem a própria cópia). Dogfood do `pr-police` local não entra: o `concurrency` por PR colide com o `politica.yml`.
 - Aposentados `claude.yml` e `claude-code-review.yml` (AT-821): nenhum dos 11 repos os chamava; voltam quando houver uso real, já com `fetch-depth: 0`, marketplace por SHA, `timeout-minutes` e `concurrency`.
 - `dependabot.yml`: o `npm` passa a `open-pull-requests-limit: 0` (só segurança), como nos outros repos, e o spec `dependabot-regra.spec.ts` guarda a regra (AT-822).
