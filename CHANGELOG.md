@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Guia de adoção da política (AT-827): `scripts/ci/docs/tutorials/adotar.md` leva quem nunca viu o Brabo do kit mínimo (`pr-police` e `escada`, sem App nem segredo) ao carimbo de tag, ao GitHub App, ao kit completo, ao que é específico do Brabo, a outra org e à solução de problemas. A prova é `daneiel/brabo-ci-exemplo`, com a PR de exemplo de checks verdes (a promoção e a tag ficam para quando o exemplo tiver o App). README ganha a linha "comece pelo guia".
 - **docs**: a ref do `ALVOS_ESPERADOS` do runner em `scripts/ci/docs/business-rules/ci.md` vai de `:370` para `:375`. A runner#23 deslocou a linha, e o drift do `brabo` reprovava a brabo#69.
 
 - Os reutilizáveis não presumem a org `viralabs-dev` (AT-831): input `ci_repo` (padrão `viralabs-dev/brabo-ci`) nos 22 checkouts de 14 reutilizáveis; `owner:` do token do App e `scope` do npm vêm de `github.repository_owner`; `vinculos`, `contracts-alinhado` e os `qa-e2e-*` leem `GITHUB_REPOSITORY_OWNER` por `scripts/ci/dono.ts` (padrão `viralabs-dev`, formato de login validado). Os padrões são os de hoje: os 11 consumidores seguem sem mudar o `with:`. Conferido na doc oficial: o contexto `job.workflow_repository`/`job.workflow_sha` existe e vale em `steps.with`, mas não em GitHub Enterprise Server e o actionlint pode não o conhecer; por isso ficou o input. Fica como específico do Brabo: portão do QA, imagens `brabo-*`, nomes de check, login do App, `dependencias-de-merge.ts` (fora desta AT) e o link do painel. `org-livre.spec.ts` guarda a regra.
