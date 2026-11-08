@@ -8,6 +8,8 @@
  *  2. o SHA é o da tag citada (comentário mentiroso é pior que nenhum);
  *  3. pela branch alvo: na `main` só versão final; nas demais (`dev`) final ou `-dev.N`.
  *
+ * O próprio brabo-ci é isento: ele roda o código dele de qualquer jeito e a final só nasce no merge da promoção (AT-788, adendo ao ADR 0280).
+ *
  * Sintaxe apagável apenas (o Node executa este `.ts` por type stripping).
  */
 
@@ -30,8 +32,10 @@ export async function verificarPinsDoCi(
   workflows: readonly Workflow[],
   branchAlvo: string,
   tags: (tag: string) => Promise<string | undefined>,
+  repoChamador = '',
 ): Promise<ViolacaoPin[]> {
   const violacoes: ViolacaoPin[] = [];
+  if (repoChamador === 'viralabs-dev/brabo-ci') return violacoes;
   for (const { nome, conteudo } of workflows) {
     const linhas = conteudo.split('\n');
     for (const [i, linha] of linhas.entries()) {
@@ -91,7 +95,7 @@ async function principal(): Promise<void> {
     console.error('::error::pins-do-brabo-ci: --branch e GITHUB_TOKEN são obrigatórios.');
     process.exit(2);
   }
-  const violacoes = await verificarPinsDoCi(lerWorkflows(raiz), branch, resolverTagPelaApi(token));
+  const violacoes = await verificarPinsDoCi(lerWorkflows(raiz), branch, resolverTagPelaApi(token), process.env['GITHUB_REPOSITORY']);
   for (const v of violacoes) console.error(`::error file=${v.arquivo},line=${v.linha}::${v.mensagem} (branch alvo: ${branch}; ADR 0280)`);
   if (violacoes.length > 0) process.exit(1);
   console.log(`pins-do-brabo-ci: pins do brabo-ci conferidos para a branch ${branch}.`);
