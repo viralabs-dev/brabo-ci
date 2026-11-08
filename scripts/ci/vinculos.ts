@@ -35,7 +35,7 @@ export interface Entrada {
 const REPO = /^viralabs-dev\/brabo(-[a-z]+)?$/;
 const SHA = /^[0-9a-f]{40}$/;
 const PR = /^[0-9]{1,7}$/;
-const URL_OK = /^https:\/\/github\.com\/viralabs-dev\/[A-Za-z0-9._\-/#?=&%]{0,200}$/;
+export const URL_OK = /^https:\/\/github\.com\/viralabs-dev\/[A-Za-z0-9._\-/#?=&%]{0,200}$/;
 const ATOR = /^[A-Za-z0-9-]{1,39}(\[bot\])?$/;
 const EVENTO = /^[a-z_]{1,40}$/;
 // Rótulo livre: só letras, dígitos e pontuação inofensiva (sem | ` < > [ ] ( ) " \n).
@@ -160,23 +160,33 @@ export function origemAuto(env: NodeJS.ProcessEnv, aviso: Aviso): Origem {
   return { repo: env.GITHUB_REPOSITORY ?? '', pr, sha, ator: env.GITHUB_ACTOR ?? '', run_url, evento: env.GITHUB_EVENT_NAME };
 }
 
+/** Link de volta ao painel (AT-792): só no modo auto com PR. O `run-name` do painel traz `<repo>#<n>`, e o filtro do Actions casa esse texto. */
+export function linhaDoPainel(origem: Origem): { rotulo: string; url: string } | null {
+  const m = /^viralabs-dev\/(brabo(?:-[a-z]+)?)$/.exec(origem.repo ?? '');
+  if (!m || !PR.test(String(origem.pr ?? ''))) return null;
+  return { rotulo: 'Painel da mudança', url: `https://github.com/viralabs-dev/brabo-ci/actions/workflows/painel.yml?query=${m[1]}%23${origem.pr}` };
+}
+
 export function main(env: NodeJS.ProcessEnv = process.env): void {
   const aviso: Aviso = (m) => console.log(`::warning::${m}`);
   try {
     let origem: Origem;
+    let auto = !env.VINCULOS_ORIGEM?.trim();
     try {
-      origem = env.VINCULOS_ORIGEM?.trim() ? JSON.parse(env.VINCULOS_ORIGEM) : origemAuto(env, aviso);
+      origem = auto ? origemAuto(env, aviso) : JSON.parse(env.VINCULOS_ORIGEM as string);
     } catch {
       aviso('vinculos: origem não é JSON, usei a automática');
       origem = origemAuto(env, aviso);
+      auto = true;
     }
+    const painel = auto ? linhaDoPainel(origem) : null;
     const md = montar(
       {
         origem,
         este: { repo: env.GITHUB_REPOSITORY ?? '', sha: env.GITHUB_SHA ?? '', run_url: `${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}` },
         irmaos: linhasDe(env.VINCULOS_IRMAOS).map((l) => resolverIrmao(l, aviso)),
         destino: paresRotuloUrl(env.VINCULOS_DESTINO),
-        disparados: paresRotuloUrl(env.VINCULOS_DISPARADOS),
+        disparados: [...paresRotuloUrl(env.VINCULOS_DISPARADOS), ...(painel ? [painel] : [])],
       },
       aviso,
     );
