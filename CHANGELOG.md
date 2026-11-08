@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **docs**: a publicação npm ganha a definição da RN-1042 em `scripts/ci/docs/business-rules/ci.md` (seção nova: só sai pela tag, dist-tag `dev` ou `latest`, a mesma versão em todos os pacotes). O rótulo que estava como RN-1037 em `CLAUDE.md`, `scripts/ci/publish-npm.ts` e `publish-npm.spec.ts` (e nesta entrada) passa a RN-1042. Sem mudança de comportamento.
+
 - **docs**: a página do painel da mudança vira uma só, `docs/explanation/painel-da-mudanca.md`, com a ordem didática da página do `brabo` e o que só a do ci cobria (disparo à mão, chave e `run-name`, como acha as runs, "aguarda merge" e segurança). A página antiga `docs/painel-da-mudanca.md` sai (AT-847, passo 1).
 
 - A `prova` das arestas do `repos.yml` passa a ser `{ arquivo, trecho }` (AT-848, passo 1; referencia o ADR 0281): o trecho é texto literal de uma linha, aparece no arquivo FORA do bloco `mapa:inicio…fim` e cita o destino (`menciona`/`ALIAS`); a linha é calculada e impressa no log, nunca gravada. O `arquivo:N` antigo segue aceito (obsoleto, sai num passo 3) e agora também não conta dentro do bloco gerado (falso verde `brabo-contracts → brabo-api`, `README.md:90`). `mapa-dos-repos.ts` e `arestas-dos-repos.ts` aceitam os dois; specs com mutação (linha no topo: novo verde, antigo vermelho) e trecho só no bloco (reprova). Os pins do `mapa-alinhado` dos consumidores precisam subir antes de o `brabo` trocar o formato.
@@ -63,7 +65,7 @@
 - CI: todo `runs-on` fixa `ubuntu-26.04` no lugar de `ubuntu-latest`, e o `create-github-app-token` usa `client-id` no lugar do `app-id` obsoleto; os runs saem sem anotação de aviso (AT-772).
 
 - `.github/actions/vinculos` (action composta) e `scripts/ci/vinculos.ts` novos: escrevem `## Vínculos` (origem, irmãos `repo@SHA`, destino e runs disparados) e um diagrama Mermaid no Summary do run, mais `vinculos.md`. Entrada validada por regex, nunca reprova o job, usa o node do runner (≥ 22.18). Spec com fixtures e git temporário (AT-773).
-- `publish-npm.yml` novo (reutilizável): `pnpm pack`, `actions/attest` sobre o `.tgz` e `npm publish` desse mesmo arquivo em `npm.pkg.github.com`, dist-tag `dev` para `-dev.N` e `latest` para a final; `scripts/ci/publish-npm.ts` calcula versão e dist-tag. RN-1037 (AT-770).
+- `publish-npm.yml` novo (reutilizável): `pnpm pack`, `actions/attest` sobre o `.tgz` e `npm publish` desse mesmo arquivo em `npm.pkg.github.com`, dist-tag `dev` para `-dev.N` e `latest` para a final; `scripts/ci/publish-npm.ts` calcula versão e dist-tag. RN-1042 (AT-770).
 - `contracts-alinhado.yml` e `scripts/ci/contracts-alinhado.ts` novos: versão do brabo-contracts igual no `package.json`, no lock e nas constantes dos scripts; aviso contra o `componentes.json`. RN-1038 (AT-770).
 - `scripts/ci/subir-contracts.sh` novo: sobe a versão do contracts num consumidor e recusa o lock que mudou fora das entradas `@viralabs-dev/brabo-*` (AT-770).
 - `qa-e2e-gatilho.yml` ganha o job `regressivo-dev` (PR com base `dev`): `qa-regressivo-selecao.ts` tira `{modo, funcionalidades, semDono}` dos arquivos tocados e do catálogo `funcionalidades.yml` do brabo-qa; `qa-e2e-imagens.ts` usa a imagem `sha-<12>` do head (`baseRef: 'dev'`); `qa-e2e-resumo.ts` monta a tabela por funcionalidade ("sem cobertura" não reprova) e o nome do check por modo (`Regressivo do brabo-qa` na dev, `E2E do brabo-qa` na main). O check da dev nunca é exigido, e `regressivo-nao-exigido.spec.ts` falha se o repo o citar como exigido. O portão da `main` não muda (AT-769).

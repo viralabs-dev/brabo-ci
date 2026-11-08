@@ -1,6 +1,6 @@
 /**
  * publish-npm — da tag do chamador tira a versão do pacote e o dist-tag do
- * npm (AT-770, RN-1037). A tag `vX.Y.Z-dev.N` (dev) publica com `dev`; a final
+ * npm (AT-770, RN-1042). A tag `vX.Y.Z-dev.N` (dev) publica com `dev`; a final
  * `vX.Y.Z` (main) publica com `latest`. Qualquer outra forma reprova: um
  * pré-release avulso não pode tomar o `latest` por engano.
  *

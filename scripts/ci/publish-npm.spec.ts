@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { distTag, versaoDaTag } from './publish-npm.ts';
 
-describe('publish-npm (RN-1037)', () => {
+describe('publish-npm (RN-1042)', () => {
   it('-dev.N publica com o dist-tag dev', () => {
     expect(distTag(versaoDaTag('v1.3.0-dev.12'))).toBe('dev');
   });
