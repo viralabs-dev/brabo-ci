@@ -21,7 +21,14 @@ export interface Selecao {
   modo: Modo;
   funcionalidades: string[];
   semDono: string[];
+  /** Por que cada funcionalidade entrou (AT-791): até `MAX_MOTIVOS` por id, de até `MAX_MOTIVO` caracteres. */
+  motivos: Record<string, string[]>;
+  /** As que o MAPA liga à PR (sem o smoke da regra 3): separa "a PR toca" de "só rodou" na recomendação. */
+  tocadas: string[];
 }
+
+export const MAX_MOTIVOS = 5;
+export const MAX_MOTIVO = 200;
 
 export interface EntradaSelecao {
   /** Nome do repo da PR, com ou sem o prefixo `brabo-`. */
@@ -62,7 +69,17 @@ export function selecionar(e: EntradaSelecao): Selecao {
   const ativas = e.catalogo.filter((f) => f.status !== 'aposentada');
   const todas = ativas.map((f) => f.id);
   // Só a TAG sobe no contracts; o regressivo roda na PR do consumidor.
-  if (repo === 'contracts') return { modo: 'nenhum', funcionalidades: [], semDono: [] };
+  const motivos: Record<string, string[]> = {};
+  const motivar = (id: string, m: string) => {
+    const l = (motivos[id] ??= []);
+    const t = m.slice(0, MAX_MOTIVO);
+    if (l.length < MAX_MOTIVOS && !l.includes(t)) l.push(t);
+  };
+  const completo = (porque: string): Selecao => {
+    todas.forEach((i) => motivar(i, `catálogo inteiro: ${porque}`));
+    return { modo: 'completo', funcionalidades: todas, semDono: [], motivos, tocadas: todas };
+  };
+  if (repo === 'contracts') return { modo: 'nenhum', funcionalidades: [], semDono: [], motivos: {}, tocadas: [] };
 
   const globsDe = (f: Funcionalidade) =>
     Object.entries(f.caminhos ?? {}).filter(([r]) => semPrefixo(r) === repo).flatMap(([, g]) => g);
@@ -77,18 +94,21 @@ export function selecionar(e: EntradaSelecao): Selecao {
     if (!spec && ehNada(arquivo)) continue;
     if (spec) {
       const ids = e.tagsDosSpecs?.[arquivo];
-      if (!ids) return { modo: 'completo', funcionalidades: todas, semDono: [] };
-      ids.filter((i) => todas.includes(i)).forEach((i) => achadas.add(i));
+      if (!ids) return completo(`spec sem tag ${arquivo}`);
+      ids.filter((i) => todas.includes(i)).forEach((i) => (achadas.add(i), motivar(i, `${repo}: ${arquivo}`)));
       continue;
     }
-    if (inteiroGeral(arquivo) || inteiroPorRepo[repo]?.(arquivo)) return { modo: 'completo', funcionalidades: todas, semDono: [] };
+    if (inteiroGeral(arquivo) || inteiroPorRepo[repo]?.(arquivo)) return completo(arquivo);
     const donosDoArquivo = donos.filter((d) => d.tem && d.casa(arquivo));
     if (donosDoArquivo.length === 0) semDono.push(arquivo);
-    donosDoArquivo.forEach((d) => achadas.add(d.id));
+    donosDoArquivo.forEach((d) => (achadas.add(d.id), motivar(d.id, `${repo}: ${arquivo}`)));
   }
-  if (semDono.length > 0) SMOKE.filter((i) => todas.includes(i)).forEach((i) => achadas.add(i));
+  const tocadas = todas.filter((i) => achadas.has(i));
+  if (semDono.length > 0) {
+    SMOKE.filter((i) => todas.includes(i)).forEach((i) => (achadas.add(i), semDono.forEach((a) => motivar(i, `smoke: arquivo sem dono ${a}`))));
+  }
   const funcionalidades = todas.filter((i) => achadas.has(i));
-  return { modo: funcionalidades.length > 0 ? 'funcionalidades' : 'nenhum', funcionalidades, semDono };
+  return { modo: funcionalidades.length > 0 ? 'funcionalidades' : 'nenhum', funcionalidades, semDono, motivos, tocadas };
 }
 
 /** Lê o `funcionalidades.yml` (lista na raiz ou sob a chave `funcionalidades`). */

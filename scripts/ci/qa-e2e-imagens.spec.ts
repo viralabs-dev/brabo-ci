@@ -88,6 +88,15 @@ describe('montarPayload', () => {
   });
 });
 
+describe('montarPayload com motivos (AT-791)', () => {
+  it('leva motivos, semDono e tocadas sem tirar o resto; o qa antigo ignora a chave nova', () => {
+    const extra = { motivos: { autenticacao: ['api: src/auth/x.ts'] }, semDono: ['src/zzz'], tocadas: ['autenticacao'] };
+    const p = montarPayload(escolherTags(base), { repo: 'o/r', pr: 1, headSha: 'a', checkRunId: 2 }, extra);
+    expect(p).toMatchObject({ ...extra, check_run_id: 2, repo: 'o/r' });
+    expect(Object.keys(p.imagens)).toHaveLength(5);
+  });
+});
+
 describe('maisNova', () => {
   it('ordena por semver, não por texto', () => {
     expect(maisNova(['v1.2.0-dev.9', 'v1.10.0-dev.1', 'v1.2.0-dev.10'])).toBe('v1.10.0-dev.1');

@@ -22,10 +22,10 @@ import {
   type EscolhaDeTags,
   type RepoGatilho,
 } from './qa-e2e-imagens.ts';
-import { NOME_DO_CHECK_POR_MODO, montarCheck } from './qa-e2e-resumo.ts';
+import { NOME_DO_CHECK_POR_MODO, montarCheck, secaoMotivos } from './qa-e2e-resumo.ts';
 import { escreverNoSummary, procurarRun, vinculosDoGatilho, type RunDoQa } from './qa-e2e-vinculos.ts';
 import { buscaTagsDoHead } from './qa-e2e-busca-tags.ts';
-import { lerCatalogo, selecionar } from './qa-regressivo-selecao.ts';
+import { lerCatalogo, selecionar, type Selecao } from './qa-regressivo-selecao.ts';
 
 export const NOME_DO_CHECK = NOME_DO_CHECK_POR_MODO.main;
 
@@ -84,6 +84,7 @@ async function principal(): Promise<void> {
 
   let extra: object = {};
   let sobreDono = '';
+  let selecao: Selecao | null = null;
   if (dev) {
     // Fork não recebe segredo nem publica imagem; a seleção só lê arquivos e o catálogo público.
     if (env('PR_HEAD_REPO') !== env('GITHUB_REPOSITORY')) return neutro('Regressivo não roda em PR de fork.');
@@ -92,8 +93,20 @@ async function principal(): Promise<void> {
     const s = selecionar({ repo: nome, arquivos: await arquivosDaPr(dono, nome, env('PR_NUMERO')), catalogo: lerCatalogo(await r.text()) });
     if (nome === 'brabo-contracts') return neutro('Consumido por TAG; o regressivo roda na PR que sobe a TAG.');
     if (s.modo === 'nenhum') return neutro('Sem funcionalidade tocada.');
-    extra = { modo: s.modo, funcionalidades: s.funcionalidades };
+    selecao = s;
+    extra = { modo: s.modo, funcionalidades: s.funcionalidades, motivos: s.motivos, semDono: s.semDono, tocadas: s.tocadas };
     sobreDono = s.semDono.length > 0 ? `\n\nSem dono no mapa:\n${s.semDono.map((c) => `- ${c}`).join('\n')}` : '';
+  } else if (nome !== 'brabo-contracts') {
+    // Portão da main (AT-791): o conjunto segue o catálogo inteiro; a seleção pelo mapa é só informação,
+    // para o relatório separar "a PR toca" de "só rodou". Falhar aqui nunca reprova o gatilho.
+    try {
+      const r = await fetch(CATALOGO_URL);
+      if (!r.ok) throw new Error(`catálogo do brabo-qa: ${r.status}`);
+      selecao = selecionar({ repo: nome, arquivos: await arquivosDaPr(dono, nome, env('PR_NUMERO')), catalogo: lerCatalogo(await r.text()) });
+      extra = { motivos: selecao.motivos, semDono: selecao.semDono, tocadas: selecao.tocadas };
+    } catch (e) {
+      console.log(`::warning::seleção informativa da main falhou (${(e as Error).message}); segue sem motivos`);
+    }
   }
 
   let escolha: EscolhaDeTags | null = null;
@@ -157,6 +170,9 @@ async function principal(): Promise<void> {
         return r.workflow_runs as RunDoQa[];
       }, correlacao);
       if (!achou) console.log(`::warning::vinculos: run do brabo-qa com c=${correlacao} não apareceu em 60 s; ficou o link do check`);
+      // "Funcionalidades e motivo" no Summary do run de origem (AT-791).
+      const motivos = selecao ? secaoMotivos(Object.entries(selecao.motivos).map(([id, motivo]) => ({ id, motivo })), selecao.semDono) : '';
+      if (motivos) escreverNoSummary(motivos.replace('### Por que estas funcionalidades', '## Funcionalidades e motivo'));
       escreverNoSummary(
         vinculosDoGatilho({
           origem: { repo: `${dono}/${nome}`, pr: env('PR_NUMERO'), sha: headSha, ator, run_url: urlDoRun, evento: 'pull_request' },
