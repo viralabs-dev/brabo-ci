@@ -30,6 +30,9 @@ describe('mapa-dos-repos (AT-825)', () => {
     expect(() => lerMapa(base().replace('repo: b,', 'repo: z,'))).toThrow(/desconhecido/);
     expect(() => lerMapa(base().replace('contrato', 'magia'))).toThrow(/inválido/);
     expect(() => lerMapa(base().replace('p.json:3', 'p.json'))).toThrow(/arquivo:linha/);
+    expect(() => lerMapa(base().replace('"p.json:3"', '{ arquivo: p.json }'))).toThrow(/trecho/);
+    expect(() => lerMapa(base().replace('"p.json:3"', '{ arquivo: p.json, trecho: "a\\nb" }'))).toThrow(/trecho/);
+    expect(lerMapa(base().replace('"p.json:3"', '{ arquivo: p.json, trecho: "a b" }')).a!.depende_de[0]!.prova).toEqual({ arquivo: 'p.json', trecho: 'a b' });
     expect(() => gerarBloco(lerMapa(base()), 'z')).toThrow(/não está/);
   });
   it('troca só o bloco; sem marcadores devolve null', () => {

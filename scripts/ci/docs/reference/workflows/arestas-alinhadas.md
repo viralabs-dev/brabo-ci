@@ -2,7 +2,7 @@
 id: workflow-arestas-alinhadas
 title: Reutilizável arestas-alinhadas
 sidebar_label: arestas-alinhadas
-description: "Prova que cada aresta do repos.yml do brabo existe no código (prova arquivo:N) e que REPOS, irmaos.lock e componentes.json batem com o mapa."
+description: "Prova que cada aresta do repos.yml do brabo existe no código (prova arquivo + trecho) e que REPOS, irmaos.lock e componentes.json batem com o mapa."
 keywords: [brabo-ci, workflow_call, arestas-alinhadas]
 ---
 
@@ -14,7 +14,7 @@ keywords: [brabo-ci, workflow_call, arestas-alinhadas]
 
 ## O que faz
 
-Prova que cada aresta do repos.yml do brabo existe no código (prova arquivo:N) e que REPOS, irmaos.lock e componentes.json batem com o mapa.
+Prova que cada aresta do repos.yml do brabo existe no código (prova arquivo + trecho) e que REPOS, irmaos.lock e componentes.json batem com o mapa.
 
 ## Gatilhos recomendados
 
