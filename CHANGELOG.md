@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Docs (AT-867): a linha de badges logo abaixo do título mostra o CI da `dev` e o da `main`, a versão da `dev` (última tag `-dev`), licença MIT, documentação e Ko-fi, no estilo do `brabo` Sem release publicada, o badge de versão da `main` não entra.
+
 - Doc (AT-853): RN-1075 em `scripts/ci/docs/business-rules/ci.md` (e `en`, `ru`, `zh-Hans`): o `brabo-runner` se atesta pelo próprio CI (binário linux-x64 com `smoke:bin` na PR), e o contrato runner ↔ engine só é provado no TP-01.
 - `qa-regressivo-lembrete.ts` novo e chamado pelo `qa-e2e-disparar.ts` na PR para a `dev`: quando a PR toca funcionalidades específicas (nunca o catálogo inteiro, nunca PR do qa ou do contracts) e nenhuma spec `@f-<id>` delas mudou na `dev` do brabo-qa desde a base nem numa PR do qa citada em `Depende-de:`, o App deixa UM comentário com a marca `<!-- lembrete-regressivo -->`, editado a cada push. Qualquer erro vira `::warning::`. Cumpre a RN-1032 e o ADR 0268, item 7, que prometiam o lembrete sem código. Spec com os casos do critério (AT-852).
 

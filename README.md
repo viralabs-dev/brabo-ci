@@ -1,5 +1,7 @@
 # brabo-ci
 
+[![CI dev](https://img.shields.io/github/actions/workflow/status/viralabs-dev/brabo-ci/ci.yml?branch=dev&label=CI%20dev&style=flat-square)](https://github.com/viralabs-dev/brabo-ci/actions/workflows/ci.yml?query=branch%3Adev) [![CI main](https://img.shields.io/github/actions/workflow/status/viralabs-dev/brabo-ci/ci.yml?branch=main&label=CI%20main&style=flat-square)](https://github.com/viralabs-dev/brabo-ci/actions/workflows/ci.yml?query=branch%3Amain) [![dev](https://img.shields.io/github/v/tag/viralabs-dev/brabo-ci?include_prereleases&filter=*-dev*&label=dev&color=informational&style=flat-square)](https://github.com/viralabs-dev/brabo-ci/tags) [![Licença: MIT](https://img.shields.io/badge/licença-MIT-blue.svg?style=flat-square)](LICENSE) [![Documentação](https://img.shields.io/badge/docs-viralabs--dev.github.io/brabo-8A2BE2.svg?style=flat-square)](https://viralabs-dev.github.io/brabo/prd/) [![Apoie no Ko-fi](https://img.shields.io/badge/Ko--fi-me%20pague%20um%20caf%C3%A9-FF5E5B?logo=ko-fi&logoColor=white&style=flat-square)](https://ko-fi.com/daneiel)
+
 Workflows reutilizáveis, actions e modelos de comunidade que dão a um conjunto de repositórios a mesma política de PR, tag e promoção.
 
 ## Para que existe
@@ -133,9 +135,7 @@ O `ci.yml` roda quatro jobs, e o exigido para mergear é o `politica.yml` pinado
 
 ## Documentação
 
-- [Guia de adoção](scripts/ci/docs/tutorials/adotar.md): do kit mínimo ao kit completo. Site: <https://viralabs-dev.github.io/brabo/prd/>.
-- [Política em 10 minutos](scripts/ci/docs/explanation/politica-em-10-minutos.md), [ordem da promoção](scripts/ci/docs/explanation/ordem-da-promocao.md) e [usar em outra org](scripts/ci/docs/explanation/usar-em-outra-org.md).
-- [Referência de cada workflow](scripts/ci/docs/reference/workflows/) (gerada), [códigos de violação](scripts/ci/docs/reference/codigos-de-violacao.md), [reutilizáveis sem chamador](scripts/ci/docs/explanation/reutilizaveis-sem-chamador.md).
+- [Guia de adoção](scripts/ci/docs/tutorials/adotar.md): do kit mínimo ao kit completo. Site: <https://viralabs-dev.github.io/brabo/prd/>. Mais: [política em 10 minutos](scripts/ci/docs/explanation/politica-em-10-minutos.md), [ordem da promoção](scripts/ci/docs/explanation/ordem-da-promocao.md), [usar em outra org](scripts/ci/docs/explanation/usar-em-outra-org.md), [referência de cada workflow](scripts/ci/docs/reference/workflows/) (gerada), [códigos de violação](scripts/ci/docs/reference/codigos-de-violacao.md) e [reutilizáveis sem chamador](scripts/ci/docs/explanation/reutilizaveis-sem-chamador.md).
 
 ## Como replicar no seu projeto
 
