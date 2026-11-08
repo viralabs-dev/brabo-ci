@@ -730,9 +730,11 @@ mudou.
 
 - **Código:** `.github/workflows/qa-e2e-gatilho.yml:74` (o job
   `regressivo-dev`, com `continue-on-error`), `scripts/ci/qa-e2e-resumo.ts:22`
-  (o nome do check por modo)
+  (o nome do check por modo), `scripts/ci/qa-regressivo-lembrete.ts` (o
+  comentário único do lembrete)
 - **Teste:** `scripts/ci/qa-e2e-resumo.spec.ts` (o nome por modo) e
-  `scripts/ci/qa-regressivo-selecao.spec.ts:33` (a seleção por mapa)
+  `scripts/ci/qa-regressivo-selecao.spec.ts:33` (a seleção por mapa) e
+  `scripts/ci/qa-regressivo-lembrete.spec.ts` (o lembrete)
 - **ADR:** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origem:** AT-769 (EP-033)
 

@@ -9,6 +9,7 @@
  *
  * AT-790: antes de dar vermelho por ambiente ou assinatura, espera (QA_ESPERA_MINUTOS, padrão 10) a tag -dev do head, a imagem
  * e a assinatura (cosign) dela.
+ * Na dev, depois do disparo, `qa-regressivo-lembrete.ts` deixa o comentário único "toca X e o regressivo de X não mudou" (AT-852).
  *
  * Env: GH_TOKEN (token do App), GITHUB_REPOSITORY, PR_NUMERO, PR_HEAD_SHA, PR_HEAD_REF, GITHUB_RUN_URL;
  * opcionais (AT-773): PR_AUTOR (login do autor da PR; sem ele, GITHUB_ACTOR), GITHUB_RUN_ID, GITHUB_RUN_ATTEMPT, GITHUB_SHA, GITHUB_STEP_SUMMARY;
@@ -32,6 +33,7 @@ import { AssinaturaAusente, ImagemAusente, cosignAssinada, esperarImagemAssinada
 import { buscaTagsDoHead } from './qa-e2e-busca-tags.ts';
 import { DONO } from './dono.ts';
 import { lerCatalogo, selecionar, type Selecao } from './qa-regressivo-selecao.ts';
+import { lembrar } from './qa-regressivo-lembrete.ts';
 
 export const NOME_DO_CHECK = NOME_DO_CHECK_POR_MODO.main;
 
@@ -187,6 +189,20 @@ async function principal(): Promise<void> {
   }
   console.log(`e2e-pr disparado (check ${criado.id})`);
   await registrarVinculos();
+  // Lembrete único na PR (RN-1032); erro vira aviso, nunca reprova.
+  if (dev && selecao) {
+    await lembrar(
+      {
+        gh,
+        texto: async (caminho, ref) => {
+          const r = await fetch(`https://api.github.com/repos/${DONO}/brabo-qa/contents/${caminho}?ref=${ref}`, { headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github.raw+json' } });
+          if (!r.ok) throw new Error(`GitHub GET ${caminho}@${ref}: ${r.status}`);
+          return r.text();
+        },
+      },
+      { dono, nome, pr: env('PR_NUMERO'), modo: selecao.modo, tocadas: selecao.tocadas, aviso: (m) => console.log(`::warning::${m}`) },
+    );
+  }
 
   // Vínculos no Summary do run de origem; falha aqui nunca reprova o gatilho.
   async function registrarVinculos(): Promise<void> {

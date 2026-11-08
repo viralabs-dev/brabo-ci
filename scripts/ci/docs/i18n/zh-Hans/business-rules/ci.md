@@ -342,9 +342,10 @@ as imagens publicadas」，`permissions` 块中带 `id-token: write`）；
 
 - **代码：** `.github/workflows/qa-e2e-gatilho.yml:74`（作业
   `regressivo-dev`，带 `continue-on-error`）、`scripts/ci/qa-e2e-resumo.ts:22`
-  （按模式的检查名称）
+  （按模式的检查名称）、`scripts/ci/qa-regressivo-lembrete.ts`（唯一的提醒评论）
 - **测试：** `scripts/ci/qa-e2e-resumo.spec.ts`（按模式的名称）和
-  `scripts/ci/qa-regressivo-selecao.spec.ts:33`（按映射选择）
+  `scripts/ci/qa-regressivo-selecao.spec.ts:33`（按映射选择）和
+  `scripts/ci/qa-regressivo-lembrete.spec.ts`（提醒）
 - **ADR：** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **来源：** AT-769（EP-033）
 

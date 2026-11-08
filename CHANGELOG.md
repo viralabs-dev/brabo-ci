@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `qa-regressivo-lembrete.ts` novo e chamado pelo `qa-e2e-disparar.ts` na PR para a `dev`: quando a PR toca funcionalidades específicas (nunca o catálogo inteiro, nunca PR do qa ou do contracts) e nenhuma spec `@f-<id>` delas mudou na `dev` do brabo-qa desde a base nem numa PR do qa citada em `Depende-de:`, o App deixa UM comentário com a marca `<!-- lembrete-regressivo -->`, editado a cada push. Qualquer erro vira `::warning::`. Cumpre a RN-1032 e o ADR 0268, item 7, que prometiam o lembrete sem código. Spec com os casos do critério (AT-852).
+
 - **docs**: o bloco do mapa do README é regenerado do `repos.yml` do brabo, que ganha a aresta `brabo → brabo-contracts` e a prova em `{arquivo, trecho}` (AT-848); `mapa-alinhado` volta a bater.
 - **docs**: as traduções `en`, `ru` e `zh-Hans` de `scripts/ci/docs/business-rules/ci.md` recebem as 22 RNs que faltavam (RN-1031..1035, 1042..1045, 1047..1056, 1066, 1071, 1072), na posição e na ordem da fonte, com `traducao_de` no SHA da fonte. Sem elas, a `brabo#82` reprovava no `docs:build` com a âncora `ci.html#rn-1054` quebrada nos três locales (o painel da mudança só existe em pt-BR e aponta para o `ci.md` do locale). Sem mudança de comportamento.
 

@@ -731,9 +731,11 @@ changed.
 
 - **Code:** `.github/workflows/qa-e2e-gatilho.yml:74` (the job
   `regressivo-dev`, with `continue-on-error`), `scripts/ci/qa-e2e-resumo.ts:22`
-  (the check name per mode)
+  (the check name per mode), `scripts/ci/qa-regressivo-lembrete.ts` (the
+  single reminder comment)
 - **Test:** `scripts/ci/qa-e2e-resumo.spec.ts` (the name per mode) and
-  `scripts/ci/qa-regressivo-selecao.spec.ts:33` (selection by map)
+  `scripts/ci/qa-regressivo-selecao.spec.ts:33` (selection by map) and
+  `scripts/ci/qa-regressivo-lembrete.spec.ts` (the reminder)
 - **ADR:** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origin:** AT-769 (EP-033)
 

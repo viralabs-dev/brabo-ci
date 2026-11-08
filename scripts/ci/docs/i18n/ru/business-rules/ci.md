@@ -748,9 +748,11 @@ brabo-qa`, создаваемая App на `head_sha`: `success`, `failure` (в�
 
 - **Код:** `.github/workflows/qa-e2e-gatilho.yml:74` (job
   `regressivo-dev`, с `continue-on-error`), `scripts/ci/qa-e2e-resumo.ts:22`
-  (имя проверки по режиму)
+  (имя проверки по режиму), `scripts/ci/qa-regressivo-lembrete.ts`
+  (единственный комментарий-напоминание)
 - **Тест:** `scripts/ci/qa-e2e-resumo.spec.ts` (имя по режиму) и
-  `scripts/ci/qa-regressivo-selecao.spec.ts:33` (выбор по карте)
+  `scripts/ci/qa-regressivo-selecao.spec.ts:33` (выбор по карте) и
+  `scripts/ci/qa-regressivo-lembrete.spec.ts` (напоминание)
 - **ADR:** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Источник:** AT-769 (EP-033)
 
