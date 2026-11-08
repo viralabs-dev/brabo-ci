@@ -7,7 +7,7 @@
  * Sintaxe apagável apenas (o Node executa este `.ts` por type stripping).
  */
 
-import { avaliarAceite } from './qa-e2e-aceite.ts';
+import { avaliarAceite, comentarioDoAceite } from './qa-e2e-aceite.ts';
 import { montarCheck } from './qa-e2e-resumo.ts';
 
 const NOME_DO_CHECK = 'E2E do brabo-qa';
@@ -55,6 +55,9 @@ async function principal(): Promise<void> {
     linhas: [],
     specsQueFalharam: [],
     urlDoRun: atual.details_url ?? '',
+    // Preserva o relatório do vermelho (AT-791): antes o aceite apagava o resumo.
+    resumoAnterior: atual.output?.summary ?? '',
+    textoAnterior: atual.output?.text ?? undefined,
     aceite: {
       justificativa: veredito.justificativa,
       por: env('COMENTARIO_AUTOR'),
@@ -64,10 +67,10 @@ async function principal(): Promise<void> {
   });
   await gh(`repos/${repo}/check-runs/${atual.id}`, {
     method: 'PATCH',
-    body: JSON.stringify({ status: 'completed', conclusion: c.conclusion, output: { title: c.title, summary: c.summary } }),
+    body: JSON.stringify({ status: 'completed', conclusion: c.conclusion, output: { title: c.title, summary: c.summary, ...(c.text ? { text: c.text } : {}) } }),
   });
   await gh(`repos/${repo}/issues/${pr}/labels`, { method: 'POST', body: JSON.stringify({ labels: [LABEL] }) });
-  await comentar(`Aceito com justificativa por @${env('COMENTARIO_AUTOR')}: ${veredito.justificativa}`);
+  await comentar(comentarioDoAceite(env('COMENTARIO_AUTOR'), veredito.justificativa, atual.output?.summary ?? ''));
 }
 
 const { pathToFileURL } = await import('node:url');

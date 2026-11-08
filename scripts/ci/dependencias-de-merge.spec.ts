@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { REPOS, avaliar, lerDeclaracoes, type PrRemota, type Ref } from './dependencias-de-merge.ts';
+import { CAMADAS_DE_PROMOCAO, REPOS, avaliar, lerDeclaracoes, linhasDePromocao, predecessores, sucessores, type Promocao, type PrRemota, type Ref } from './dependencias-de-merge.ts';
 
 const EU: Ref = { repo: 'brabo-infra', n: 26 };
 const pr = (state: PrRemota['state'], corpo = ''): PrRemota => ({ state, titulo: 'titulo | com barra', url: 'https://github.com/x', corpo });
@@ -95,5 +95,65 @@ describe('avaliar', () => {
     for (const estado of ['OPEN', 'CLOSED', 'MERGED'] as const) {
       expect((await avaliar(EU, API, mundo({ 'brabo-api#56': pr(estado) }))).conclusion).not.toBe('neutral');
     }
+  });
+});
+
+describe('promoção em camadas (AT-788)', () => {
+  const abertas = (m: Record<string, number>, atrasados: string[] = []): Promocao => ({
+    abertas: async (repo) => (m[repo] ? [{ repo, n: m[repo] }] : []),
+    aFrente: async (repo) => atrasados.includes(repo),
+  });
+  const api: Ref = { repo: 'brabo-api', n: 62 };
+  const mundoDePromocoes = mundo({ 'brabo-ci#45': pr('OPEN'), 'brabo-infra#9': pr('OPEN'), 'brabo-qa#7': pr('OPEN') });
+
+  it('a união das camadas é o REPOS, sem repetição', () => {
+    const todos = CAMADAS_DE_PROMOCAO.flat();
+    expect([...todos].sort()).toEqual([...REPOS].sort());
+    expect(new Set(todos).size).toBe(todos.length);
+  });
+  it('predecessores e sucessores', () => {
+    expect(predecessores('brabo-ci')).toEqual([]);
+    expect(predecessores('brabo-api')).toEqual(['brabo-ci', 'brabo-contracts', 'brabo-workspace']);
+    expect(predecessores('brabo')).toHaveLength(10);
+    expect(sucessores('brabo-ci')).toHaveLength(10);
+    expect(sucessores('brabo')).toEqual([]);
+  });
+  it('promoção da api com a do ci aberta: espera', async () => {
+    const v = await avaliar(api, '', mundoDePromocoes, abertas({ 'brabo-ci': 45 }));
+    expect(v).toMatchObject({ status: 'in_progress', title: 'esperando viralabs-dev/brabo-ci#45' });
+  });
+  it('sem promoção aberta e sem dev à frente: success', async () => {
+    expect(await avaliar(api, '', mundoDePromocoes, abertas({}))).toMatchObject({ status: 'completed', conclusion: 'success' });
+  });
+  it('a do ci mergeada some das abertas: success', async () => {
+    expect(await avaliar(api, '', mundo({ 'brabo-ci#45': pr('MERGED') }), abertas({}))).toMatchObject({ conclusion: 'success' });
+  });
+  it('PR comum (sem promoção): nada inferido', async () => {
+    expect(await avaliar(api, '', mundoDePromocoes)).toMatchObject({ conclusion: 'success', title: 'Sem dependências declaradas' });
+  });
+  it('promoção do ci: camada 0, nada inferido', async () => {
+    const v = await avaliar({ repo: 'brabo-ci', n: 46 }, '', mundoDePromocoes, abertas({ 'brabo-ci': 45, 'brabo-api': 1 }, ['brabo-api']));
+    expect(v.conclusion).toBe('success');
+  });
+  it('promoção do brabo espera as das camadas 3 e 4', async () => {
+    const v = await avaliar({ repo: 'brabo', n: 60 }, '', mundoDePromocoes, abertas({ 'brabo-infra': 9, 'brabo-qa': 7 }));
+    expect(v).toMatchObject({ status: 'in_progress', title: 'esperando viralabs-dev/brabo-infra#9, viralabs-dev/brabo-qa#7' });
+  });
+  it('não duplica a que já está declarada no corpo', async () => {
+    const v = await avaliar(api, 'Depende-de: viralabs-dev/brabo-ci#45', mundoDePromocoes, abertas({ 'brabo-ci': 45 }));
+    expect(v.title).toBe('esperando viralabs-dev/brabo-ci#45');
+  });
+  it('dev do predecessor à frente e sem promoção aberta: amarelo dizendo qual repo promover (P2 b)', async () => {
+    const v = await avaliar(api, '', mundoDePromocoes, abertas({}, ['brabo-contracts']));
+    expect(v).toMatchObject({ status: 'in_progress', title: 'esperando promoção de viralabs-dev/brabo-contracts (a dev está à frente da main)' });
+    expect(v.conclusion).toBeUndefined();
+  });
+  it('dev à frente MAS com promoção aberta: espera só a PR', async () => {
+    const v = await avaliar(api, '', mundoDePromocoes, abertas({ 'brabo-ci': 45 }, ['brabo-ci']));
+    expect(v.title).toBe('esperando viralabs-dev/brabo-ci#45');
+  });
+  it('linhasDePromocao escreve a ordem das abertas das camadas de baixo', async () => {
+    expect(await linhasDePromocao('brabo-infra', abertas({ 'brabo-ci': 45, 'brabo-api': 62, 'brabo-qa': 7 }))).toEqual(['Depende-de: viralabs-dev/brabo-ci#45', 'Depende-de: viralabs-dev/brabo-api#62']);
+    expect(await linhasDePromocao('brabo-ci', abertas({ 'brabo-ci': 45 }))).toEqual([]);
   });
 });

@@ -10,6 +10,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { DONO } from './dono.ts';
 
 /** Cada arquivo de constante e como a versão aparece nele. */
 export const CONSTANTES: ReadonlyArray<{ arquivo: string; padrao: RegExp }> = [
@@ -18,8 +19,8 @@ export const CONSTANTES: ReadonlyArray<{ arquivo: string; padrao: RegExp }> = [
   { arquivo: '.github/actions/irmaos/action.yml', padrao: /brabo-contracts, ref: (v[^,\s}]+)/ },
 ];
 
-const ALIAS = /^npm:@viralabs-dev\/brabo-[a-z-]+@(.+)$/;
-const NO_LOCK = /@viralabs-dev\/brabo-[a-z-]+@(\d[^'"\s:()]*)/g;
+const ALIAS = new RegExp(`^npm:@${DONO}/brabo-[a-z-]+@(.+)$`);
+const NO_LOCK = new RegExp(`@${DONO}/brabo-[a-z-]+@(\\d[^'"\\s:()]*)`, 'g');
 
 export interface Fonte {
   onde: string;

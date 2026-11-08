@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { avaliarAceite, type EntradaAceite } from './qa-e2e-aceite.ts';
+import { avaliarAceite, comentarioDoAceite, contraARecomendacao, extrairRecomendacao, type EntradaAceite } from './qa-e2e-aceite.ts';
 
 const J = 'a justificativa tem 25 chr';
 const base: EntradaAceite = {
@@ -44,5 +44,25 @@ describe('avaliarAceite', () => {
     expect(avaliarAceite(com({ corpo: `  /qa-aceitar   ${J}  \n` }))).toEqual({ aceito: true, justificativa: J });
     expect(avaliarAceite(check({ externalId: 'causa:ambiente' }))).toMatchObject({ aceito: true });
     expect(avaliarAceite(check({ externalId: 'causa:sem-resposta' }))).toMatchObject({ aceito: true });
+  });
+});
+
+describe('recomendação no aceite (AT-791)', () => {
+  const resumo = '## Regressivo\n**Recomendação: bloquear: spec em funcionalidade que a PR toca (autenticacao)**\n';
+  it('extrai a recomendação do resumo', () => {
+    expect(extrairRecomendacao(resumo)).toBe('bloquear: spec em funcionalidade que a PR toca (autenticacao)');
+    expect(extrairRecomendacao('sem nada')).toBeNull();
+  });
+  it('só bloquear conta como "contra a recomendação" (também com o prefixo do atestado)', () => {
+    expect(contraARecomendacao('bloquear: x')).toBe(true);
+    expect(contraARecomendacao('atestado (não bloqueia): bloquear: x')).toBe(true);
+    expect(contraARecomendacao('aceitar com justificativa: y')).toBe(false);
+    expect(contraARecomendacao(null)).toBe(false);
+  });
+  it('o comentário cita a recomendação e marca o aceite contra ela', () => {
+    const c = comentarioDoAceite('dono', 'flaky conhecido do login', resumo);
+    expect(c).toContain('Recomendação do relatório: bloquear');
+    expect(c).toContain('Aceito contra a recomendação.');
+    expect(comentarioDoAceite('dono', 'j', 'sem relatório')).toBe('Aceito com justificativa por @dono: j');
   });
 });

@@ -1,4 +1,8 @@
 name: dependencias-de-merge
+# propósito: Faz o check Dependências de merge esperar as PRs citadas em `Depende-de: <org>/<repo>#<n>` até todas estarem mergeadas.
+# chamador:
+#   pull_request:
+#     types: [opened, edited, synchronize, reopened, closed]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos e passa os secrets do App:
 #   pull_request (types: opened, edited, synchronize, reopened, closed)
@@ -8,18 +12,25 @@ name: dependencias-de-merge
 # pelo App, não é o nome do job) fica amarelo (in_progress, "esperando ...") até cada PR citada estar MERGED.
 # Os jobs nunca reprovam (continue-on-error): o veredito é o check. Sem `checks: write` no App (403) o script
 # só loga um aviso. PR de fork não recebe secrets: avisa e não publica check. Fonte: AT-787.
+# O job `avisar-painel` acorda o `painel.yml` do brabo-ci (AT-792) a cada evento da PR, com debounce.
 on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'viralabs-dev/brabo-ci'
     secrets:
       APP_ID:
+        description: 'ID do GitHub App do bot da organização'
         required: true
       APP_PRIVATE_KEY:
+        description: 'Chave privada do GitHub App do bot da organização'
         required: true
 
 permissions:
@@ -40,19 +51,19 @@ jobs:
         if: github.event.pull_request.head.repo.full_name != github.repository
         run: echo "::notice::PR de fork não recebe os secrets do App; o check 'Dependências de merge' não é publicado."
 
-      - if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - name: Scripts do brabo-ci
         if: github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       # Sem `repositories`: o check é escrito no repo da PR e lido/escrito nos dependentes, que podem ser
       # qualquer um dos 11. O escopo é o da instalação do App.
@@ -63,7 +74,7 @@ jobs:
         with:
           client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          owner: viralabs-dev
+          owner: ${{ github.repository_owner }}
 
       - name: Avaliar e publicar o check
         if: github.event.pull_request.head.repo.full_name == github.repository
@@ -87,19 +98,19 @@ jobs:
         if: github.event.pull_request.head.repo.full_name != github.repository
         run: echo "::notice::PR de fork não recebe os secrets do App; as dependentes esperam o cron de rede do brabo-ci."
 
-      - if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - name: Scripts do brabo-ci
         if: github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       # Sem `repositories`: o check é escrito no repo da PR e lido/escrito nos dependentes, que podem ser
       # qualquer um dos 11. O escopo é o da instalação do App.
@@ -110,7 +121,7 @@ jobs:
         with:
           client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          owner: viralabs-dev
+          owner: ${{ github.repository_owner }}
 
       - name: Reavaliar as dependentes
         if: github.event.pull_request.head.repo.full_name == github.repository
@@ -119,3 +130,44 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMERO: ${{ github.event.pull_request.number }}
         run: node .brabo-ci/scripts/ci/dependencias-de-merge.ts avisar-dependentes
+
+  # Painel da mudança (AT-792): `repository_dispatch` no brabo-ci. Token próprio, restrito ao brabo-ci, com
+  # `contents: write` (o dispatch exige) e `actions: read` (o debounce lista as runs do painel).
+  avisar-painel:
+    name: Avisar o painel
+    if: github.event_name == 'pull_request' && (github.event.action != 'closed' || github.event.pull_request.merged) && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    continue-on-error: true
+    steps:
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ inputs.ci_repo }}
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
+      - name: Token do App
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: brabo-ci
+          permission-contents: write
+          permission-actions: read
+
+      # Debounce: se já há painel na fila ou andamento com `<repo>#<n>` no título, não dispara outro; o que
+      # está rodando relê o componente a cada volta e absorve o push novo.
+      - name: Avisar o painel
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMERO: ${{ github.event.pull_request.number }}
+        run: node .brabo-ci/scripts/ci/painel.ts avisar

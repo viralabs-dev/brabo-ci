@@ -5,6 +5,7 @@
  * Sintaxe apagável apenas (o Node executa este `.ts` por type stripping).
  */
 
+import { DONO } from './dono.ts';
 import { lerDeclaracoes } from './dependencias-de-merge.ts';
 import type { Modo } from './qa-regressivo-selecao.ts';
 
@@ -46,7 +47,7 @@ export interface Api {
   texto: (caminho: string, ref: string) => Promise<string>;
 }
 
-const QA = 'viralabs-dev/brabo-qa';
+const QA = `${DONO}/brabo-qa`;
 const ehSpec = (f: string) => f.startsWith('e2e/testes/');
 
 /** Ids com spec mudada: commits da `dev` do qa desde a base da PR + PRs do qa em `Depende-de:`. */

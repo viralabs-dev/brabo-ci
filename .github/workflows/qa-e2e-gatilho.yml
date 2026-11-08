@@ -1,4 +1,11 @@
 name: qa-e2e-gatilho
+# propósito: Liga a PR ao brabo-qa: na base main cria o check E2E do brabo-qa e dispara o e2e-pr; na base dev roda o regressivo das funcionalidades tocadas; /qa-aceitar aceita falha de spec ou ambiente.
+# chamador:
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+#     branches: [dev, main]
+#   issue_comment:
+#     types: [created]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos:
 #   pull_request (types: opened, synchronize, reopened) com branches: [dev, main]
@@ -8,19 +15,32 @@ name: qa-e2e-gatilho
 # final vem do brabo-qa. Aqui: resolve as imagens por digest, cria o check e dispara o e2e-pr.
 # O job `regressivo-dev` (AT-769) roda só as funcionalidades tocadas, com a imagem `sha-<12>` do head,
 # sob o check "Regressivo do brabo-qa", que NUNCA é exigido por ruleset e nunca derruba a PR.
-# Fonte: AT-765, AT-769.
+# AT-790: antes do vermelho por ambiente/assinatura, `disparar` e `regressivo-dev` esperam (teto `espera_minutos`) a tag -dev do head,
+# a imagem e a assinatura cosign dela.
+# Fonte: AT-765, AT-769, AT-790.
 on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'viralabs-dev/brabo-ci'
+      espera_minutos:
+        description: 'Teto da espera do carimbo e da assinatura da imagem do head antes do vermelho por ambiente/assinatura (AT-790)'
+        required: false
+        type: number
+        default: 10
     secrets:
       APP_ID:
+        description: 'ID do GitHub App do bot da organização'
         required: true
       APP_PRIVATE_KEY:
+        description: 'Chave privada do GitHub App do bot da organização'
         required: true
 
 permissions:
@@ -31,27 +51,25 @@ jobs:
     name: Disparar o E2E
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     concurrency:
       group: qa-e2e-disparar-${{ github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
 
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
 
-      # O disparar importa a seleção de funcionalidades (picomatch, yaml) desde a AT-769;
-      # sem isto o portão da main quebrava com ERR_MODULE_NOT_FOUND (AT-785).
-      - name: Dependências dos scripts
-        run: npx --yes pnpm@11.3.0 install --frozen-lockfile --prod --ignore-scripts --dir .brabo-ci
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+          dependencias: true
 
       # Escopo: o brabo-qa (dispatch) e o repo do evento (check). As tags dos outros repos
       # são lidas por leitura pública (repos públicos).
@@ -61,7 +79,7 @@ jobs:
         with:
           client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          owner: viralabs-dev
+          owner: ${{ github.repository_owner }}
           repositories: |
             brabo-qa
             ${{ github.event.repository.name }}
@@ -73,6 +91,7 @@ jobs:
           PR_NUMERO: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          QA_ESPERA_MINUTOS: ${{ inputs.espera_minutos }}
           GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: node .brabo-ci/scripts/ci/qa-e2e-disparar.ts
 
@@ -80,27 +99,26 @@ jobs:
     name: Regressivo por funcionalidade (dev)
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'dev'
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     continue-on-error: true # nunca é exigido
     concurrency:
       group: qa-regressivo-dev-${{ github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
 
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
 
-      # picomatch e yaml da seleção; só produção, sem scripts de pacote.
-      - name: Dependências dos scripts
-        run: npx --yes pnpm@11.3.0 install --frozen-lockfile --prod --ignore-scripts --dir .brabo-ci
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+          dependencias: true
 
       # Escopo: o brabo-qa (dispatch) e o repo do evento (check). As tags dos outros repos
       # são lidas por leitura pública (repos públicos).
@@ -110,7 +128,7 @@ jobs:
         with:
           client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          owner: viralabs-dev
+          owner: ${{ github.repository_owner }}
           repositories: |
             brabo-qa
             ${{ github.event.repository.name }}
@@ -122,6 +140,7 @@ jobs:
           PR_NUMERO: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          QA_ESPERA_MINUTOS: ${{ inputs.espera_minutos }}
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
           PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -136,17 +155,17 @@ jobs:
       group: qa-e2e-aceitar-${{ github.event.issue.number }}
       cancel-in-progress: false
     steps:
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Token do App
         id: app
@@ -154,7 +173,7 @@ jobs:
         with:
           client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          owner: viralabs-dev
+          owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
 
       - name: Avaliar o aceite

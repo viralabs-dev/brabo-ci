@@ -108,10 +108,10 @@ Não é etapa posterior nem tarefa de outra pessoa.
 
 **PR que muda comportamento observável atualiza a doc no mesmo PR.** Aqui a doc
 é o `README.md` (o que cada workflow e script faz), o `CLAUDE.md` (as regras do
-repo) e o `CHANGELOG.md` (seção `Unreleased`). Não existe `docs/` nem site neste
-repo: a documentação agregada do produto mora no
-[`brabo`](https://github.com/viralabs-dev/brabo), e o que vale para a política
-de PR está nas regras de negócio e nos ADRs de lá.
+repo) e o `CHANGELOG.md` (seção `Unreleased`). A doc da política mora aqui, em `scripts/ci/docs/`
+(explicação, referência, regras de negócio `ci.md` e traduções); o site do
+[`brabo`](https://github.com/viralabs-dev/brabo) a publica em `/prd/`. Os ADRs
+e a documentação agregada do produto moram no `brabo`.
 
 - Mudança estrutural pede um
   [ADR](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/index.md) novo no

@@ -1,6 +1,6 @@
 /**
  * gate — o backmerge gate: trava os degraus de baixo até a correção descer.
- * Fonte da política: docs/explanation/branching-policy.md
+ * Fonte da política: scripts/ci/docs/explanation/branching-policy.md
  *
  * POR QUE ELE EXISTE. `hotfix/` entra direto em `main` porque incidente não
  * espera a escada. Isso deixa `dev` sem a correção — e o próximo release
@@ -14,6 +14,7 @@
  */
 
 import { ESCADA, type Permanente } from './pr-police.ts';
+import { LINKS_DA_POLITICA, urlDoCodigo } from './doc-da-politica.ts';
 
 /** A ordem de destrava: do degrau mais alto para o mais baixo. */
 export const ORDEM_DE_DESTRAVA: readonly Permanente[] = ESCADA.slice(0, -1).reverse();
@@ -271,8 +272,9 @@ export function formatarGate(entrada: EntradaDoGate, veredito: VereditoDoGate): 
   l.push('');
   l.push(`  ${veredito.ok ? '✓' : '✗'} ${veredito.motivo}`);
   l.push(`      ${veredito.detalhe}`);
+  l.push(`      ver: ${urlDoCodigo(veredito.motivo)}`);
   l.push('');
-  l.push('  O gate inteiro: docs/explanation/branching-policy.md');
+  l.push(`  O gate inteiro: ${LINKS_DA_POLITICA.gate}`);
   return l.join('\n');
 }
 

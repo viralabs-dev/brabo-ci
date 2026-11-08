@@ -6,5 +6,9 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     include: ['scripts/**/*.spec.ts'],
+    coverage: { provider: 'v8', include: ['scripts/ci/**/*.ts'], exclude: ['**/*.spec.ts', '**/*.d.ts', '**/__fixtures__/**'],
+      // Piso no valor medido, arredondado para baixo; sobe à mão quando a cobertura sobe.
+      thresholds: { statements: 54, branches: 54, functions: 65, lines: 53 },
+    },
   },
 });

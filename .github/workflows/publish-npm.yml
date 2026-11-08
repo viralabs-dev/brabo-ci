@@ -1,4 +1,8 @@
 name: publish-npm
+# propósito: Publica pacotes npm no GitHub Packages a partir da tag, com o .tgz atestado; -dev.N vai ao dist-tag dev e a versão final a latest.
+# chamador:
+#   push:
+#     tags: ['v*']
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci (AT-770). Publica pacotes npm no GitHub
 # Packages a partir da tag do chamador: `pnpm pack`, atesta o `.tgz` com
@@ -18,10 +22,14 @@ on:
         required: true
         type: string
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA do `uses:` do chamador)'
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'viralabs-dev/brabo-ci'
 
 permissions:
   contents: read
@@ -45,17 +53,21 @@ jobs:
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
 
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
-          node-version: 26.10.0
+          node-version-file: .brabo-ci/.node-version
           registry-url: https://npm.pkg.github.com
-          scope: '@viralabs-dev'
+          scope: '@${{ github.repository_owner }}'
 
       - name: Versão e dist-tag da tag
         id: tag

@@ -1,0 +1,114 @@
+name: cadeia
+# propósito: Cadeia de suprimentos do CI de quem chama: actionlint nos workflows e todo uses: preso a SHA com a versão em comentário.
+# chamador:
+#   pull_request:
+#   push:
+#     branches: [dev, main]
+
+# REUTILIZÁVEL (workflow_call) — brabo-ci (AT-819). Cadeia de suprimentos do CI
+# do repositório que chama: `actionlint` nos workflows (com o rótulo de runner
+# do brabo-ci, sem o consumidor copiar o yaml) e `pins` (todo `uses:` por SHA
+# com `# vX`, em .github/workflows e .github/actions). Chame pelo `ci.yml`, não
+# pelo `politica.yml` (que também dispara em review). Não é check obrigatório.
+on:
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
+        required: false
+        type: string
+        default: 'viralabs-dev/brabo-ci'
+      branch_alvo:
+        description: 'Branch alvo da PR (padrão: base_ref, ou a branch do push). Na main o pin do brabo-ci só aceita release final; na dev, final ou -dev.N (ADR 0280)'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Config do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ inputs.ci_repo }}
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
+      - name: Instalar o actionlint (binário conferido por sha256)
+        run: |
+          curl -fsSL -o /tmp/al.tgz https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  /tmp/al.tgz" | sha256sum -c -
+          tar -xzf /tmp/al.tgz -C /tmp actionlint
+
+      - run: /tmp/actionlint -color -config-file .brabo-ci/.github/actionlint.yaml
+
+  pins:
+    name: pins
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ inputs.ci_repo }}
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
+      - name: Conferir os pins
+        run: node .brabo-ci/scripts/ci/actions-pinadas.ts --raiz .
+
+  # Informativo (AT-817): não é check obrigatório.
+  pins-do-brabo-ci:
+    name: pins-do-brabo-ci
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ inputs.ci_repo }}
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
+      - name: Conferir os pins do brabo-ci (versão, SHA da tag, branch alvo)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BRANCH_ALVO: ${{ inputs.branch_alvo || github.base_ref || github.ref_name }}
+        run: node .brabo-ci/scripts/ci/pins-do-brabo-ci.ts --raiz . --branch "$BRANCH_ALVO"

@@ -7,6 +7,8 @@
  * PR com base `dev` (AT-769, `PR_BASE_REF=dev`): seleciona as funcionalidades tocadas pelo catálogo do brabo-qa,
  * usa a imagem `sha-<12>` do head e publica o check `Regressivo do brabo-qa` (nunca exigido).
  *
+ * AT-790: antes de dar vermelho por ambiente ou assinatura, espera (QA_ESPERA_MINUTOS, padrão 10) a tag -dev do head, a imagem
+ * e a assinatura (cosign) dela.
  * Na dev, depois do disparo, `qa-regressivo-lembrete.ts` deixa o comentário único "toca X e o regressivo de X não mudou" (AT-852).
  *
  * Env: GH_TOKEN (token do App), GITHUB_REPOSITORY, PR_NUMERO, PR_HEAD_SHA, PR_HEAD_REF, GITHUB_RUN_URL;
@@ -17,6 +19,7 @@
 
 import {
   SemTagParaOHead,
+  consultarGhcr,
   escolherTags,
   maisNova,
   paginar,
@@ -24,15 +27,17 @@ import {
   type EscolhaDeTags,
   type RepoGatilho,
 } from './qa-e2e-imagens.ts';
-import { NOME_DO_CHECK_POR_MODO, montarCheck } from './qa-e2e-resumo.ts';
+import { NOME_DO_CHECK_POR_MODO, montarCheck, secaoMotivos } from './qa-e2e-resumo.ts';
 import { escreverNoSummary, procurarRun, vinculosDoGatilho, type RunDoQa } from './qa-e2e-vinculos.ts';
+import { AssinaturaAusente, ImagemAusente, cosignAssinada, esperarImagemAssinada, relogioReal, repetirAte, tetoDoEnv } from './qa-e2e-espera.ts';
 import { buscaTagsDoHead } from './qa-e2e-busca-tags.ts';
-import { lerCatalogo, selecionar, type Modo } from './qa-regressivo-selecao.ts';
+import { DONO } from './dono.ts';
+import { lerCatalogo, selecionar, type Selecao } from './qa-regressivo-selecao.ts';
 import { lembrar } from './qa-regressivo-lembrete.ts';
 
 export const NOME_DO_CHECK = NOME_DO_CHECK_POR_MODO.main;
 
-const CATALOGO_URL = 'https://raw.githubusercontent.com/viralabs-dev/brabo-qa/dev/funcionalidades.yml';
+const CATALOGO_URL = `https://raw.githubusercontent.com/${DONO}/brabo-qa/dev/funcionalidades.yml`;
 const CHAVES = ['api', 'engine', 'web', 'broker', 'infra'] as const;
 
 interface Ref {
@@ -54,7 +59,7 @@ async function gh(caminho: string, init: RequestInit = {}): Promise<any> {
 }
 
 async function tagsDe(repo: string): Promise<Ref[]> {
-  return paginar<Ref>(`https://api.github.com/repos/viralabs-dev/${repo}/git/matching-refs/tags/v?per_page=100`, async (url) => {
+  return paginar<Ref>(`https://api.github.com/repos/${DONO}/${repo}/git/matching-refs/tags/v?per_page=100`, async (url) => {
     const r = await fetch(url, { headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json' } });
     if (!r.ok) throw new Error(`GitHub GET ${url}: ${r.status} ${await r.text()}`);
     return { itens: (await r.json()) as Ref[], link: r.headers.get('link') };
@@ -87,27 +92,38 @@ async function principal(): Promise<void> {
 
   let extra: object = {};
   let sobreDono = '';
-  let lembrete: { modo: Modo; tocadas: string[] } | null = null;
+  let selecao: Selecao | null = null;
   if (dev) {
     // Fork não recebe segredo nem publica imagem; a seleção só lê arquivos e o catálogo público.
     if (env('PR_HEAD_REPO') !== env('GITHUB_REPOSITORY')) return neutro('Regressivo não roda em PR de fork.');
     const r = await fetch(CATALOGO_URL);
     if (!r.ok) throw new Error(`catálogo do brabo-qa: ${r.status}`);
-    const arquivos = await arquivosDaPr(dono, nome, env('PR_NUMERO'));
-    const catalogo = lerCatalogo(await r.text());
-    const s = selecionar({ repo: nome, arquivos, catalogo });
-    // Tocadas = sem o smoke da regra 3, que só entra pelos arquivos sem dono.
-    const tocadas = selecionar({ repo: nome, arquivos: arquivos.filter((a) => !s.semDono.includes(a)), catalogo }).funcionalidades;
-    lembrete = { modo: s.modo, tocadas };
+    const s = selecionar({ repo: nome, arquivos: await arquivosDaPr(dono, nome, env('PR_NUMERO')), catalogo: lerCatalogo(await r.text()) });
     if (nome === 'brabo-contracts') return neutro('Consumido por TAG; o regressivo roda na PR que sobe a TAG.');
     if (s.modo === 'nenhum') return neutro('Sem funcionalidade tocada.');
-    extra = { modo: s.modo, funcionalidades: s.funcionalidades };
+    selecao = s;
+    extra = { modo: s.modo, funcionalidades: s.funcionalidades, selecao: { motivos: s.motivos, semDono: s.semDono, tocadas: s.tocadas } };
     sobreDono = s.semDono.length > 0 ? `\n\nSem dono no mapa:\n${s.semDono.map((c) => `- ${c}`).join('\n')}` : '';
+  } else if (nome !== 'brabo-contracts') {
+    // Portão da main (AT-791): o conjunto segue o catálogo inteiro; a seleção pelo mapa é só informação,
+    // para o relatório separar "a PR toca" de "só rodou". Falhar aqui nunca reprova o gatilho.
+    try {
+      const r = await fetch(CATALOGO_URL);
+      if (!r.ok) throw new Error(`catálogo do brabo-qa: ${r.status}`);
+      selecao = selecionar({ repo: nome, arquivos: await arquivosDaPr(dono, nome, env('PR_NUMERO')), catalogo: lerCatalogo(await r.text()) });
+      extra = { selecao: { motivos: selecao.motivos, semDono: selecao.semDono, tocadas: selecao.tocadas } };
+    } catch (e) {
+      console.log(`::warning::seleção informativa da main falhou (${(e as Error).message}); segue sem motivos`);
+    }
   }
 
   let escolha: EscolhaDeTags | null = null;
   let erro = '';
-  try {
+  let causaDoErro: 'ambiente' | 'assinatura' = 'ambiente';
+  // AT-790: o carimbo do head (tag -dev, imagem) e a assinatura da `sha-` ainda podem estar rodando; espera até o teto.
+  const limite = relogioReal.agora() + tetoDoEnv(env('QA_ESPERA_MINUTOS'));
+  let avisouTag = false;
+  const resolver = async (): Promise<EscolhaDeTags> => {
     const ultimaDev = {} as Record<(typeof CHAVES)[number], string>;
     const ultimaFinal = {} as Record<(typeof CHAVES)[number], string>;
     let tagsDoHead: string[] = [];
@@ -119,24 +135,41 @@ async function principal(): Promise<void> {
       // fazia `!dev` ser sempre falso e o portão da main nunca achar a -dev do head (AT-789).
       const devMaisNova = maisNova(nomes.filter((t) => t.includes('-dev.')));
       const final = maisNova(nomes.filter((t) => !t.includes('-')));
-      if (!devMaisNova || !final) throw new SemTagParaOHead(`${repo} não tem tag ${devMaisNova ? 'final' : '-dev'} publicada`);
+      if (!devMaisNova || !final) {
+        if (!avisouTag) console.log(`esperando tag ${devMaisNova ? 'final' : '-dev'} de ${repo}`);
+        avisouTag = true;
+        throw new SemTagParaOHead(`${repo} não tem tag ${devMaisNova ? 'final' : '-dev'} publicada`);
+      }
       ultimaDev[c] = devMaisNova;
       ultimaFinal[c] = final;
       if (buscaTagsDoHead({ repo, repoDaPr: nome, baseDev: dev })) {
-        const commitDe = async (r: Ref) => (r.object.type === 'tag' ? (await gh(`repos/viralabs-dev/${repo}/git/tags/${r.object.sha}`)).object.sha : r.object.sha);
+        const commitDe = async (r: Ref) => (r.object.type === 'tag' ? (await gh(`repos/${DONO}/${repo}/git/tags/${r.object.sha}`)).object.sha : r.object.sha);
         for (const r of refs) if ((await commitDe(r)) === headSha) tagsDoHead.push(r.ref.replace('refs/tags/', ''));
       }
     }
-    escolha = escolherTags({ repo: nome as RepoGatilho, headSha, headRef, baseRef: dev ? 'dev' : 'main', tagsDoHead, ultimaDev, ultimaFinal });
+    return escolherTags({ repo: nome as RepoGatilho, headSha, headRef, baseRef: dev ? 'dev' : 'main', tagsDoHead, ultimaDev, ultimaFinal });
+  };
+  try {
+    const t0 = Date.now();
+    escolha = await repetirAte(resolver, (e) => e instanceof SemTagParaOHead, limite);
+    if (avisouTag) console.log(`tags do head achadas após ${Math.round((Date.now() - t0) / 1000)} s`);
+    // Só o repo do evento tem imagem nova; as outras já estão carimbadas e assinadas.
+    const dono = nome.replace('brabo-', '');
+    const tag = (escolha.tags as Record<string, string>)[dono];
+    if (tag && dono !== 'infra' && dono !== 'qa') {
+      await esperarImagemAssinada({ imagem: nome, tag, digestDe: consultarGhcr, assinada: cosignAssinada, limite, log: (m) => console.log(m) });
+    }
   } catch (e) {
-    if (!(e instanceof SemTagParaOHead)) throw e;
-    erro = e.message;
+    if (e instanceof AssinaturaAusente) causaDoErro = 'assinatura';
+    else if (!(e instanceof SemTagParaOHead || e instanceof ImagemAusente)) throw e;
+    escolha = null;
+    erro = (e as Error).message;
   }
 
   if (!escolha) {
-    const c = montarCheck({ causa: 'ambiente', linhas: [], specsQueFalharam: [], urlDoRun });
+    const c = montarCheck({ modo: dev ? 'dev' : 'main', causa: causaDoErro, linhas: [], specsQueFalharam: [], urlDoRun });
     await check({ status: 'completed', conclusion: 'failure', external_id: c.external_id, output: { title: c.title, summary: `${erro}\n\n${c.summary}` } });
-    console.log(`E2E vermelho (ambiente): ${erro}`);
+    console.log(`E2E vermelho (${causaDoErro}): ${erro}`);
     return;
   }
   const criado = await check({ status: 'in_progress', details_url: urlDoRun, output: { title: dev ? 'Regressivo em andamento' : 'E2E em andamento', summary: `Disparado no brabo-qa. Run do gatilho: ${urlDoRun}${sobreDono}` } });
@@ -146,7 +179,7 @@ async function principal(): Promise<void> {
   const correlacao = `${runId}-${runAttempt}`;
   const antes = Date.now() - 5_000;
   try {
-    await gh('repos/viralabs-dev/brabo-qa/dispatches', { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: montarPayload(escolha, { repo: `${dono}/${nome}`, pr: Number(env('PR_NUMERO')), headSha, checkRunId: criado.id, origem: { ator, runId, runAttempt, runUrl: urlDoRun } }, extra) }) });
+    await gh(`repos/${DONO}/brabo-qa/dispatches`, { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: montarPayload(escolha, { repo: `${dono}/${nome}`, pr: Number(env('PR_NUMERO')), headSha, checkRunId: criado.id, origem: { ator, runId, runAttempt, runUrl: urlDoRun } }, extra) }) });
   } catch (e) {
     // Sem dispatch ninguém conclui o check: não deixar em andamento.
     const msg = e instanceof Error ? e.message : String(e);
@@ -157,17 +190,17 @@ async function principal(): Promise<void> {
   console.log(`e2e-pr disparado (check ${criado.id})`);
   await registrarVinculos();
   // Lembrete único na PR (RN-1032); erro vira aviso, nunca reprova.
-  if (lembrete) {
+  if (dev && selecao) {
     await lembrar(
       {
         gh,
         texto: async (caminho, ref) => {
-          const r = await fetch(`https://api.github.com/repos/viralabs-dev/brabo-qa/contents/${caminho}?ref=${ref}`, { headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github.raw+json' } });
+          const r = await fetch(`https://api.github.com/repos/${DONO}/brabo-qa/contents/${caminho}?ref=${ref}`, { headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github.raw+json' } });
           if (!r.ok) throw new Error(`GitHub GET ${caminho}@${ref}: ${r.status}`);
           return r.text();
         },
       },
-      { dono, nome, pr: env('PR_NUMERO'), ...lembrete, aviso: (m) => console.log(`::warning::${m}`) },
+      { dono, nome, pr: env('PR_NUMERO'), modo: selecao.modo, tocadas: selecao.tocadas, aviso: (m) => console.log(`::warning::${m}`) },
     );
   }
 
@@ -176,10 +209,13 @@ async function principal(): Promise<void> {
     try {
       const desde = new Date(antes).toISOString().replace(/\.\d+Z$/, 'Z');
       const achou = await procurarRun(async () => {
-        const r = await gh(`repos/viralabs-dev/brabo-qa/actions/workflows/e2e-pr.yml/runs?event=repository_dispatch&created=%3E%3D${desde}&per_page=20`);
+        const r = await gh(`repos/${DONO}/brabo-qa/actions/workflows/e2e-pr.yml/runs?event=repository_dispatch&created=%3E%3D${desde}&per_page=20`);
         return r.workflow_runs as RunDoQa[];
       }, correlacao);
       if (!achou) console.log(`::warning::vinculos: run do brabo-qa com c=${correlacao} não apareceu em 60 s; ficou o link do check`);
+      // "Funcionalidades e motivo" no Summary do run de origem (AT-791).
+      const motivos = selecao ? secaoMotivos(Object.entries(selecao.motivos).map(([id, motivo]) => ({ id, motivo })), selecao.semDono) : '';
+      if (motivos) escreverNoSummary(motivos.replace('### Por que estas funcionalidades', '## Funcionalidades e motivo'));
       escreverNoSummary(
         vinculosDoGatilho({
           origem: { repo: `${dono}/${nome}`, pr: env('PR_NUMERO'), sha: headSha, ator, run_url: urlDoRun, evento: 'pull_request' },
