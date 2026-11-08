@@ -922,7 +922,7 @@ tirar a linha que fecha o ciclo: a PR não precisa de bypass.
 - **ADR:** [0276](../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origem:** AT-787 (EP-033)
 
-### RN-1067 — A PR de promoção depende das promoções abertas das camadas anteriores, e a ordem é uma lista testada {#rn-1067}
+### RN-1071 — A PR de promoção depende das promoções abertas das camadas anteriores, e a ordem é uma lista testada {#rn-1071}
 
 Numa PR com base `main` e head `dev` do próprio repo, o check `Dependências de
 merge` soma às linhas `Depende-de` do corpo uma dependência para cada PR de
@@ -943,7 +943,7 @@ lista `REPOS`, sem repetição, e o spec guarda isso.
 - **ADR:** [0284](../adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md), que revê a decisão 7 do [0276](../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origem:** AT-788 (EP-033)
 
-### RN-1068 — O merge de uma promoção e o cron reavaliam as promoções das camadas seguintes {#rn-1068}
+### RN-1072 — O merge de uma promoção e o cron reavaliam as promoções das camadas seguintes {#rn-1072}
 
 Como a dependência inferida não está escrita no corpo, a busca por `in:body` não a
 acha. Por isso o `avisar-dependentes` de uma PR mergeada também reavalia as
