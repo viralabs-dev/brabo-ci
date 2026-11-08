@@ -4,7 +4,7 @@ name: pr-police
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
 
 # Aplica a política de branches em todo PR.
-# Fonte da política: docs/explanation/branching-policy.md
+# Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 # A lógica vive em scripts/ci/pr-police.ts, testada por vitest — este workflow
 # é fino de propósito: ele coleta dados e chama o script.
 #

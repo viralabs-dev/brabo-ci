@@ -4,7 +4,7 @@ name: promotion-check
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
 
 # Confere o ESTADO do repositório num PR de promoção.
-# Fonte da política: docs/explanation/branching-policy.md
+# Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 #
 # Workflow separado do `pr-police` de propósito: aquele valida a FORMA do PR
 # (nome, origem, destino) e este valida o ESTADO (range, tag do degrau de

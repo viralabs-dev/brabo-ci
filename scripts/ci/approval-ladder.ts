@@ -1,6 +1,6 @@
 /**
  * approval-ladder — exige as aprovações certas para cada degrau da escada.
- * Fonte da política: docs/explanation/branching-policy.md
+ * Fonte da política: scripts/ci/docs/explanation/branching-policy.md
  *
  * O pr-police diz se o PR está no LUGAR certo; este diz se ele tem as
  * APROVAÇÕES certas. Os dois são checks required e não conversam entre si de

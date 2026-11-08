@@ -1,6 +1,6 @@
 /**
  * promotion-check — confere o ESTADO do repositório num PR de promoção.
- * Fonte da política: docs/explanation/branching-policy.md
+ * Fonte da política: scripts/ci/docs/explanation/branching-policy.md
  *
  * Três perguntas, e nenhuma delas é sobre a forma do PR (isso é o pr-police):
  *

@@ -1,7 +1,7 @@
 /**
  * promote — valida o par da esteira, calcula a versão do ciclo e escreve o
  * corpo do PR de promoção.
- * Fonte da política: docs/explanation/branching-policy.md
+ * Fonte da política: scripts/ci/docs/explanation/branching-policy.md
  *
  * Adaptador: a lógica de versão é pura e vive em `version.ts`. Aqui só se
  * coleta o estado (tags, PRs mergeados) e se renderiza.

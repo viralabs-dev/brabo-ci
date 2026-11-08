@@ -11,6 +11,11 @@ export function urlDaDoc(pagina: string, ancora: string): string {
   return `${BASE_DA_DOC}/${pagina}.html#${ancora}`;
 }
 
+/** Seção do catálogo de códigos: a âncora é o código em minúsculas. */
+export function urlDoCodigo(codigo: string): string {
+  return urlDaDoc('reference/codigos-de-violacao', codigo.toLowerCase());
+}
+
 const POLITICA = 'explanation/branching-policy';
 
 /** Âncoras do `branching-policy.md` que as mensagens usam. */
