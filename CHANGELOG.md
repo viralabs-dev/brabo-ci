@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **docs**: a página do painel da mudança vira uma só, `docs/explanation/painel-da-mudanca.md`, com a ordem didática da página do `brabo` e o que só a do ci cobria (disparo à mão, chave e `run-name`, como acha as runs, "aguarda merge" e segurança). A página antiga `docs/painel-da-mudanca.md` sai (AT-847, passo 1).
+
 - A `prova` das arestas do `repos.yml` passa a ser `{ arquivo, trecho }` (AT-848, passo 1; referencia o ADR 0281): o trecho é texto literal de uma linha, aparece no arquivo FORA do bloco `mapa:inicio…fim` e cita o destino (`menciona`/`ALIAS`); a linha é calculada e impressa no log, nunca gravada. O `arquivo:N` antigo segue aceito (obsoleto, sai num passo 3) e agora também não conta dentro do bloco gerado (falso verde `brabo-contracts → brabo-api`, `README.md:90`). `mapa-dos-repos.ts` e `arestas-dos-repos.ts` aceitam os dois; specs com mutação (linha no topo: novo verde, antigo vermelho) e trecho só no bloco (reprova). Os pins do `mapa-alinhado` dos consumidores precisam subir antes de o `brabo` trocar o formato.
 - `arestas-alinhadas.yml` e `scripts/ci/arestas-dos-repos.ts` novos (AT-825 parte b, ADR 0281): provam que cada aresta do `repos.yml` do `brabo` existe (a `prova: arquivo:N` existe no repo que declara e a linha cita o destino) e que o `REPOS` do `clonar-tudo.sh`, o `irmaos.lock` e o `componentes.json` batem com o mapa. Lê a `dev` por raw ou `--raiz` (checkouts). Não obrigatório.
 - **docs**: o link de `tutorials/adotar.md` para `reference/workflows/` (diretório sem página, 4 links quebrados no `docs:build` do `brabo`) aponta para `reference/workflows/pr-police.md` (AT-845).
