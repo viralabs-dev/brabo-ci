@@ -75,3 +75,15 @@ rules:
       - "scripts/ci/docs/explanation/cadeia-de-suprimentos-do-ci.md"
     severity: block
     note: "Regra nova sobre o que pode entrar no runner, na imagem publicada ou na instalação exige a regra escrita."
+
+  # O painel da mudança (AT-792, AT-847) é o run `painel.yml` e o módulo que ele
+  # roda. Mudou o que ele junta, quando para ou o que escreve no Summary: a
+  # página (e as RN-1054..1056 que ela cita) acompanha.
+  - id: painel-da-mudanca
+    watch:
+      - "scripts/ci/painel*.ts"
+      - ".github/workflows/painel.yml"
+    docs:
+      - "scripts/ci/docs/explanation/painel-da-mudanca.md"
+    severity: warn
+    note: "Mudou o que o painel junta, quando para ou o que escreve: a página do painel acompanha."

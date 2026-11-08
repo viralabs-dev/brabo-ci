@@ -91,4 +91,4 @@ permitidos antes de entrar no Markdown. O que não casa vira `?`. Uma URL só en
 se passar na checagem de URL. O Mermaid leva só o repo da allowlist, o número e o status
 da fase.
 
-Regras: [RN-1054 a RN-1056](../business-rules/ci.md). Decisão: [ADR 0278](../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md).
+Regras: [RN-1054 a RN-1056](../business-rules/ci.md#rn-1054). Decisão: [ADR 0278](../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md).
