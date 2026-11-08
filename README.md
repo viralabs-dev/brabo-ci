@@ -1,6 +1,6 @@
 # brabo-ci
 
-Política de PR, branch, escada de aprovação, promoção, carimbo de tag, arquivamento e Dependabot do Brabo, como **workflows reutilizáveis** (`on: workflow_call`), mais os modelos de comunidade. A lógica mora em `scripts/ci/` (TypeScript executado pelo Node por type stripping, testado com vitest).
+Política de PR, branch, escada de aprovação, promoção, carimbo de tag, arquivamento e Dependabot do Brabo, como **workflows reutilizáveis** (`on: workflow_call`), mais os modelos de comunidade. A lógica mora em `scripts/ci/` (TypeScript executado pelo Node por type stripping, testado com vitest). **Comece pelo [guia de adoção](scripts/ci/docs/tutorials/adotar.md)** (prova: [`daneiel/brabo-ci-exemplo`](https://github.com/daneiel/brabo-ci-exemplo)).
 
 ## Como funciona
 
