@@ -33,6 +33,7 @@ issue_comment:
 | nome | tipo | obrigatório | padrão | descrição |
 |---|---|---|---|---|
 | `ci_ref` | string | sim | - | O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão) |
+| `ci_repo` | string | não | viralabs-dev/brabo-ci | O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo. |
 | `espera_minutos` | number | não | 10 | Teto da espera do carimbo e da assinatura da imagem do head antes do vermelho por ambiente/assinatura (AT-790) |
 
 ## Secrets

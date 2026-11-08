@@ -30,11 +30,12 @@ import { NOME_DO_CHECK_POR_MODO, montarCheck, secaoMotivos } from './qa-e2e-resu
 import { escreverNoSummary, procurarRun, vinculosDoGatilho, type RunDoQa } from './qa-e2e-vinculos.ts';
 import { AssinaturaAusente, ImagemAusente, cosignAssinada, esperarImagemAssinada, relogioReal, repetirAte, tetoDoEnv } from './qa-e2e-espera.ts';
 import { buscaTagsDoHead } from './qa-e2e-busca-tags.ts';
+import { DONO } from './dono.ts';
 import { lerCatalogo, selecionar, type Selecao } from './qa-regressivo-selecao.ts';
 
 export const NOME_DO_CHECK = NOME_DO_CHECK_POR_MODO.main;
 
-const CATALOGO_URL = 'https://raw.githubusercontent.com/viralabs-dev/brabo-qa/dev/funcionalidades.yml';
+const CATALOGO_URL = `https://raw.githubusercontent.com/${DONO}/brabo-qa/dev/funcionalidades.yml`;
 const CHAVES = ['api', 'engine', 'web', 'broker', 'infra'] as const;
 
 interface Ref {
@@ -56,7 +57,7 @@ async function gh(caminho: string, init: RequestInit = {}): Promise<any> {
 }
 
 async function tagsDe(repo: string): Promise<Ref[]> {
-  return paginar<Ref>(`https://api.github.com/repos/viralabs-dev/${repo}/git/matching-refs/tags/v?per_page=100`, async (url) => {
+  return paginar<Ref>(`https://api.github.com/repos/${DONO}/${repo}/git/matching-refs/tags/v?per_page=100`, async (url) => {
     const r = await fetch(url, { headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json' } });
     if (!r.ok) throw new Error(`GitHub GET ${url}: ${r.status} ${await r.text()}`);
     return { itens: (await r.json()) as Ref[], link: r.headers.get('link') };
@@ -140,7 +141,7 @@ async function principal(): Promise<void> {
       ultimaDev[c] = devMaisNova;
       ultimaFinal[c] = final;
       if (buscaTagsDoHead({ repo, repoDaPr: nome, baseDev: dev })) {
-        const commitDe = async (r: Ref) => (r.object.type === 'tag' ? (await gh(`repos/viralabs-dev/${repo}/git/tags/${r.object.sha}`)).object.sha : r.object.sha);
+        const commitDe = async (r: Ref) => (r.object.type === 'tag' ? (await gh(`repos/${DONO}/${repo}/git/tags/${r.object.sha}`)).object.sha : r.object.sha);
         for (const r of refs) if ((await commitDe(r)) === headSha) tagsDoHead.push(r.ref.replace('refs/tags/', ''));
       }
     }
@@ -176,7 +177,7 @@ async function principal(): Promise<void> {
   const correlacao = `${runId}-${runAttempt}`;
   const antes = Date.now() - 5_000;
   try {
-    await gh('repos/viralabs-dev/brabo-qa/dispatches', { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: montarPayload(escolha, { repo: `${dono}/${nome}`, pr: Number(env('PR_NUMERO')), headSha, checkRunId: criado.id, origem: { ator, runId, runAttempt, runUrl: urlDoRun } }, extra) }) });
+    await gh(`repos/${DONO}/brabo-qa/dispatches`, { method: 'POST', body: JSON.stringify({ event_type: 'e2e-pr', client_payload: montarPayload(escolha, { repo: `${dono}/${nome}`, pr: Number(env('PR_NUMERO')), headSha, checkRunId: criado.id, origem: { ator, runId, runAttempt, runUrl: urlDoRun } }, extra) }) });
   } catch (e) {
     // Sem dispatch ninguém conclui o check: não deixar em andamento.
     const msg = e instanceof Error ? e.message : String(e);
@@ -192,7 +193,7 @@ async function principal(): Promise<void> {
     try {
       const desde = new Date(antes).toISOString().replace(/\.\d+Z$/, 'Z');
       const achou = await procurarRun(async () => {
-        const r = await gh(`repos/viralabs-dev/brabo-qa/actions/workflows/e2e-pr.yml/runs?event=repository_dispatch&created=%3E%3D${desde}&per_page=20`);
+        const r = await gh(`repos/${DONO}/brabo-qa/actions/workflows/e2e-pr.yml/runs?event=repository_dispatch&created=%3E%3D${desde}&per_page=20`);
         return r.workflow_runs as RunDoQa[];
       }, correlacao);
       if (!achou) console.log(`::warning::vinculos: run do brabo-qa com c=${correlacao} não apareceu em 60 s; ficou o link do check`);
