@@ -1,0 +1,58 @@
+name: readme-esqueleto
+# propósito: Reprova o README do repo chamador que não segue o esqueleto de 8 seções do README.modelo.md, tem id de AT, ADR ou RN no título ou não tem o bloco do mapa.
+# chamador:
+#   pull_request:
+#     types: [opened, reopened, synchronize]
+
+# REUTILIZÁVEL (workflow_call) — brabo-ci (AT-826). Confere os títulos `##` do README na ordem do
+# `README.modelo.md`. Nasce INFORMATIVO: não é check obrigatório.
+on:
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
+        required: false
+        type: string
+        default: 'viralabs-dev/brabo-ci'
+      readmes:
+        description: 'READMEs a conferir, separados por espaço'
+        required: false
+        type: string
+        default: 'README.md'
+
+permissions:
+  contents: read
+
+jobs:
+  conferir:
+    name: README no esqueleto
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ inputs.ci_repo }}
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+          dependencias: true
+
+      - name: Esqueleto do README
+        env:
+          READMES: ${{ inputs.readmes }}
+        run: |
+          read -ra arquivos <<< "$READMES"
+          node .brabo-ci/scripts/ci/readme-esqueleto.ts "${arquivos[@]}"

@@ -14,6 +14,13 @@ describe('mapa-dos-repos (AT-825)', () => {
     expect(b).toContain('a -->|contrato| b');
     expect(b).toContain('class a atual');
   });
+  it('o diagrama traz só as arestas do repo atual', () => {
+    const m = lerMapa(base('\n  c: { papel: x, proposito: C, como_e_usado: y, depende_de: [{ repo: b, tipo: doc, prova: "r:1" }] }'));
+    const b = gerarBloco(m, 'a');
+    expect(b).toContain('a -->|contrato| b');
+    expect(b).not.toContain('c -->|doc| b');
+    expect(b).not.toContain('  c["c"]');
+  });
   it('é determinístico e muda com o repo atual', () => {
     const m = lerMapa(base());
     expect(gerarBloco(m, 'a')).toBe(gerarBloco(m, 'a'));

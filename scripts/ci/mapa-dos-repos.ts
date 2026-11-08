@@ -1,6 +1,6 @@
 /**
- * mapa-dos-repos — gera o bloco "Onde se encaixa" dos READMEs a partir do `repos.yml` do
- * `brabo` (AT-825, ADR 0281): uma tabela e um Mermaid com a aresta rotulada pelo tipo, entre
+ * mapa-dos-repos — gera o bloco do mapa da seção "Onde se encaixa" dos READMEs (o título é do README.modelo.md) a partir do `repos.yml` do
+ * `brabo` (AT-825, ADR 0281): uma tabela dos repos e um Mermaid só com as arestas do repo, rotuladas pelo tipo, entre
  * `<!-- mapa:inicio -->` e `<!-- mapa:fim -->`, com o repo do README destacado.
  *
  * Uso: `node scripts/ci/mapa-dos-repos.ts --repo <nome> [--fonte <url|caminho>] [--check] [README...]`
@@ -78,16 +78,21 @@ export function gerarBloco(mapa: Mapa, atual: string): string {
     const nome = n === atual ? `**${n}**` : n;
     return `| ${nome} | ${celula(r.proposito)} | ${celula(r.como_e_usado)} | ${celula(agrupar(r.depende_de))} | ${celula(agrupar(usado))} |`;
   });
+  // O diagrama mostra só as arestas do repo atual (as que saem e as que chegam): o mapa inteiro está na tabela.
   const arestas: string[] = [];
+  const vistos = new Set([atual]);
   for (const n of nomes) {
     const por = new Map<string, string[]>();
-    for (const a of mapa[n]!.depende_de) por.set(a.tipo, [...(por.get(a.tipo) ?? []), id(a.repo)]);
-    for (const [tipo, alvos] of por) arestas.push(`  ${id(n)} -->|${TIPOS[tipo]}| ${[...new Set(alvos)].join(' & ')}`);
+    for (const a of mapa[n]!.depende_de) if (n === atual || a.repo === atual) por.set(a.tipo, [...(por.get(a.tipo) ?? []), id(a.repo)]);
+    for (const [tipo, alvos] of por) {
+      arestas.push(`  ${id(n)} -->|${TIPOS[tipo]}| ${[...new Set(alvos)].join(' & ')}`);
+      vistos.add(n);
+      for (const a of alvos) vistos.add(a.replace(/_/g, '-'));
+    }
   }
   return [
     MARCA_INICIO,
     `<!-- Gerado do repos.yml do brabo por brabo-ci:scripts/ci/mapa-dos-repos.ts. Não edite à mão. -->`,
-    `### Onde se encaixa`,
     '',
     `**${atual}** — ${mapa[atual]!.proposito} ${mapa[atual]!.como_e_usado}`,
     '',
@@ -97,7 +102,7 @@ export function gerarBloco(mapa: Mapa, atual: string): string {
     '',
     '```mermaid',
     'flowchart LR',
-    ...nomes.map((n) => `  ${id(n)}["${n}"]`),
+    ...nomes.filter((n) => vistos.has(n)).map((n) => `  ${id(n)}["${n}"]`),
     ...arestas,
     '  classDef atual fill:#fde68a,stroke:#b45309,color:#000',
     `  class ${id(atual)} atual`,
