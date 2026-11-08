@@ -152,7 +152,7 @@ Cada reutilizável tem uma página gerada do YAML, com gatilhos, inputs, segredo
 | [`dependabot-para-dev`](../reference/workflows/dependabot-para-dev.md) | manda PR de segurança do Dependabot para a `dev` | - | não |
 | [`publish-npm`](../reference/workflows/publish-npm.md) | publica pacotes no GitHub Packages a partir da tag | - | não (usa `GITHUB_TOKEN`) |
 
-Prefira o App ao `BOT_TOKEN` (um PAT) no `promote` e no `tag-release`: o PAT é de uma pessoa e vence. Os checks de `promotion-check` e `backmerge-gate` entram no ruleset da `main` pelos nomes da tabela. Os demais reutilizáveis estão em [`reference/workflows/`](../reference/workflows/).
+Prefira o App ao `BOT_TOKEN` (um PAT) no `promote` e no `tag-release`: o PAT é de uma pessoa e vence. Os checks de `promotion-check` e `backmerge-gate` entram no ruleset da `main` pelos nomes da tabela. Os demais reutilizáveis têm uma página cada em `reference/workflows/`, por exemplo [`pr-police`](../reference/workflows/pr-police.md).
 
 ## O que é específico do Brabo {#especifico-do-brabo}
 
