@@ -63,6 +63,10 @@ jobs:
           path: .brabo-ci
           persist-credentials: false
 
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
       - name: Consultar o gate
         env:
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}

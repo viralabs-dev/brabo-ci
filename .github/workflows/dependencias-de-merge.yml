@@ -40,11 +40,6 @@ jobs:
         if: github.event.pull_request.head.repo.full_name != github.repository
         run: echo "::notice::PR de fork não recebe os secrets do App; o check 'Dependências de merge' não é publicado."
 
-      - if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - name: Scripts do brabo-ci
         if: github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -53,6 +48,11 @@ jobs:
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       # Sem `repositories`: o check é escrito no repo da PR e lido/escrito nos dependentes, que podem ser
       # qualquer um dos 11. O escopo é o da instalação do App.
@@ -87,11 +87,6 @@ jobs:
         if: github.event.pull_request.head.repo.full_name != github.repository
         run: echo "::notice::PR de fork não recebe os secrets do App; as dependentes esperam o cron de rede do brabo-ci."
 
-      - if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - name: Scripts do brabo-ci
         if: github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -100,6 +95,11 @@ jobs:
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       # Sem `repositories`: o check é escrito no repo da PR e lido/escrito nos dependentes, que podem ser
       # qualquer um dos 11. O escopo é o da instalação do App.
@@ -129,10 +129,6 @@ jobs:
     timeout-minutes: 5
     continue-on-error: true
     steps:
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -140,6 +136,10 @@ jobs:
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Token do App
         id: app

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Action local `.github/actions/preparar` (AT-818): os reutilizáveis passam a fazer o checkout mínimo do `.brabo-ci` e `uses: ./.brabo-ci/.github/actions/preparar`, que confere o `ci_ref` (40 hex, uma vez só), instala o Node de `.node-version` (novo, `26.10.0`, lugar único; `ci.yml`, `painel.yml` e `dependencias-de-merge-rede.yml` usam `node-version-file`) e, com `dependencias: true`, as dependências de produção com o `pnpm/action-setup` pinado (sai o `npx --yes pnpm@11.3.0` do `qa-e2e-gatilho`). Antes, `pr-police`, `backmerge-gate`, `promotion-check`, `contracts-alinhado`, `dependabot-para-dev` e `refs-com-simbolo` rodavam `.ts` no Node da imagem. `vinculos` fica como está. Spec `workflows-reutilizaveis.spec.ts` reprova job com `.brabo-ci/` sem a `preparar` e `node-version:` literal; `workflows-dependencias.spec.ts` aceita `dependencias: true`.
+- Resumo do E2E: "1 pulada" no singular (resíduo da AT-791).
+
 - `ci_ref` dos 13 reutilizáveis passa a ser obrigatório e sem padrão (AT-816): antes `required: false` com `default: 'v1.0.0'` rodava o YAML novo com scripts da v1.0.0 em silêncio. Quem chamava sem `ci_ref` passa a falhar (os 11 repos já passam o SHA). Spec novo `workflows-reutilizaveis.spec.ts` reprova `ci_ref` opcional ou com `default`. README explica por que o `ci_ref` repete o SHA do `uses:`.
 
 - Texto do check do regressivo: plural correto ("1 passou", "2 falharam"), spec pulada contada à parte no `<summary>` por funcionalidade (`N pulada(s) ⏭️`, fora de ❌/⚠️) e o sufixo "(preparação)" não duplica.

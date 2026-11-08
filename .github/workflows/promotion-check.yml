@@ -49,6 +49,10 @@ jobs:
           path: .brabo-ci
           persist-credentials: false
 
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
       - name: Conferir a promoção
         env:
           GH_TOKEN: ${{ github.token }}

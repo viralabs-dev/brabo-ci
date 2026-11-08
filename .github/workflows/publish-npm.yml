@@ -49,10 +49,14 @@ jobs:
           path: .brabo-ci
           persist-credentials: false
 
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
-          node-version: 26.10.0
+          node-version-file: .brabo-ci/.node-version
           registry-url: https://npm.pkg.github.com
           scope: '@viralabs-dev'
 

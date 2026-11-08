@@ -42,10 +42,6 @@ jobs:
       group: qa-e2e-disparar-${{ github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
 
       - name: Scripts do brabo-ci
@@ -56,10 +52,10 @@ jobs:
           path: .brabo-ci
           persist-credentials: false
 
-      # O disparar importa a seleção de funcionalidades (picomatch, yaml) desde a AT-769;
-      # sem isto o portão da main quebrava com ERR_MODULE_NOT_FOUND (AT-785).
-      - name: Dependências dos scripts
-        run: npx --yes pnpm@11.3.0 install --frozen-lockfile --prod --ignore-scripts --dir .brabo-ci
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+          dependencias: true
 
       # Escopo: o brabo-qa (dispatch) e o repo do evento (check). As tags dos outros repos
       # são lidas por leitura pública (repos públicos).
@@ -95,10 +91,6 @@ jobs:
       group: qa-regressivo-dev-${{ github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
 
       - name: Scripts do brabo-ci
@@ -109,9 +101,10 @@ jobs:
           path: .brabo-ci
           persist-credentials: false
 
-      # picomatch e yaml da seleção; só produção, sem scripts de pacote.
-      - name: Dependências dos scripts
-        run: npx --yes pnpm@11.3.0 install --frozen-lockfile --prod --ignore-scripts --dir .brabo-ci
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+          dependencias: true
 
       # Escopo: o brabo-qa (dispatch) e o repo do evento (check). As tags dos outros repos
       # são lidas por leitura pública (repos públicos).
@@ -148,10 +141,6 @@ jobs:
       group: qa-e2e-aceitar-${{ github.event.issue.number }}
       cancel-in-progress: false
     steps:
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -159,6 +148,10 @@ jobs:
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Token do App
         id: app

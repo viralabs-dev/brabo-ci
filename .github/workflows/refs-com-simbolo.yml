@@ -34,6 +34,10 @@ jobs:
           path: .brabo-ci
           persist-credentials: false
 
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
       # --escrever reancora o checkout; o código de saída continua sendo o do veredito de ANTES.
       - name: Conferir as refs
         run: node .brabo-ci/scripts/ci/refs-com-simbolo.ts --escrever --repo "${GITHUB_REPOSITORY##*/}"

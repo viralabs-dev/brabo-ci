@@ -84,6 +84,10 @@ jobs:
           path: .brabo-ci
           persist-credentials: false
 
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
       - name: Avaliar o PR
         id: policia
         # Dados por env, NUNCA interpolados em `run:`: título e nome de branch
