@@ -109,8 +109,9 @@ Workflows reutilizáveis (`workflow_call`) e a lógica de política em `scripts/
   tem escrita (evento do `GITHUB_TOKEN` não dispara workflow).
   PR do Dependabot que SÓ troca pin de action (SHA do `uses:` + comentário de
   versão, mesma action, mesma indentação) ganha `docs-not-needed:` escrito
-  pelo BOT, num passo do job `Drift, gerados e build` antes do drift
-  (`scripts/ci/dependabot-justifica-pin.ts`, AT-094) — autor E diff, as duas;
+  pelo BOT, num passo do job `Drift, gerados e build` do `docs-check.yml` do
+  repo `brabo` (não deste repo), antes do drift; a lógica é
+  `scripts/ci/dependabot-justifica-pin.ts` (AT-094) — autor E diff, as duas;
   qualquer outra linha e nada é escrito. NÃO mova isso para workflow irmão: o
   `GITHUB_TOKEN` não dispara `edited`, re-executar o job reusa o corpo ANTIGO
   do payload (medido, run 34898913072) e `pull_request_target` só roda o
