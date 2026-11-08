@@ -86,5 +86,14 @@ jobs:
       - run: pnpm test
       - run: pnpm typecheck
       - run: pnpm actions:pinadas
+      - name: preparar instala fora do workspace do chamador (AT-841)
+        run: |
+          d=$(mktemp -d)
+          printf 'packages:\n  - "."\n' > "$d/pnpm-workspace.yaml"
+          echo '{"name":"chamador","private":true}' > "$d/package.json"
+          mkdir "$d/.brabo-ci"
+          cp package.json pnpm-lock.yaml "$d/.brabo-ci/"
+          (cd "$d/.brabo-ci" && pnpm install --prod --ignore-scripts --frozen-lockfile --ignore-workspace)
+          test -d "$d/.brabo-ci/node_modules/yaml"
       - name: Referência dos workflows em dia (gerada do YAML)
         run: node scripts/ci/referencia-dos-workflows.ts --check
