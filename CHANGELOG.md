@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `arestas-alinhadas.yml` e `scripts/ci/arestas-dos-repos.ts` novos (AT-825 parte b, ADR 0281): provam que cada aresta do `repos.yml` do `brabo` existe (a `prova: arquivo:N` existe no repo que declara e a linha cita o destino) e que o `REPOS` do `clonar-tudo.sh`, o `irmaos.lock` e o `componentes.json` batem com o mapa. Lê a `dev` por raw ou `--raiz` (checkouts). Não obrigatório.
 - **docs**: o link de `tutorials/adotar.md` para `reference/workflows/` (diretório sem página, 4 links quebrados no `docs:build` do `brabo`) aponta para `reference/workflows/pr-police.md` (AT-845).
 
 - **fix**: o `pnpm install --prod` da action `preparar` (`dependencias: true`) passa a usar `--ignore-workspace` (AT-841). Com o `pnpm-workspace.yaml` do chamador (runner, web) na raiz, o pnpm instalava no workspace dele: `.brabo-ci/node_modules` ficava vazio (`ERR_MODULE_NOT_FOUND: yaml` no `readme-esqueleto` e no `mapa-alinhado`) e as dependências `@viralabs-dev/*` do chamador davam 401 no GitHub Packages. `preparar-fora-do-workspace.spec.ts` guarda a flag e o job de testes do `ci.yml` instala a partir de um chamador falso com workspace.
