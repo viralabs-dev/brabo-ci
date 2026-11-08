@@ -188,7 +188,9 @@ export function secaoMotivos(fs: { id: string; motivo: string[] }[], semDono: st
 }
 
 const ICONE: Record<StatusDaSpec, string> = { passou: '✅', falhou: '❌', flaky: '⚠️', pulou: '⏭️' };
-const preparacao = (s: SpecDoRelatorio) => (/\.setup\.[jt]s$/.test(s.arquivo) ? ' (preparação)' : '');
+// O qa manda o título limpo; se um dia vier com o sufixo, não duplica.
+const preparacao = (s: SpecDoRelatorio) => (/\.setup\.[jt]s$/.test(s.arquivo) && !s.titulo.endsWith('(preparação)') ? ' (preparação)' : '');
+const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
 const linhaDeSpec = (s: SpecDoRelatorio) =>
   `- ${ICONE[s.status]} ${limpar(s.titulo, 200)}${preparacao(s)} · \`${limpar(s.arquivo, 200)}:${s.linha}\` · ${seg(s.duracao_ms)}${s.tentativas > 1 ? ` · ${s.tentativas} tentativas` : ''}`;
 
@@ -211,7 +213,7 @@ function secoesDoResumo(r: ResultadoE2e, rel: RelatorioRegressivo, rec: string, 
     `## ${NOME_DO_CHECK_POR_MODO[modo]}: ${r.causa ? 'VERMELHO' : 'VERDE'}${r.causa ? ` · causa ${r.causa}` : ''}`,
     `**Recomendação: ${rec.replace(/\*/g, '')}**`,
     `${modo === 'dev' ? 'Atestado da dev (não bloqueia)' : 'Portão da main'} · \`${limpar(rel.origem.repo, 80)}#${limpar(String(rel.origem.pr), 12)} @${limpar(rel.origem.sha, 12)}\` · ${seg(total)} de specs`,
-    `${rel.specs.length} specs · ${conta('passou')} passaram · ${conta('falhou')} falharam · ${conta('flaky')} flaky${conta('pulou') ? ` · ${conta('pulou')} puladas` : ''}`,
+    `${rel.specs.length} specs · ${plural(conta('passou'), 'passou', 'passaram')} · ${plural(conta('falhou'), 'falhou', 'falharam')} · ${conta('flaky')} flaky${conta('pulou') ? ` · ${conta('pulou')} puladas` : ''}`,
   ].join('\n\n');
 
   const cob = [...rel.funcionalidades.filter((f) => f.resultado !== 'sem cobertura'), ...rel.funcionalidades.filter((f) => f.resultado === 'sem cobertura')];
@@ -267,11 +269,13 @@ function textoDoRelatorio(rel: RelatorioRegressivo, artefato: string): string {
   const montar = (soProblemas: boolean): Secao[] =>
     grupos.map((g) => {
       const ruins = g.specs.filter((s) => s.status !== 'passou');
+      const puladas = g.specs.filter((s) => s.status === 'pulou').length;
+      const problemas = ruins.length - puladas;
       const mostra = soProblemas ? ruins : g.specs;
       const omitidas = g.specs.length - mostra.length;
       return {
         texto: [
-          `<details><summary>${limpar(g.id, 80)} · ${g.specs.length - ruins.length} ✅${ruins.length ? ` · ${ruins.length} ❌/⚠️` : ''}</summary>`,
+          `<details><summary>${limpar(g.id, 80)} · ${g.specs.length - ruins.length} ✅${problemas ? ` · ${problemas} ❌/⚠️` : ''}${puladas ? ` · ${plural(puladas, 'pulada', 'puladas')} ⏭️` : ''}</summary>`,
           '',
           ...mostra.map(linhaDeSpec),
           ...(omitidas > 0 ? [`- … ${omitidas} itens a mais no artefato ${artefato}`] : []),

@@ -154,7 +154,7 @@ describe('montarCheck com relatório', () => {
     expect(c.title).toBe('Regressivo vermelho: spec falhou');
     expect(c.summary).toMatch(/^## Regressivo do brabo-qa: VERMELHO · causa spec/);
     expect(c.summary).toContain('**Recomendação: atestado (não bloqueia): bloquear: spec em funcionalidade que a PR toca (autenticacao); corrigir antes**');
-    expect(c.summary).toContain('3 specs · 1 passaram · 1 falharam · 1 flaky');
+    expect(c.summary).toContain('3 specs · 1 passou · 1 falhou · 1 flaky');
     expect(c.summary).toContain('| autenticacao | 1 | 0 | 1 | 0 | 1.2 s | vermelho ❌ |');
     expect(c.summary).toContain('| sem funcionalidade | 2 |');
     expect(c.summary.indexOf('| backlog |')).toBeGreaterThan(c.summary.indexOf('| autenticacao |'));
@@ -169,6 +169,22 @@ describe('montarCheck com relatório', () => {
     expect(c.text).toContain('<details><summary>autenticacao');
     expect(c.text).toContain('<details><summary>sem funcionalidade');
     expect(c.text).toContain('(preparação)');
+  });
+  it('plural: 2 falharam, 3 passaram; spec pulada conta à parte; preparação sai uma vez', () => {
+    const c = comRel(
+      rel({
+        funcionalidades: [func({})],
+        specs: [
+          spec({ status: 'falhou' }), spec({ status: 'falhou' }), spec({ status: 'passou' }), spec({ status: 'passou' }), spec({ status: 'passou' }),
+          spec({ status: 'pulou' }),
+          spec({ titulo: 'entrar (preparação)', arquivo: 'e2e/entrar.setup.ts' }),
+        ],
+      }),
+      { causa: 'spec' },
+    );
+    expect(c.summary).toContain('4 passaram · 2 falharam');
+    expect(c.text).toContain('· 2 ❌/⚠️ · 1 pulada ⏭️</summary>');
+    expect(c.text).not.toContain('(preparação) (preparação)');
   });
   it('verde: aprovar e título verde; o main usa o nome do portão', () => {
     const c = comRel(rel(), { modo: 'main' });
