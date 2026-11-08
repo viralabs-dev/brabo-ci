@@ -360,6 +360,15 @@ as imagens publicadas」，`permissions` 块中带 `id-token: write`）；
 - **ADR：** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **来源：** AT-769（EP-033）
 
+### RN-1075 — `brabo-runner` 由自身的 CI 证明：linux-x64 二进制进入 PR，与 engine 的契约只在 TP-01 中验证 {#rn-1075}
+
+`brabo-runner` 在 `brabo-qa` 中没有 `qa-e2e.yml`、镜像或 `@f-runner`/`@f-projetos` spec；目录回归不会在其 PR 上运行（负责人于 2026/11/08 的决定，选项 b）。PR 由其 `ci.yml` 的 `runner` 作业证明：lint、类型、测试、带 `smoke` 的 `dist`，以及带 `build:bin` + `smoke:bin`（`--self-test-pty`，真实 PTY）的 linux-x64 二进制。**runner ↔ engine 契约**（ticket join、能力、exec、目录）在 PR 上**不会**被验证：只在实时 TP-01 中验证。`funcionalidades.yml` 中的 `runner` 键保留在目录里，仅用于映射。
+
+- **代码：** `brabo-runner` 的 `.github/workflows/ci.yml` 中的 `runner` 作业
+- **测试：** 作业本身（日志含 `--self-test-pty` 的 `ok:`）
+- **ADR：** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **来源：** AT-853（EP-033）
+
 ### RN-1034 — 面向 `main` 的 PR 在 `E2E do brabo-qa` 中运行整个目录，没有 spec 的功能显示为「无覆盖」但不会失败 {#rn-1034}
 
 `E2E do brabo-qa` 检查（[ADR 0267](../adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md)）运行所有 spec，并生成 `funcionalidade | specs | resultado` 表。目录中没有 spec 的功能以 `sem cobertura` 进入，并且**不会失败**（负责人于 2026/11/06 的决定）：若规则相反，`main` 会连续数周保持红色，`/qa-aceitar` 也会变成例行公事。现有的测试无需改动即可通过；`spec` 或 `ambiente` 的红色仍可通过 `/qa-aceitar` 接受，`digest` 或 `assinatura` 的红色则永远不行。

@@ -756,6 +756,15 @@ para o mapa ser corrigido. O `brabo-contracts` não tem regressivo na própria P
 - **ADR:** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origem:** AT-769 (EP-033)
 
+### RN-1075 — O `brabo-runner` se atesta pelo próprio CI: o binário linux-x64 entra na PR, e o contrato com o engine só é provado no TP-01 {#rn-1075}
+
+O `brabo-runner` não tem `qa-e2e.yml`, imagem nem spec `@f-runner`/`@f-projetos` no `brabo-qa`; o regressivo do catálogo não roda na PR dele (decisão do dono de 08/11/2026, opção b). A PR se atesta pelo job `runner` do `ci.yml` dele: lint, tipos, testes, `dist` com `smoke` e o binário linux-x64 com `build:bin` + `smoke:bin` (`--self-test-pty`, PTY real). O **contrato runner ↔ engine** (join com ticket, capacidades, exec, pasta) **não** é provado na PR: só no TP-01 ao vivo. As chaves `runner` do `funcionalidades.yml` ficam no catálogo e servem só ao mapa.
+
+- **Código:** job `runner` do `.github/workflows/ci.yml` do `brabo-runner`
+- **Teste:** o próprio job (log com `ok:` do `--self-test-pty`)
+- **ADR:** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **Origem:** AT-853 (EP-033)
+
 ### RN-1034 — A PR para a `main` roda o catálogo inteiro no `E2E do brabo-qa`, e funcionalidade sem spec aparece como "sem cobertura" sem reprovar {#rn-1034}
 
 O check `E2E do brabo-qa` ([ADR 0267](../adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md))

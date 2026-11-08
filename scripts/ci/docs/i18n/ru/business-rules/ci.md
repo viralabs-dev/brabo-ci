@@ -775,6 +775,15 @@ glob, запускает smoke `instalacao` + `autenticacao`, а сводка п
 - **ADR:** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Источник:** AT-769 (EP-033)
 
+### RN-1075 — `brabo-runner` подтверждается собственным CI: бинарник linux-x64 входит в PR, а контракт с engine проверяется только в TP-01 {#rn-1075}
+
+У `brabo-runner` нет `qa-e2e.yml`, образа и spec `@f-runner`/`@f-projetos` в `brabo-qa`; регрессия каталога не запускается в его PR (решение владельца от 08.11.2026, вариант b). PR подтверждается заданием `runner` его `ci.yml`: lint, типы, тесты, `dist` со `smoke` и бинарник linux-x64 с `build:bin` + `smoke:bin` (`--self-test-pty`, настоящий PTY). **Контракт runner ↔ engine** (join с ticket, возможности, exec, папка) в PR **не** проверяется: только в живом TP-01. Ключи `runner` в `funcionalidades.yml` остаются в каталоге и служат только карте.
+
+- **Код:** задание `runner` в `.github/workflows/ci.yml` репозитория `brabo-runner`
+- **Тест:** само задание (лог с `ok:` от `--self-test-pty`)
+- **ADR:** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **Источник:** AT-853 (EP-033)
+
 ### RN-1034 — PR в `main` запускает весь каталог в `E2E do brabo-qa`, а функциональность без spec показывается как «без покрытия» и не проваливает проверку {#rn-1034}
 
 Проверка `E2E do brabo-qa` ([ADR 0267](../adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md))
