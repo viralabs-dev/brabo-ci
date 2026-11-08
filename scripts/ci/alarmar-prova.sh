@@ -71,6 +71,7 @@ alarmar() {
     return 0
   fi
 
+  # shellcheck disable=SC2016 # $ENV é do jq, não do shell
   existente="$(TITULO="${titulo}" gh issue list --state open --limit 200 --json number,title \
     --jq '.[] | select(.title == $ENV.TITULO) | .number' | head -1)"
 
