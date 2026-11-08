@@ -7,7 +7,7 @@ name: Preparar o ambiente do brabo-ci
 description: >-
   Depois do checkout mínimo do brabo-ci em `.brabo-ci/`: confere o formato do
   `ci_ref`, instala o Node de `.brabo-ci/.node-version` e, se pedido, as
-  dependências de produção dos scripts. É LOCAL (`./.brabo-ci/...`) porque um
+  dependências de produção dos scripts (com `--ignore-workspace`: o `pnpm-workspace.yaml` do chamador não conta). É LOCAL (`./.brabo-ci/...`) porque um
   `uses:` não aceita expressão (`inputs.ci_ref`): assim ela é sempre do mesmo SHA dos scripts.
 inputs:
   ci_ref:
@@ -42,4 +42,5 @@ runs:
     - if: inputs.dependencias == 'true'
       shell: bash
       working-directory: .brabo-ci
-      run: pnpm install --prod --ignore-scripts --frozen-lockfile
+      # --ignore-workspace: sem ela o pnpm sobe até o pnpm-workspace.yaml do chamador e instala lá (AT-841).
+      run: pnpm install --prod --ignore-scripts --frozen-lockfile --ignore-workspace
