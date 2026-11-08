@@ -30,8 +30,6 @@ Pine sempre por SHA: `uses: viralabs-dev/brabo-ci/.github/workflows/pr-police.ym
 | `tag-release.yml` | `ci_ref` | `BOT_TOKEN` (opcional; obrigatório para hotfix) | carimba a tag do estágio, trava e destrava o gate; a mensagem da tag termina em `Carimbo: <url do run>` (AT-773) |
 | `archive-merged-branch.yml` | `ci_ref` | - | arquiva branch mergeada em `refs/archive/` |
 | `dependabot-para-dev.yml` | `ci_ref` | - | fecha ou redireciona PR de segurança do Dependabot para a `dev` |
-| `claude.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | responde a `@claude` |
-| `claude-code-review.yml` | - | `CLAUDE_CODE_OAUTH_TOKEN` | revisão automática de PR |
 
 ## Actions compostas
 
