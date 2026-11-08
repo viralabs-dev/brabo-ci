@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Regra do pin do brabo-ci (AT-817, ADR 0280): `scripts/ci/pins-do-brabo-ci.ts` (+spec) e job informativo `pins-do-brabo-ci` no `cadeia.yml`, com o input `branch_alvo`. Exige comentário `vX.Y.Z` ou `vX.Y.Z-dev.N`, SHA igual ao da tag e, na `main`, só release final (na `dev`, final ou `-dev.N`). Repinar os 11 repos vai em PR por repo. TODO(humano): o Dependabot sobe um pin `-dev.N` para o próximo `-dev.N`? Não medido: os `dependabot.yml` só ligam `github-actions` semanal e a doc oficial não garante o tratamento de pré-release; medir com o primeiro pin `-dev.N` com comentário de versão. O `ci_ref` (em `with:`) o Dependabot não atualiza: continua à mão.
 - Reutilizável `cadeia.yml` (AT-819): jobs `actionlint` (com `-config-file .brabo-ci/.github/actionlint.yaml`, para o consumidor não copiar o yaml) e `pins` (`actions-pinadas.ts --raiz .`). `ci_ref` obrigatório, pela action `preparar`; não é check obrigatório. `actions-pinadas.ts` ganha `--raiz <dir>` (padrão: este repo) e passa a varrer também `.github/actions/**/action.y*ml`. O README ganha o exemplo de chamada e o quadro de destino dos seis reutilizáveis sem chamador (`dependencias-de-merge` a ligar; os outros cinco como biblioteca para adoção, nada apagado). Chamar o `cadeia` nos consumidores vai em PR por repo, junto do repin da AT-817.
 - `.vitest/` sai do versionamento e entra no `.gitignore` (AT-835).
 
