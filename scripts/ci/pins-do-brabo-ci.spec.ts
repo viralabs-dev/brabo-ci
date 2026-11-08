@@ -38,6 +38,11 @@ describe('pins-do-brabo-ci', () => {
     expect(await verificarPinsDoCi(wf(A, '  # v1.3.0'), b, tags)).toEqual([]);
   });
 
+  it('isenta o próprio brabo-ci (AT-788, adendo ao ADR 0280): pre-release na main não reprova', async () => {
+    expect(await verificarPinsDoCi(wf(B, '  # v1.3.0-dev.3'), 'main', tags, 'viralabs-dev/brabo-ci')).toEqual([]);
+    expect(await verificarPinsDoCi(wf(B, '  # v1.3.0-dev.3'), 'main', tags, 'viralabs-dev/brabo-api')).toHaveLength(1);
+  });
+
   it('ignora uses de outros repos e linhas comentadas', async () => {
     const conteudo = `    uses: actions/checkout@${A}  # v7\n    # uses: viralabs-dev/brabo-ci/x@${A}  # dev\n`;
     expect(await verificarPinsDoCi([{ nome: 'x.yml', conteudo }], 'main', tags)).toEqual([]);

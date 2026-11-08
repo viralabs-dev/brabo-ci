@@ -60,7 +60,7 @@ jobs:
       ci_ref: <sha>
 ```
 
-Em PR, nunca ponha `if:` no job que chama `pr-police`, `approval-ladder`, `backmerge-gate` ou `promotion-check`: check obrigatório que se pula deixa veredito velho colado ([lição](scripts/ci/docs/explanation/licoes-do-ci.md)). Para a política em si, comece pela [política em 10 minutos](scripts/ci/docs/explanation/politica-em-10-minutos.md).
+Em PR, nunca ponha `if:` no job que chama `pr-police`, `approval-ladder`, `backmerge-gate` ou `promotion-check`: check obrigatório que se pula deixa veredito velho colado ([lição](scripts/ci/docs/explanation/licoes-do-ci.md)). Para a política em si, comece pela [política em 10 minutos](scripts/ci/docs/explanation/politica-em-10-minutos.md); para promover os repos, a [ordem da promoção](scripts/ci/docs/explanation/ordem-da-promocao.md).
 
 ## Reutilizáveis sem chamador (AT-819)
 
@@ -68,8 +68,8 @@ Nenhum dos 11 repos chamava estes seis em `origin/dev` (conferido em 08/11/2026)
 
 | Reutilizável | Destino | Motivo |
 |---|---|---|
-| `dependencias-de-merge.yml` | a ligar (por PR em cada repo, fora desta) | Decidido na AT-787: o check é exigido em `dev` e `main`. Falta o `checks: write` no App e as provas; só então o chamador entra e o required liga. Os scripts e a rede de hora em hora (`dependencias-de-merge-rede.yml`) já usam o código. |
-| `promote.yml` | biblioteca para adoção | Abre a PR de promoção `dev->main`, que hoje o dono abre à mão ou por script local. Quando ligar, a AT-788 acrescenta o `Depende-de` automático. Sem plano de repo e sem efeito seguro de ligar sem a decisão do dono. |
+| `dependencias-de-merge.yml` | a ligar (o brabo-ci já chama; os outros 10 entram pelo repin) | Decidido na AT-787: o check é exigido em `dev` e `main`. Falta o `checks: write` no App e as provas; só então o chamador entra e o required liga. Os scripts e a rede de hora em hora (`dependencias-de-merge-rede.yml`) já usam o código. |
+| `promote.yml` | biblioteca para adoção | Abre a PR de promoção `dev->main`, que hoje o dono abre à mão ou por script local. Ao abrir `dev->main`, escreve o `Depende-de` das promoções abertas das camadas de baixo (AT-788). Sem plano de repo e sem efeito seguro de ligar sem a decisão do dono. |
 | `archive-merged-branch.yml` | biblioteca para adoção | Rotina semanal da AT-661 (segunda, `0 12 * * 1`), que rodava no monorepo. Nenhum repo separado a agendou ainda; arquivar branch é efeito destrutivo no remoto e pede escolha do repo e do dono. |
 | `backmerge-gate.yml` | biblioteca para adoção | Trava de retropropagação depois de hotfix. Só faz sentido onde há `hotfix/`; a nota não nomeia o repo. |
 | `promotion-check.yml` | biblioteca para adoção | Estado da PR de promoção. Só vale como check da `main` e depende de `promote`/carimbo; sem chamador ele não bloqueia nada. |
