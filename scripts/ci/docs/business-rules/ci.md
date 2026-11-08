@@ -922,6 +922,40 @@ tirar a linha que fecha o ciclo: a PR não precisa de bypass.
 - **ADR:** [0276](../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origem:** AT-787 (EP-033)
 
+### RN-1067 — A PR de promoção depende das promoções abertas das camadas anteriores, e a ordem é uma lista testada {#rn-1067}
+
+Numa PR com base `main` e head `dev` do próprio repo, o check `Dependências de
+merge` soma às linhas `Depende-de` do corpo uma dependência para cada PR de
+promoção aberta nos repos das camadas anteriores, mesmo que ninguém a tenha
+escrito. A ordem é `CAMADAS_DE_PROMOCAO`: 0 brabo-ci; 1 brabo-contracts e
+brabo-workspace; 2 brabo-api, brabo-engine, brabo-web, brabo-runner e brabo-broker;
+3 brabo-infra; 4 brabo-qa; 5 brabo. Só conta a aresta em que a `main` do consumidor
+usa um artefato final do produtor. O título mostra `esperando viralabs-dev/<repo>#<n>`.
+Se um repo de camada anterior tem a `dev` à frente da `main` e nenhuma promoção
+aberta, o check fica pendente e diz qual repo falta promover
+(`esperando promoção de viralabs-dev/<repo> (a dev está à frente da main)`). A
+abertura da promoção (`abrir-pr-de-promocao.sh`) também escreve as linhas
+`Depende-de` das promoções já abertas, em melhor esforço. A união das camadas é a
+lista `REPOS`, sem repetição, e o spec guarda isso.
+
+- **Código:** `scripts/ci/dependencias-de-merge.ts` (`CAMADAS_DE_PROMOCAO`, `predecessores`, `avaliar`, modo `linhas`) e `scripts/ci/abrir-pr-de-promocao.sh`, no `brabo-ci`
+- **Teste:** `scripts/ci/dependencias-de-merge.spec.ts` (bloco "promoção em camadas")
+- **ADR:** [0284](../adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md), que revê a decisão 7 do [0276](../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **Origem:** AT-788 (EP-033)
+
+### RN-1068 — O merge de uma promoção e o cron reavaliam as promoções das camadas seguintes {#rn-1068}
+
+Como a dependência inferida não está escrita no corpo, a busca por `in:body` não a
+acha. Por isso o `avisar-dependentes` de uma PR mergeada também reavalia as
+promoções abertas (`base:main head:dev`) dos repos das camadas seguintes, e o
+`varrer` (cron horário) inclui a mesma busca. Uma promoção que abre depois da de
+baixo é acordada pelo próprio evento dela ou pelo cron.
+
+- **Código:** `scripts/ci/dependencias-de-merge.ts` (modos `avisar-dependentes` e `varrer`)
+- **Teste:** `scripts/ci/dependencias-de-merge.spec.ts` (`sucessores`); a busca em si é o GitHub, provada na próxima promoção
+- **ADR:** [0284](../adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md)
+- **Origem:** AT-788 (EP-033)
+
 ## O relatório de decisão do regressivo (RN-1051..1053)
 
 ### RN-1051 — O relatório do regressivo sai de um JSON único, e a recomendação segue uma regra fixa de seis linhas {#rn-1051}
