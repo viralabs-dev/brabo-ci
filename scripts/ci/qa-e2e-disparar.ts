@@ -7,6 +7,9 @@
  * PR com base `dev` (AT-769, `PR_BASE_REF=dev`): seleciona as funcionalidades tocadas pelo catálogo do brabo-qa,
  * usa a imagem `sha-<12>` do head e publica o check `Regressivo do brabo-qa` (nunca exigido).
  *
+ * AT-790: antes de dar vermelho por ambiente ou assinatura, espera (QA_ESPERA_MINUTOS, padrão 10) a tag -dev do head, a imagem
+ * e a assinatura (cosign) dela.
+ *
  * Env: GH_TOKEN (token do App), GITHUB_REPOSITORY, PR_NUMERO, PR_HEAD_SHA, PR_HEAD_REF, GITHUB_RUN_URL;
  * opcionais (AT-773): PR_AUTOR (login do autor da PR; sem ele, GITHUB_ACTOR), GITHUB_RUN_ID, GITHUB_RUN_ATTEMPT, GITHUB_SHA, GITHUB_STEP_SUMMARY;
  * só na dev: PR_BASE_REF, PR_HEAD_REPO (full_name do repo do head, para a guarda de fork).
@@ -15,6 +18,7 @@
 
 import {
   SemTagParaOHead,
+  consultarGhcr,
   escolherTags,
   maisNova,
   paginar,
@@ -24,6 +28,7 @@ import {
 } from './qa-e2e-imagens.ts';
 import { NOME_DO_CHECK_POR_MODO, montarCheck, secaoMotivos } from './qa-e2e-resumo.ts';
 import { escreverNoSummary, procurarRun, vinculosDoGatilho, type RunDoQa } from './qa-e2e-vinculos.ts';
+import { AssinaturaAusente, ImagemAusente, cosignAssinada, esperarImagemAssinada, relogioReal, repetirAte, tetoDoEnv } from './qa-e2e-espera.ts';
 import { buscaTagsDoHead } from './qa-e2e-busca-tags.ts';
 import { lerCatalogo, selecionar, type Selecao } from './qa-regressivo-selecao.ts';
 
@@ -111,7 +116,10 @@ async function principal(): Promise<void> {
 
   let escolha: EscolhaDeTags | null = null;
   let erro = '';
-  try {
+  let causaDoErro: 'ambiente' | 'assinatura' = 'ambiente';
+  // AT-790: o carimbo do head (tag -dev, imagem) e a assinatura da `sha-` ainda podem estar rodando; espera até o teto.
+  const limite = relogioReal.agora() + tetoDoEnv(env('QA_ESPERA_MINUTOS'));
+  const resolver = async (): Promise<EscolhaDeTags> => {
     const ultimaDev = {} as Record<(typeof CHAVES)[number], string>;
     const ultimaFinal = {} as Record<(typeof CHAVES)[number], string>;
     let tagsDoHead: string[] = [];
@@ -131,16 +139,27 @@ async function principal(): Promise<void> {
         for (const r of refs) if ((await commitDe(r)) === headSha) tagsDoHead.push(r.ref.replace('refs/tags/', ''));
       }
     }
-    escolha = escolherTags({ repo: nome as RepoGatilho, headSha, headRef, baseRef: dev ? 'dev' : 'main', tagsDoHead, ultimaDev, ultimaFinal });
+    return escolherTags({ repo: nome as RepoGatilho, headSha, headRef, baseRef: dev ? 'dev' : 'main', tagsDoHead, ultimaDev, ultimaFinal });
+  };
+  try {
+    escolha = await repetirAte(resolver, (e) => e instanceof SemTagParaOHead, limite);
+    // Só o repo do evento tem imagem nova; as outras já estão carimbadas e assinadas.
+    const dono = nome.replace('brabo-', '');
+    const tag = (escolha.tags as Record<string, string>)[dono];
+    if (tag && dono !== 'infra' && dono !== 'qa') {
+      await esperarImagemAssinada({ imagem: nome, tag, digestDe: consultarGhcr, assinada: cosignAssinada, limite });
+    }
   } catch (e) {
-    if (!(e instanceof SemTagParaOHead)) throw e;
-    erro = e.message;
+    if (e instanceof AssinaturaAusente) causaDoErro = 'assinatura';
+    else if (!(e instanceof SemTagParaOHead || e instanceof ImagemAusente)) throw e;
+    escolha = null;
+    erro = (e as Error).message;
   }
 
   if (!escolha) {
-    const c = montarCheck({ causa: 'ambiente', linhas: [], specsQueFalharam: [], urlDoRun });
+    const c = montarCheck({ modo: dev ? 'dev' : 'main', causa: causaDoErro, linhas: [], specsQueFalharam: [], urlDoRun });
     await check({ status: 'completed', conclusion: 'failure', external_id: c.external_id, output: { title: c.title, summary: `${erro}\n\n${c.summary}` } });
-    console.log(`E2E vermelho (ambiente): ${erro}`);
+    console.log(`E2E vermelho (${causaDoErro}): ${erro}`);
     return;
   }
   const criado = await check({ status: 'in_progress', details_url: urlDoRun, output: { title: dev ? 'Regressivo em andamento' : 'E2E em andamento', summary: `Disparado no brabo-qa. Run do gatilho: ${urlDoRun}${sobreDono}` } });

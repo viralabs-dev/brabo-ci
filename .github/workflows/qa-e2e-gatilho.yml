@@ -8,7 +8,9 @@ name: qa-e2e-gatilho
 # final vem do brabo-qa. Aqui: resolve as imagens por digest, cria o check e dispara o e2e-pr.
 # O job `regressivo-dev` (AT-769) roda só as funcionalidades tocadas, com a imagem `sha-<12>` do head,
 # sob o check "Regressivo do brabo-qa", que NUNCA é exigido por ruleset e nunca derruba a PR.
-# Fonte: AT-765, AT-769.
+# AT-790: antes do vermelho por ambiente/assinatura, `disparar` e `regressivo-dev` esperam (teto `espera_minutos`) a tag -dev do head,
+# a imagem e a assinatura cosign dela.
+# Fonte: AT-765, AT-769, AT-790.
 on:
   workflow_call:
     inputs:
@@ -17,6 +19,11 @@ on:
         required: false
         type: string
         default: 'v1.0.0'
+      espera_minutos:
+        description: 'Teto da espera do carimbo e da assinatura da imagem do head antes do vermelho por ambiente/assinatura (AT-790)'
+        required: false
+        type: number
+        default: 10
     secrets:
       APP_ID:
         required: true
@@ -31,7 +38,7 @@ jobs:
     name: Disparar o E2E
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     concurrency:
       group: qa-e2e-disparar-${{ github.event.pull_request.number }}
       cancel-in-progress: true
@@ -39,6 +46,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: 26.10.0
+
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
 
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -73,6 +82,7 @@ jobs:
           PR_NUMERO: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          QA_ESPERA_MINUTOS: ${{ inputs.espera_minutos }}
           GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: node .brabo-ci/scripts/ci/qa-e2e-disparar.ts
 
@@ -80,7 +90,7 @@ jobs:
     name: Regressivo por funcionalidade (dev)
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'dev'
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     continue-on-error: true # nunca é exigido
     concurrency:
       group: qa-regressivo-dev-${{ github.event.pull_request.number }}
@@ -89,6 +99,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: 26.10.0
+
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
 
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -122,6 +134,7 @@ jobs:
           PR_NUMERO: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          QA_ESPERA_MINUTOS: ${{ inputs.espera_minutos }}
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
           PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
