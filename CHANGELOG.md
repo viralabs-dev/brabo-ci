@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `ci_ref` dos 13 reutilizáveis passa a ser obrigatório e sem padrão (AT-816): antes `required: false` com `default: 'v1.0.0'` rodava o YAML novo com scripts da v1.0.0 em silêncio. Quem chamava sem `ci_ref` passa a falhar (os 11 repos já passam o SHA). Spec novo `workflows-reutilizaveis.spec.ts` reprova `ci_ref` opcional ou com `default`. README explica por que o `ci_ref` repete o SHA do `uses:`.
+
 - Texto do check do regressivo: plural correto ("1 passou", "2 falharam"), spec pulada contada à parte no `<summary>` por funcionalidade (`N pulada(s) ⏭️`, fora de ❌/⚠️) e o sufixo "(preparação)" não duplica.
 - Payload do `e2e-pr` com no máximo 10 chaves de topo (AT-791, run 42491787715 voltou `422 No more than 10 properties are allowed; 12 were supplied`): `motivos`, `semDono` e `tocadas` agora vão agrupados em `selecao: {motivos, semDono, tocadas}` (dev e main). Teste do pior caso (origem + modo + seleção) falha se alguma montagem passar de 10. O brabo-qa aceita `selecao` e as chaves soltas. O gatilho também passa a logar a espera: início e cada mudança de estado (tag `-dev` do head, imagem existe, assinada após N s), sem linha por volta.
 

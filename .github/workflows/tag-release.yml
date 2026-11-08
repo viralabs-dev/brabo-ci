@@ -24,10 +24,9 @@ on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
-        required: false
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
         type: string
-        default: 'v1.0.0'
     secrets:
       APP_ID:
         description: 'ID do GitHub App do bot. Com APP_ID e APP_PRIVATE_KEY o token é gerado AQUI: output de job que carrega token é descartado pelo Actions, então o chamador não consegue passá-lo como BOT_TOKEN'

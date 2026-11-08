@@ -13,10 +13,9 @@ on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
-        required: false
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
         type: string
-        default: 'v1.0.0'
       par:
         description: 'Par da esteira a promover'
         required: false

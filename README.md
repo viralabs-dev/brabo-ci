@@ -4,7 +4,7 @@ Política de PR, branch, escada de aprovação, promoção, carimbo de tag, arqu
 
 ## Como funciona
 
-Cada workflow reutilizável faz um segundo checkout deste repositório em `.brabo-ci/` e roda `node .brabo-ci/scripts/ci/<script>.ts` a partir da raiz do repositório que chama. Por isso todos têm o input `ci_ref`: o **mesmo SHA (ou tag)** que você pôs no `uses:`. O padrão é `v1.0.0`.
+Cada workflow reutilizável faz um segundo checkout deste repositório em `.brabo-ci/` e roda `node .brabo-ci/scripts/ci/<script>.ts` a partir da raiz do repositório que chama. Por isso todos têm o input `ci_ref`: o **mesmo SHA de 40 hex** que você pôs no `uses:`. Ele é obrigatório e não tem padrão: um `uses:` não lê `${{ }}` e o reutilizável não sabe o próprio SHA, então quem chama repete o SHA. Tag ou input ausente rodaria o YAML de uma versão com os scripts de outra.
 
 Os gatilhos (`on:`) ficam no repositório que chama. `vars` (`APPROVAL_MODE`, `OWNER_HANDLE`, `APROVADORES_*`) são lidas do repositório ou da organização que chama.
 
