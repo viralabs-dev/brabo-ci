@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `mapa-alinhado.yml` e `scripts/ci/mapa-dos-repos.ts` novos (AT-825, ADR 0281): o gerador lê o `repos.yml` do `brabo` (raw ou caminho local) e escreve o bloco "Onde se encaixa" (tabela e Mermaid, com o repo atual destacado) entre `<!-- mapa:inicio -->` e `<!-- mapa:fim -->`; o reutilizável reprova o README cujo bloco divergiu. Nasce informativo, não obrigatório; ligar nos 11 repos é da AT-826.
 - Guia de adoção da política (AT-827): `scripts/ci/docs/tutorials/adotar.md` leva quem nunca viu o Brabo do kit mínimo (`pr-police` e `escada`, sem App nem segredo) ao carimbo de tag, ao GitHub App, ao kit completo, ao que é específico do Brabo, a outra org e à solução de problemas. A prova é `daneiel/brabo-ci-exemplo`, com a PR de exemplo de checks verdes (a promoção e a tag ficam para quando o exemplo tiver o App). README ganha a linha "comece pelo guia".
 - **docs**: a ref do `ALVOS_ESPERADOS` do runner em `scripts/ci/docs/business-rules/ci.md` vai de `:370` para `:375`. A runner#23 deslocou a linha, e o drift do `brabo` reprovava a brabo#69.
 

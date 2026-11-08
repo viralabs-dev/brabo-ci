@@ -22,6 +22,7 @@ Cada linha leva à página dele em `scripts/ci/docs/reference/workflows/`, **ger
 | `contracts-alinhado` | Confere que a versão do brabo-contracts é a mesma no package.json, no lock e nos scripts de download; só avisa se difere do componentes.json do brabo. | [contracts-alinhado](scripts/ci/docs/reference/workflows/contracts-alinhado.md) |
 | `dependabot-para-dev` | Fecha ou redireciona para a dev a PR de segurança do Dependabot que o GitHub abre contra a main. | [dependabot-para-dev](scripts/ci/docs/reference/workflows/dependabot-para-dev.md) |
 | `dependencias-de-merge` | Faz o check Dependências de merge esperar as PRs citadas em `Depende-de: <org>/<repo>#<n>` até todas estarem mergeadas. | [dependencias-de-merge](scripts/ci/docs/reference/workflows/dependencias-de-merge.md) |
+| `mapa-alinhado` | Reprova se o bloco "Onde se encaixa" do README do repo chamador diverge do repos.yml do brabo (mapa dos 11 repos). | [mapa-alinhado](scripts/ci/docs/reference/workflows/mapa-alinhado.md) |
 | `pr-police` | Confere a forma de toda PR (nome da branch, origem e destino), reprova com o código da violação e o conserto, e escreve a label de família. | [pr-police](scripts/ci/docs/reference/workflows/pr-police.md) |
 | `promote` | Calcula a versão do ciclo e abre a PR de promoção de um degrau ao próximo (padrão dev->main); o merge continua humano. | [promote](scripts/ci/docs/reference/workflows/promote.md) |
 | `promotion-check` | Confere o estado da PR de promoção: range limpo, tag do degrau de baixo carimbada e merge possível. | [promotion-check](scripts/ci/docs/reference/workflows/promotion-check.md) |
@@ -86,7 +87,6 @@ pnpm actions:pinadas
 ```
 
 O `ci.yml` do próprio brabo-ci roda quatro jobs (AT-820): `actionlint`; `shell` (shellcheck v0.10.0 por sha256 em `scripts/ci/*.sh`); `segredos` (gitleaks por sha256, `gitleaks dir`, que varre a árvore, com o `.gitleaks.toml` sem allowlist); e `testar` (vitest com piso de cobertura, typecheck e `actions:pinadas`). O piso é à mão: sobe quando a cobertura sobe, nunca desce. Não há job que chame o `pr-police`/`approval-ladder` locais com o código da PR (dogfood): os dois reutilizáveis têm `concurrency` por PR e, no mesmo grupo do `politica.yml`, um cancelaria o outro, derrubando o check exigido. O exigido é sempre o `politica.yml` pinado por SHA, que a PR não consegue alterar.
-
 Branches permanentes: `dev` e `main`. Toda tag nasce de workflow. Licença MIT.
 
 ## Repositórios do Brabo
