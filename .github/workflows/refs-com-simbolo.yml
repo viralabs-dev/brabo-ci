@@ -1,4 +1,8 @@
 name: refs-com-simbolo
+# propósito: Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora; ref interna quebrada reprova.
+# chamador:
+#   pull_request:
+#     types: [opened, reopened, synchronize]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci (AT-782). Num irmão, confere que cada
 # ref `caminho:N` (`símbolo`) das RNs (docs/business-rules*) aponta para onde o

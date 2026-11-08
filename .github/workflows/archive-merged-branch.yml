@@ -1,4 +1,9 @@
 name: archive-merged-branch
+# propósito: Arquiva toda semana as branches já mergeadas e sem commit novo, movendo para refs/archive/<nome>; nunca apaga.
+# chamador:
+#   schedule:
+#     - cron: '0 12 * * 1'
+#   workflow_dispatch:
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
@@ -7,7 +12,7 @@ name: archive-merged-branch
 # do merge — exceto dev, main (permanentes), qa (aposentada) e gh-pages (deploy do site de docs). "Arquivar" é
 # mecânico: mover de `refs/heads/<nome>` para `refs/archive/<nome>`, nunca
 # apagar — o objeto e o histórico continuam no repositório, recuperável por
-# quem souber o ref. Fonte da política: docs/explanation/branching-policy.md
+# quem souber o ref. Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 #
 # A decisão (quem é apta e por quê) e a chamada à API moram em
 # scripts/ci/archive-branch.ts; o resumo do job lista arquivadas, mantidas com

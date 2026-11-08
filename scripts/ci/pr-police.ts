@@ -1,6 +1,6 @@
 /**
  * pr-police — aplica a política de branches em todo PR.
- * Fonte da política: docs/explanation/branching-policy.md
+ * Fonte da política: scripts/ci/docs/explanation/branching-policy.md
  *
  * A lógica que DECIDE é pura e testável; git e GitHub ficam no adaptador CLI no
  * fim do arquivo — mesmo desenho de `scripts/docs/docmap.mjs`.
@@ -11,6 +11,8 @@
  * import usado apenas como tipo. O typecheck de verdade é `pnpm --filter
  * @brabo/scripts typecheck`, no CI.
  */
+
+import { LINKS_DA_POLITICA, urlDoCodigo } from './doc-da-politica.ts';
 
 // ---------------------------------------------------------------- a política
 
@@ -563,10 +565,11 @@ export function formatarVeredito(entrada: EntradaPr, veredito: Veredito): string
     l.push(`    regra:    ${v.regra}`);
     l.push(`    porquê:   ${v.porque}`);
     l.push(`    conserto: ${v.conserto}`);
+    l.push(`    ver:      ${urlDoCodigo(v.codigo)}`);
   }
 
   l.push('');
-  l.push('  A política inteira: docs/explanation/branching-policy.md');
+  l.push(`  A política inteira: ${LINKS_DA_POLITICA.taxonomia}`);
   return l.join('\n');
 }
 

@@ -1,10 +1,14 @@
 name: promotion-check
+# propósito: Confere o estado da PR de promoção: range limpo, tag do degrau de baixo carimbada e merge possível.
+# chamador:
+#   pull_request:
+#     types: [opened, reopened, synchronize, edited]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
 
 # Confere o ESTADO do repositório num PR de promoção.
-# Fonte da política: docs/explanation/branching-policy.md
+# Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 #
 # Workflow separado do `pr-police` de propósito: aquele valida a FORMA do PR
 # (nome, origem, destino) e este valida o ESTADO (range, tag do degrau de

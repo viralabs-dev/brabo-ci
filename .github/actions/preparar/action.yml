@@ -1,4 +1,9 @@
 name: Preparar o ambiente do brabo-ci
+# propósito: Depois do checkout mínimo do brabo-ci em .brabo-ci/, confere o ci_ref, instala o Node e, se pedido, as dependências de produção dos scripts.
+# chamador:
+#   - uses: ./.brabo-ci/.github/actions/preparar
+#     with:
+#       ci_ref: <sha>
 description: >-
   Depois do checkout mínimo do brabo-ci em `.brabo-ci/`: confere o formato do
   `ci_ref`, instala o Node de `.brabo-ci/.node-version` e, se pedido, as

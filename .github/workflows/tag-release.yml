@@ -1,11 +1,15 @@
 name: tag-release
+# propósito: Carimba a tag do estágio a cada merge numa permanente e, se o merge foi um hotfix, trava o gate e abre as PRs de retropropagação.
+# chamador:
+#   push:
+#     branches: [dev, main]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
 
 # Carimba a tag do estágio a cada merge numa permanente, e — quando o merge é
 # um hotfix — trava o gate de retropropagação e abre os PRs que o resolvem.
-# Fonte da política: docs/explanation/branching-policy.md
+# Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 #
 # NENHUM JOB DE DEPLOY. A tag é o produto final deste workflow e o registro do
 # que ESTARIA em cada estágio — vale mesmo sem ambiente. Quando houver deploy,

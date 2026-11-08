@@ -1,4 +1,8 @@
 name: contracts-alinhado
+# propósito: Confere que a versão do brabo-contracts é a mesma no package.json, no lock e nos scripts de download; só avisa se difere do componentes.json do brabo.
+# chamador:
+#   pull_request:
+#     types: [opened, reopened, synchronize]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci (AT-770, RN-1038). Confere que a versão
 # do brabo-contracts é a mesma no alias do `package.json`, no lock e nas constantes

@@ -1,4 +1,11 @@
 name: qa-e2e-gatilho
+# propósito: Liga a PR ao brabo-qa: na base main cria o check E2E do brabo-qa e dispara o e2e-pr; na base dev roda o regressivo das funcionalidades tocadas; /qa-aceitar aceita falha de spec ou ambiente.
+# chamador:
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+#     branches: [dev, main]
+#   issue_comment:
+#     types: [created]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos:
 #   pull_request (types: opened, synchronize, reopened) com branches: [dev, main]
@@ -25,8 +32,10 @@ on:
         default: 10
     secrets:
       APP_ID:
+        description: 'ID do GitHub App do bot da organização'
         required: true
       APP_PRIVATE_KEY:
+        description: 'Chave privada do GitHub App do bot da organização'
         required: true
 
 permissions:

@@ -1,10 +1,13 @@
 name: promote
+# propósito: Calcula a versão do ciclo e abre a PR de promoção de um degrau ao próximo (padrão dev->main); o merge continua humano.
+# chamador:
+#   workflow_dispatch:
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
 
 # Dispara a promoção de um degrau para o próximo.
-# Fonte da política: docs/explanation/branching-policy.md
+# Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 #
 # O workflow NÃO mergeia nada: ele calcula a versão do ciclo e abre o PR de
 # promoção. O merge continua sendo ato manual do humano, como toda entrada em
@@ -23,8 +26,10 @@ on:
         default: 'dev->main'
     secrets:
       APP_ID:
+        description: 'ID do GitHub App do bot da organização'
         required: false
       APP_PRIVATE_KEY:
+        description: 'Chave privada do GitHub App do bot da organização'
         required: false
       BOT_TOKEN:
         description: 'PAT ou token do GitHub App do bot (opcional: sem ele os checks do PR de promoção nascem em action_required)'
@@ -84,8 +89,8 @@ jobs:
               echo "\`$ATOR\` disparou, mas em \`APPROVAL_MODE=solo\` o responsável de"
               echo "release é **\`$OWNER\`** — o único autorizado a promover."
               echo
-              echo "A política está em \`docs/explanation/branching-policy.md\`, seção"
-              echo "\"Papéis\". Para mudar quem promove, mude a variável"
+              echo "A política está em https://viralabs-dev.github.io/brabo/prd/explanation/branching-policy.html#roles"
+              echo "(seção \"Papéis\"). Para mudar quem promove, mude a variável"
               echo "\`OWNER_HANDLE\`, não este workflow."
             } >> "$GITHUB_STEP_SUMMARY"
             exit 1

@@ -1,4 +1,8 @@
 name: publish-npm
+# propósito: Publica pacotes npm no GitHub Packages a partir da tag, com o .tgz atestado; -dev.N vai ao dist-tag dev e a versão final a latest.
+# chamador:
+#   push:
+#     tags: ['v*']
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci (AT-770). Publica pacotes npm no GitHub
 # Packages a partir da tag do chamador: `pnpm pack`, atesta o `.tgz` com

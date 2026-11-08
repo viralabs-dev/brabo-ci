@@ -28,7 +28,7 @@ regra que ninguém consegue cumprir.
 ## Os três papéis do modo `community`
 
 Quando `APPROVAL_MODE=community`, a exigência de aprovação por destino
-(`docs/explanation/branching-policy.md#modo-community--quando-houver-gente`) é:
+(`scripts/ci/docs/explanation/branching-policy.md#community-mode--for-when-there-are-people`) é:
 
 | destino | exige |
 |---|---|

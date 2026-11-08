@@ -8,7 +8,8 @@
   "scripts": {
     "test": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "actions:pinadas": "node scripts/ci/actions-pinadas.ts"
+    "actions:pinadas": "node scripts/ci/actions-pinadas.ts",
+    "referencia": "node scripts/ci/referencia-dos-workflows.ts"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

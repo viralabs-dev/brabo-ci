@@ -1,4 +1,9 @@
 name: cadeia
+# propósito: Cadeia de suprimentos do CI de quem chama: actionlint nos workflows e todo uses: preso a SHA com a versão em comentário.
+# chamador:
+#   pull_request:
+#   push:
+#     branches: [dev, main]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci (AT-819). Cadeia de suprimentos do CI
 # do repositório que chama: `actionlint` nos workflows (com o rótulo de runner
