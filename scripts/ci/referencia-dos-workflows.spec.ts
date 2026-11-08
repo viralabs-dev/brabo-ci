@@ -69,8 +69,8 @@ describe('o repo está em dia com o próprio YAML', () => {
     expect(divergencias(RAIZ, gerarTudo(RAIZ))).toEqual([]);
   });
 
-  it('o README fica abaixo de 120 linhas', () => {
-    expect(readFileSync(join(RAIZ, 'README.md'), 'utf8').split('\n').length).toBeLessThan(120);
+  it('o README tem até 150 linhas (o esqueleto de 8 seções mais o mapa gerado)', () => {
+    expect(readFileSync(join(RAIZ, 'README.md'), 'utf8').trimEnd().split('\n').length).toBeLessThanOrEqual(150);
   });
 
   it('o --check do CLI sai com 0 no repo', () => {
