@@ -1,5 +1,5 @@
 name: arestas-alinhadas
-# propósito: Prova que cada aresta do repos.yml do brabo existe no código (prova arquivo:N) e que REPOS, irmaos.lock e componentes.json batem com o mapa.
+# propósito: Prova que cada aresta do repos.yml do brabo existe no código (prova arquivo + trecho) e que REPOS, irmaos.lock e componentes.json batem com o mapa.
 # chamador:
 #   schedule:
 #     - cron: '0 9 * * 1'
