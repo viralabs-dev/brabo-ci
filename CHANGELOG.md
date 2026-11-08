@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **docs**: a página do painel da mudança vira uma só, `docs/explanation/painel-da-mudanca.md`, com a ordem didática da página do `brabo` e o que só a do ci cobria (disparo à mão, chave e `run-name`, como acha as runs, "aguarda merge" e segurança). A página antiga `docs/painel-da-mudanca.md` sai (AT-847, passo 1).
+
 - `arestas-alinhadas.yml` e `scripts/ci/arestas-dos-repos.ts` novos (AT-825 parte b, ADR 0281): provam que cada aresta do `repos.yml` do `brabo` existe (a `prova: arquivo:N` existe no repo que declara e a linha cita o destino) e que o `REPOS` do `clonar-tudo.sh`, o `irmaos.lock` e o `componentes.json` batem com o mapa. Lê a `dev` por raw ou `--raiz` (checkouts). Não obrigatório.
 - **docs**: o link de `tutorials/adotar.md` para `reference/workflows/` (diretório sem página, 4 links quebrados no `docs:build` do `brabo`) aponta para `reference/workflows/pr-police.md` (AT-845).
 
