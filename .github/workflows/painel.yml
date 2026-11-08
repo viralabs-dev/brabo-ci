@@ -1,0 +1,103 @@
+name: painel
+
+# PAINEL DA MUDANÇA (AT-792, RN-1054 a RN-1056). Uma run que compõe as runs de uma mudança espalhada pelos repos:
+# PR, E2E do brabo-qa, merge, carimbo, tag e release. Acompanha a cada 60 s (ETag), fecha com 3 min de quietude
+# (teto de 45 min) e escreve tabela + Mermaid no Summary. NUNCA reprova e NÃO publica check nas PRs (decisão do
+# dono, 07/11/2026): o link de volta é a linha "Painel da mudança" dos Vínculos das runs de origem.
+# Gatilhos: `repository_dispatch` (event_type `painel`, disparado pelo passo "Avisar o painel" do
+# `dependencias-de-merge.yml`) e `workflow_dispatch` com `prs` (`repo#n ...`) ou `tag` (`repo@vX`).
+run-name: Painel · ${{ inputs.prs || inputs.tag || format('{0}#{1}', github.event.client_payload.repo, github.event.client_payload.pr) }}
+
+on:
+  repository_dispatch:
+    types: [painel]
+  workflow_dispatch:
+    inputs:
+      prs:
+        description: 'PRs da mudança, separadas por espaço (ex.: brabo-ci#29 brabo-api#65)'
+        required: false
+        type: string
+      tag:
+        description: 'Tag de um repo (ex.: brabo@v2.1.1); parte da PR que a gerou'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  chave:
+    name: Chave da mudança
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    outputs:
+      chave: ${{ steps.chave.outputs.chave }}
+      inicio: ${{ steps.chave.outputs.inicio }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 26.10.0
+
+      # Só leitura: sem `checks: write` (não há check). Sem `repositories`: lê os 11 repos da instalação.
+      - name: Token do App
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: viralabs-dev
+          permission-actions: read
+          permission-pull-requests: read
+          permission-contents: read
+
+      - name: Calcular a chave
+        id: chave
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PAINEL_REPO: ${{ github.event.client_payload.repo }}
+          PAINEL_PR: ${{ github.event.client_payload.pr }}
+          PAINEL_PRS: ${{ inputs.prs }}
+          PAINEL_TAG: ${{ inputs.tag }}
+        run: node scripts/ci/painel.ts chave
+
+  painel:
+    name: Acompanhar e escrever o painel
+    needs: chave
+    if: needs.chave.outputs.chave != ''
+    runs-on: ubuntu-26.04
+    timeout-minutes: 55
+    continue-on-error: true
+    # Um painel por mudança; o remetente já não dispara se há um em andamento (debounce), então não fila.
+    concurrency:
+      group: painel-${{ needs.chave.outputs.chave }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 26.10.0
+
+      - name: Token do App
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: viralabs-dev
+          permission-actions: read
+          permission-pull-requests: read
+          permission-contents: read
+
+      - name: Acompanhar
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PAINEL_CHAVE: ${{ needs.chave.outputs.chave }}
+          PAINEL_PRS: ${{ needs.chave.outputs.inicio }}
+        run: node scripts/ci/painel.ts painel

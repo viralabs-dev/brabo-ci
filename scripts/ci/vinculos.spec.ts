@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { montar, resolverIrmao, type Entrada } from './vinculos.ts';
+import { linhaDoPainel, montar, resolverIrmao, type Entrada } from './vinculos.ts';
 
 const dir = fileURLToPath(new URL('./__fixtures__/vinculos/', import.meta.url));
 const fx = (n: string) => readFileSync(join(dir, n), 'utf8');
@@ -147,6 +147,15 @@ describe('CLI', () => {
     expect(summary).toContain(`[#12](https://github.com/viralabs-dev/brabo-qa/pull/12) · daneiel | [aaaaaaa](https://github.com/viralabs-dev/brabo-qa/commit/${A})`);
   });
 
+  it('origem automática em PR ganha a linha "Painel da mudança"; a origem explícita não', () => {
+    const t = mkdtempSync(join(tmpdir(), 'vinc-painel-'));
+    const ev = join(t, 'ev.json');
+    writeFileSync(ev, JSON.stringify({ pull_request: { number: 12, head: { sha: A } } }));
+    const { summary } = rodar({ ...run, GITHUB_EVENT_PATH: ev, GITHUB_EVENT_NAME: 'pull_request' });
+    expect(summary).toContain('| Disparado |  | Painel da mudança |  | [abrir](https://github.com/viralabs-dev/brabo-ci/actions/workflows/painel.yml?query=brabo-qa%2312) |');
+    expect(rodar({ ...run, VINCULOS_ORIGEM: fx('origem-dispatch.json') }).summary).not.toContain('Painel da mudança');
+  });
+
   it('sem GITHUB_RUN_ID etc. ainda sai 0', () => {
     expect(rodar({}).r.status).toBe(0);
   });
@@ -162,5 +171,14 @@ describe('CLI', () => {
     g('tag', '-a', 'v1.0.1', '-m', 'Carimbo: https://github.com/viralabs-dev/brabo-api/actions/runs/5');
     const r2 = rodar({ ...run, GITHUB_REF_TYPE: 'tag', GITHUB_REF_NAME: 'v1.0.1', GIT_DIR: join(p, '.git') });
     expect(r2.summary).toContain('https://github.com/viralabs-dev/brabo-api/actions/runs/5');
+  });
+});
+
+describe('linhaDoPainel', () => {
+  it('só com repo da org e PR numérica', () => {
+    expect(linhaDoPainel({ repo: 'viralabs-dev/brabo-api', pr: 65, sha: A, ator: 'x' })?.url).toBe('https://github.com/viralabs-dev/brabo-ci/actions/workflows/painel.yml?query=brabo-api%2365');
+    expect(linhaDoPainel({ repo: 'viralabs-dev/brabo-api', sha: A, ator: 'x' })).toBeNull();
+    expect(linhaDoPainel({ repo: 'evil/x', pr: 1, sha: A, ator: 'x' })).toBeNull();
+    expect(linhaDoPainel({ repo: 'viralabs-dev/brabo-api', pr: '1x', sha: A, ator: 'x' })).toBeNull();
   });
 });
