@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **docs**: a publicação npm ganha a definição da RN-1042 em `scripts/ci/docs/business-rules/ci.md` (seção nova: só sai pela tag, dist-tag `dev` ou `latest`, a mesma versão em todos os pacotes). O rótulo que estava como RN-1037 em `CLAUDE.md`, `scripts/ci/publish-npm.ts` e `publish-npm.spec.ts` (e nesta entrada) passa a RN-1042. Sem mudança de comportamento.
 - `arestas-alinhadas.yml` e `scripts/ci/arestas-dos-repos.ts` novos (AT-825 parte b, ADR 0281): provam que cada aresta do `repos.yml` do `brabo` existe (a `prova: arquivo:N` existe no repo que declara e a linha cita o destino) e que o `REPOS` do `clonar-tudo.sh`, o `irmaos.lock` e o `componentes.json` batem com o mapa. Lê a `dev` por raw ou `--raiz` (checkouts). Não obrigatório.
 - **docs**: o link de `tutorials/adotar.md` para `reference/workflows/` (diretório sem página, 4 links quebrados no `docs:build` do `brabo`) aponta para `reference/workflows/pr-police.md` (AT-845).
 
@@ -60,7 +61,7 @@
 - CI: todo `runs-on` fixa `ubuntu-26.04` no lugar de `ubuntu-latest`, e o `create-github-app-token` usa `client-id` no lugar do `app-id` obsoleto; os runs saem sem anotação de aviso (AT-772).
 
 - `.github/actions/vinculos` (action composta) e `scripts/ci/vinculos.ts` novos: escrevem `## Vínculos` (origem, irmãos `repo@SHA`, destino e runs disparados) e um diagrama Mermaid no Summary do run, mais `vinculos.md`. Entrada validada por regex, nunca reprova o job, usa o node do runner (≥ 22.18). Spec com fixtures e git temporário (AT-773).
-- `publish-npm.yml` novo (reutilizável): `pnpm pack`, `actions/attest` sobre o `.tgz` e `npm publish` desse mesmo arquivo em `npm.pkg.github.com`, dist-tag `dev` para `-dev.N` e `latest` para a final; `scripts/ci/publish-npm.ts` calcula versão e dist-tag. RN-1037 (AT-770).
+- `publish-npm.yml` novo (reutilizável): `pnpm pack`, `actions/attest` sobre o `.tgz` e `npm publish` desse mesmo arquivo em `npm.pkg.github.com`, dist-tag `dev` para `-dev.N` e `latest` para a final; `scripts/ci/publish-npm.ts` calcula versão e dist-tag. RN-1042 (AT-770).
 - `contracts-alinhado.yml` e `scripts/ci/contracts-alinhado.ts` novos: versão do brabo-contracts igual no `package.json`, no lock e nas constantes dos scripts; aviso contra o `componentes.json`. RN-1038 (AT-770).
 - `scripts/ci/subir-contracts.sh` novo: sobe a versão do contracts num consumidor e recusa o lock que mudou fora das entradas `@viralabs-dev/brabo-*` (AT-770).
 - `qa-e2e-gatilho.yml` ganha o job `regressivo-dev` (PR com base `dev`): `qa-regressivo-selecao.ts` tira `{modo, funcionalidades, semDono}` dos arquivos tocados e do catálogo `funcionalidades.yml` do brabo-qa; `qa-e2e-imagens.ts` usa a imagem `sha-<12>` do head (`baseRef: 'dev'`); `qa-e2e-resumo.ts` monta a tabela por funcionalidade ("sem cobertura" não reprova) e o nome do check por modo (`Regressivo do brabo-qa` na dev, `E2E do brabo-qa` na main). O check da dev nunca é exigido, e `regressivo-nao-exigido.spec.ts` falha se o repo o citar como exigido. O portão da `main` não muda (AT-769).

@@ -850,6 +850,26 @@ link do check (que já aponta para o qa) e um aviso. O `alarmar-prova.sh` anexa 
 - **ADR:** [0271](../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **Origem:** AT-773 (EP-033)
 
+## Publicação de pacotes npm (RN-1042)
+
+### RN-1042 — O pacote só sai pela tag, com o dist-tag da versão e a mesma versão em todos os pacotes {#rn-1042}
+
+O `publish-npm.yml` é reutilizável e roda quando o chamador dispara pela tag
+(`on: push: tags: ['v*']`). `scripts/ci/publish-npm.ts` tira a versão da tag
+(sem o `v`) e aceita só `vX.Y.Z` ou `vX.Y.Z-dev.N`; qualquer outra forma reprova
+antes de publicar. A `-dev.N` vai ao dist-tag `dev`; a final vai ao `latest`, e
+um pré-release avulso nunca toma o `latest`. Cada pacote da lista recebe a mesma
+versão (`npm version --no-git-tag-version`) antes do `pnpm pack`, e o
+`actions/attest` e o `npm publish` usam o mesmo `.tgz`, sem `--provenance`.
+Republicar a versão só passa se o registry já guarda o mesmo arquivo (mesma
+`dist.integrity`); outra integridade reprova.
+
+- **Código:** `scripts/ci/publish-npm.ts:17` (`versaoDaTag`), `scripts/ci/publish-npm.ts:25`
+  (`distTag`), `.github/workflows/publish-npm.yml:90` (a mesma versão nos pacotes),
+  `.github/workflows/publish-npm.yml:100` (o `npm publish` do mesmo `.tgz`)
+- **Teste:** `scripts/ci/publish-npm.spec.ts` (dist-tag `dev` e `latest`, tira o `v`)
+- **Origem:** AT-770 (EP-033)
+
 ## Dependência de merge entre repositórios (RN-1047..1050)
 
 ### RN-1047 — A PR declara a dependência com `Depende-de: viralabs-dev/<repo>#<n>`, e a linha malformada reprova em vez de passar calada {#rn-1047}
