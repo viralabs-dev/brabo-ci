@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { conferirListas, provarArestas, type Leitor } from './arestas-dos-repos.ts';
-import { lerMapa } from './mapa-dos-repos.ts';
+import { lerMapa, MARCA_FIM, MARCA_INICIO } from './mapa-dos-repos.ts';
 
 const mapa = lerMapa(`repos:
   brabo: { papel: x, proposito: P, como_e_usado: u, depende_de: [{ repo: brabo-api, tipo: imagem, prova: "componentes.json:2" }, { repo: brabo-api, tipo: doc, prova: "irmaos.lock:3" }] }
@@ -15,6 +15,38 @@ const arquivos: Record<string, string> = {
   'brabo-workspace/clonar-tudo.sh': '#!/bin/bash\nREPOS="brabo brabo-api brabo-contracts brabo-old=brabo-legacy"\n',
 };
 const ler = (a = arquivos): Leitor => async (r, f) => a[`${r}/${f}`] ?? null;
+
+const mapaNovo = lerMapa(`repos:
+  brabo: { papel: x, proposito: P, como_e_usado: u, depende_de: [{ repo: brabo-api, tipo: imagem, prova: { arquivo: componentes.json, trecho: '"repo": "viralabs-dev/brabo-api"' } }] }
+  brabo-api: { papel: x, proposito: P, como_e_usado: u, depende_de: [] }`);
+const comp = '{\n"api": { "repo": "viralabs-dev/brabo-api" }\n}';
+const antigo = lerMapa(`repos:
+  brabo: { papel: x, proposito: P, como_e_usado: u, depende_de: [{ repo: brabo-api, tipo: imagem, prova: "componentes.json:2" }] }
+  brabo-api: { papel: x, proposito: P, como_e_usado: u, depende_de: [] }`);
+
+describe('prova por trecho (AT-848)', () => {
+  it('formato novo: acha o trecho e continua verde com linha inserida no topo; o antigo fica vermelho', async () => {
+    const topo = `// novo\n${comp}`;
+    expect((await provarArestas(mapaNovo, ler({ 'brabo/componentes.json': comp }))).ok).toBe(1);
+    expect((await provarArestas(mapaNovo, ler({ 'brabo/componentes.json': topo }))).falhas).toEqual([]);
+    expect((await provarArestas(antigo, ler({ 'brabo/componentes.json': comp }))).falhas).toEqual([]);
+    expect((await provarArestas(antigo, ler({ 'brabo/componentes.json': topo }))).falhas.join()).toMatch(/não menciona/);
+  });
+  it('reprova trecho ausente, arquivo ausente e trecho que não cita o destino', async () => {
+    expect((await provarArestas(mapaNovo, ler({ 'brabo/componentes.json': '{}' }))).falhas.join()).toMatch(/trecho não está/);
+    expect((await provarArestas(mapaNovo, ler({}))).falhas.join()).toMatch(/arquivo não existe/);
+    const m = lerMapa(`repos:
+  brabo: { papel: x, proposito: P, como_e_usado: u, depende_de: [{ repo: brabo-api, tipo: imagem, prova: { arquivo: a.txt, trecho: 'outra coisa' } }] }
+  brabo-api: { papel: x, proposito: P, como_e_usado: u, depende_de: [] }`);
+    expect((await provarArestas(m, ler({ 'brabo/a.txt': 'x outra coisa y' }))).falhas.join()).toMatch(/não menciona brabo-api/);
+  });
+  it('o trecho só dentro do bloco mapa: reprova (os dois formatos); fora dele vale', async () => {
+    const bloco = `${MARCA_INICIO}\n"repo": "viralabs-dev/brabo-api"\n${MARCA_FIM}`;
+    expect((await provarArestas(mapaNovo, ler({ 'brabo/componentes.json': bloco }))).falhas.join()).toMatch(/trecho não está/);
+    expect((await provarArestas(antigo, ler({ 'brabo/componentes.json': `x\n${bloco}` }))).falhas.join()).toMatch(/bloco mapa:/);
+    expect((await provarArestas(mapaNovo, ler({ 'brabo/componentes.json': `${bloco}\n${comp}` }))).falhas).toEqual([]);
+  });
+});
 
 describe('arestas-dos-repos (AT-825b)', () => {
   it('prova a aresta quando o arquivo existe e a linha menciona o destino (alias do contracts)', async () => {

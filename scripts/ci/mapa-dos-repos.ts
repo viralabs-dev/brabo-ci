@@ -30,7 +30,8 @@ export const TIPOS: Record<string, string> = {
 export interface Aresta {
   repo: string;
   tipo: string;
-  prova: string;
+  /** Novo: `{ arquivo, trecho }` (não deriva com a linha). Antigo, obsoleto: `"arquivo:N"` ou `"arquivo:N-M"`. */
+  prova: string | { arquivo: string; trecho: string };
 }
 export interface Repo {
   papel: string;
@@ -52,7 +53,11 @@ export function lerMapa(yaml: string): Mapa {
     for (const a of r.depende_de) {
       if (!repos[a.repo]) throw new Error(`${nome}: aresta para repo desconhecido \`${a.repo}\``);
       if (!TIPOS[a.tipo]) throw new Error(`${nome} → ${a.repo}: tipo \`${a.tipo}\` inválido`);
-      if (!/^\S+:\d+(-\d+)?$/.test(a.prova)) throw new Error(`${nome} → ${a.repo}: prova \`${a.prova}\` não é arquivo:linha`);
+      const p = a.prova;
+      const novo = typeof p === 'object' && p !== null && [p.arquivo, p.trecho].every((c) => typeof c === 'string' && c.trim()) && !/[\r\n]/.test(p.trecho);
+      if (!novo && !(typeof p === 'string' && /^\S+:\d+(-\d+)?$/.test(p))) {
+        throw new Error(`${nome} → ${a.repo}: prova ${JSON.stringify(p)} não é { arquivo, trecho de uma linha } nem arquivo:linha`);
+      }
     }
   }
   return repos;
