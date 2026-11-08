@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **docs**: a página do painel da mudança sai de `docs/explanation/` para `scripts/ci/docs/explanation/painel-da-mudanca.md` (AT-847, passo 4). A URL do site não muda (`explanation/painel-da-mudanca`, o slug é o caminho relativo na raiz de doc). O link das RNs aponta para `#rn-1054`, e a regra nova do `.docmap.yml` vigia `scripts/ci/painel*.ts` e `.github/workflows/painel.yml`.
+
 - **docs**: a publicação npm ganha a definição da RN-1042 em `scripts/ci/docs/business-rules/ci.md` (seção nova: só sai pela tag, dist-tag `dev` ou `latest`, a mesma versão em todos os pacotes). O rótulo que estava como RN-1037 em `CLAUDE.md`, `scripts/ci/publish-npm.ts` e `publish-npm.spec.ts` (e nesta entrada) passa a RN-1042. Sem mudança de comportamento.
 
 - **docs**: a página do painel da mudança vira uma só, `docs/explanation/painel-da-mudanca.md`, com a ordem didática da página do `brabo` e o que só a do ci cobria (disparo à mão, chave e `run-name`, como acha as runs, "aguarda merge" e segurança). A página antiga `docs/painel-da-mudanca.md` sai (AT-847, passo 1).
