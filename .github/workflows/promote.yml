@@ -84,8 +84,8 @@ jobs:
               echo "\`$ATOR\` disparou, mas em \`APPROVAL_MODE=solo\` o responsável de"
               echo "release é **\`$OWNER\`** — o único autorizado a promover."
               echo
-              echo "A política está em \`docs/explanation/branching-policy.md\`, seção"
-              echo "\"Papéis\". Para mudar quem promove, mude a variável"
+              echo "A política está em https://viralabs-dev.github.io/brabo/prd/explanation/branching-policy.html#roles"
+              echo "(seção \"Papéis\"). Para mudar quem promove, mude a variável"
               echo "\`OWNER_HANDLE\`, não este workflow."
             } >> "$GITHUB_STEP_SUMMARY"
             exit 1

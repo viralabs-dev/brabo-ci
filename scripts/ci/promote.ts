@@ -23,6 +23,7 @@ import {
   type PrClassificado,
   type PrDoCiclo,
 } from './version.ts';
+import { LINKS_DA_POLITICA } from './doc-da-politica.ts';
 
 const ROTULO_DO_IMPACTO = {
   major: 'MAJOR',
@@ -98,7 +99,7 @@ export function corpoDaPromocao(
   l.push('> preservar os commits do degrau de baixo. O check de promoção confere isso');
   l.push('> depois do fato.');
   l.push('');
-  l.push('<sub>A esteira inteira: `docs/explanation/branching-policy.md`</sub>');
+  l.push(`<sub>A esteira inteira: ${LINKS_DA_POLITICA.promocao}</sub>`);
   return l.join('\n');
 }
 

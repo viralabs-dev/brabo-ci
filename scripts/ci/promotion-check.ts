@@ -15,6 +15,7 @@
  */
 
 import { ESCADA, type Permanente } from './pr-police.ts';
+import { LINKS_DA_POLITICA } from './doc-da-politica.ts';
 import { ESTAGIO_ANTERIOR_A_MAIN, lerTagDeEstagio, type Estagio } from './version.ts';
 
 /**
@@ -290,7 +291,7 @@ async function principal(): Promise<void> {
       : `  ✗ REPROVADO — ${falhas.length} de ${conferencias.length} conferências falharam.`,
   );
   l.push('');
-  l.push('  A esteira inteira: docs/explanation/branching-policy.md');
+  l.push(`  A esteira inteira: ${LINKS_DA_POLITICA.checkDePromocao}`);
 
   const saida = l.join('\n');
   console.log(saida);

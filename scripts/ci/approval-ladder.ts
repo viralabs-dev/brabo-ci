@@ -15,6 +15,7 @@
  */
 
 import { ESCADA, ehBranchDoDependabot, ehPrDeRegeneracaoDoBot, type Permanente } from './pr-police.ts';
+import { LINKS_DA_POLITICA } from './doc-da-politica.ts';
 
 /**
  * O único degrau em que o Dependabot dispensa revisão (ADR 0236, AT-668): a
@@ -466,7 +467,7 @@ export function formatarEscada(
   }
 
   l.push('');
-  l.push('  A escada inteira: docs/explanation/branching-policy.md');
+  l.push(`  A escada inteira: ${LINKS_DA_POLITICA.escada}`);
   return l.join('\n');
 }
 

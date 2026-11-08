@@ -27,6 +27,7 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { LINKS_DA_POLITICA } from './doc-da-politica.ts';
 
 /** Um `uses:` que não está preso a um commit imutável. */
 export interface Violacao {
@@ -171,7 +172,7 @@ function principal(): void {
     }
     console.error(
       `::error::actions-pinadas: ${violacoes.length} action(s) sem pin imutável. ` +
-        'Ver docs/explanation/cadeia-de-suprimentos-do-ci.md e o comentário no topo de ' +
+        `Ver ${LINKS_DA_POLITICA.cadeiaDeSuprimentos} e o comentário no topo de ` +
         'scripts/ci/actions-pinadas.ts.',
     );
     process.exit(1);

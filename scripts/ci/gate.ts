@@ -14,6 +14,7 @@
  */
 
 import { ESCADA, type Permanente } from './pr-police.ts';
+import { LINKS_DA_POLITICA } from './doc-da-politica.ts';
 
 /** A ordem de destrava: do degrau mais alto para o mais baixo. */
 export const ORDEM_DE_DESTRAVA: readonly Permanente[] = ESCADA.slice(0, -1).reverse();
@@ -272,7 +273,7 @@ export function formatarGate(entrada: EntradaDoGate, veredito: VereditoDoGate): 
   l.push(`  ${veredito.ok ? '✓' : '✗'} ${veredito.motivo}`);
   l.push(`      ${veredito.detalhe}`);
   l.push('');
-  l.push('  O gate inteiro: docs/explanation/branching-policy.md');
+  l.push(`  O gate inteiro: ${LINKS_DA_POLITICA.gate}`);
   return l.join('\n');
 }
 

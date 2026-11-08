@@ -22,6 +22,7 @@ import {
   type EntradaDeHistorico,
 } from './gate.ts';
 import type { Permanente } from './pr-police.ts';
+import { LINKS_DA_POLITICA } from './doc-da-politica.ts';
 
 /** O corpo do PR de retropropagação: explica a trava e a ordem. */
 export function corpoDaRetropropagacao(
@@ -65,7 +66,7 @@ export function corpoDaRetropropagacao(
   l.push('');
   l.push('Segue o `approval-ladder` como qualquer PR — nada de exceção aqui.');
   l.push('');
-  l.push('<sub>A política inteira: `docs/explanation/branching-policy.md`</sub>');
+  l.push(`<sub>A política inteira: ${LINKS_DA_POLITICA.correcaoNascidaNoAlto}</sub>`);
   return l.join('\n');
 }
 

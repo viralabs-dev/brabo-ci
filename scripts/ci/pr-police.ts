@@ -12,6 +12,8 @@
  * @brabo/scripts typecheck`, no CI.
  */
 
+import { LINKS_DA_POLITICA } from './doc-da-politica.ts';
+
 // ---------------------------------------------------------------- a política
 
 /**
@@ -566,7 +568,7 @@ export function formatarVeredito(entrada: EntradaPr, veredito: Veredito): string
   }
 
   l.push('');
-  l.push('  A política inteira: docs/explanation/branching-policy.md');
+  l.push(`  A política inteira: ${LINKS_DA_POLITICA.taxonomia}`);
   return l.join('\n');
 }
 
