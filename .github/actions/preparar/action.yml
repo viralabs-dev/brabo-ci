@@ -3,7 +3,7 @@ description: >-
   Depois do checkout mínimo do brabo-ci em `.brabo-ci/`: confere o formato do
   `ci_ref`, instala o Node de `.brabo-ci/.node-version` e, se pedido, as
   dependências de produção dos scripts. É LOCAL (`./.brabo-ci/...`) porque um
-  `uses:` não aceita `${{ inputs.ci_ref }}`: assim ela é sempre do mesmo SHA dos scripts.
+  `uses:` não aceita expressão (`inputs.ci_ref`): assim ela é sempre do mesmo SHA dos scripts.
 inputs:
   ci_ref:
     description: 'O mesmo SHA de 40 hex do `uses:` do reutilizável.'
