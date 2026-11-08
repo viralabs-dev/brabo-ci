@@ -31,6 +31,7 @@ push:
 | nome | tipo | obrigatório | padrão | descrição |
 |---|---|---|---|---|
 | `ci_ref` | string | sim | - | O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão) |
+| `ci_repo` | string | não | viralabs-dev/brabo-ci | O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo. |
 | `branch_alvo` | string | não | - | Branch alvo da PR (padrão: base_ref, ou a branch do push). Na main o pin do brabo-ci só aceita release final; na dev, final ou -dev.N (ADR 0280) |
 
 ## Secrets

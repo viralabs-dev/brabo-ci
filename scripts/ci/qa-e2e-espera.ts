@@ -7,6 +7,7 @@
  */
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { DONO } from './dono.ts';
 
 export class ImagemAusente extends Error {}
 export class AssinaturaAusente extends Error {}
@@ -61,7 +62,7 @@ export async function esperarImagemAssinada(a: {
 }): Promise<string> {
   const relogio = a.relogio ?? relogioReal;
   const intervalo = a.intervaloMs ?? INTERVALO_PADRAO_MS;
-  const nome = `ghcr.io/viralabs-dev/${a.imagem}:${a.tag}`;
+  const nome = `ghcr.io/${DONO}/${a.imagem}:${a.tag}`;
   let existiu = false;
   const log = a.log ?? (() => {});
   const t0 = relogio.agora();
@@ -71,7 +72,7 @@ export async function esperarImagemAssinada(a: {
     if (digest) {
       if (!existiu) log(`imagem existe após ${Math.round((relogio.agora() - t0) / 1000)} s; esperando assinatura`);
       existiu = true;
-      const ref = `ghcr.io/viralabs-dev/${a.imagem}@${digest}`;
+      const ref = `ghcr.io/${DONO}/${a.imagem}@${digest}`;
       if (await a.assinada(ref)) {
         log(`imagem assinada após ${Math.round((relogio.agora() - t0) / 1000)} s`);
         return ref;
@@ -91,7 +92,7 @@ export async function cosignAssinada(ref: string): Promise<boolean> {
   try {
     await execFileP('cosign', [
       'verify', ref,
-      '--certificate-identity-regexp', '^https://github.com/viralabs-dev/brabo-(api|engine|web|broker|infra)/\\.github/workflows/(release|ci)\\.yml@',
+      '--certificate-identity-regexp', `^https://github.com/${DONO}/brabo-(api|engine|web|broker|infra)/\\.github/workflows/(release|ci)\\.yml@`,
       '--certificate-oidc-issuer', 'https://token.actions.githubusercontent.com',
     ]);
     return true;
