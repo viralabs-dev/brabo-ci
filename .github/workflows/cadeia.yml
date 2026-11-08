@@ -12,6 +12,11 @@ on:
         description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
         required: true
         type: string
+      branch_alvo:
+        description: 'Branch alvo da PR (padrão: base_ref, ou a branch do push). Na main o pin do brabo-ci só aceita release final; na dev, final ou -dev.N (ADR 0280)'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -69,3 +74,31 @@ jobs:
 
       - name: Conferir os pins
         run: node .brabo-ci/scripts/ci/actions-pinadas.ts --raiz .
+
+  # Informativo (AT-817): não é check obrigatório.
+  pins-do-brabo-ci:
+    name: pins-do-brabo-ci
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: viralabs-dev/brabo-ci
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
+      - name: Conferir os pins do brabo-ci (versão, SHA da tag, branch alvo)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BRANCH_ALVO: ${{ inputs.branch_alvo || github.base_ref || github.ref_name }}
+        run: node .brabo-ci/scripts/ci/pins-do-brabo-ci.ts --raiz . --branch "$BRANCH_ALVO"
