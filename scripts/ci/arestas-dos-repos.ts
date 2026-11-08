@@ -2,8 +2,9 @@
  * arestas-dos-repos — prova mecânica do `repos.yml` do `brabo` (AT-825 parte b, ADR 0281): cada aresta `depende_de`
  * corresponde ao que os arquivos dizem.
  *
- * Confere (1) a `prova: "<arquivo>:N"` de cada aresta: o arquivo existe no repo que declara e a linha N (ou N-M)
- * menciona o repo de destino; (2) o `REPOS` do `clonar-tudo.sh` do brabo-workspace contra os repos do mapa;
+ * Confere (1) a `prova` de cada aresta: o arquivo existe no repo que declara e (formato novo, AT-848)
+ * `{ arquivo, trecho }`: o trecho de uma linha aparece no arquivo, fora do bloco gerado `mapa:`, e menciona o destino;
+ * (formato antigo, obsoleto) `"<arquivo>:N"`: a linha N (ou N-M) menciona o destino; (2) o `REPOS` do `clonar-tudo.sh` do brabo-workspace contra os repos do mapa;
  * (3) o `irmaos.lock` contra as arestas `doc` do brabo; (4) o `componentes.json` contra as arestas do brabo.
  *
  * Uso: `node scripts/ci/arestas-dos-repos.ts [--fonte <url|caminho>] [--raiz <pasta com um checkout por repo>]`
@@ -16,7 +17,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { DONO } from './dono.ts';
-import { FONTE, lerMapa, type Mapa } from './mapa-dos-repos.ts';
+import { FONTE, MARCA_FIM, MARCA_INICIO, lerMapa, type Mapa } from './mapa-dos-repos.ts';
 
 /** O arquivo de um repo: texto, ou `null` se não existe. */
 export type Leitor = (repo: string, arquivo: string) => Promise<string | null>;
@@ -29,18 +30,40 @@ const ALIAS: Record<string, string> = {
 const menciona = (linha: string, alvo: string) =>
   new RegExp(`(^|[^\\w-])(${alvo}${ALIAS[alvo] ? `|${ALIAS[alvo]}` : ''})($|[^\\w-])`).test(linha);
 
-/** Cada `prova` existe e a(s) linha(s) citada(s) mencionam o destino. */
+/** As linhas do arquivo, com as do bloco gerado `mapa:` esvaziadas (a tabela cita os 11 repos: não é prova). */
+function linhasForaDoBloco(texto: string): string[] {
+  let dentro = false;
+  return texto.split('\n').map((l) => {
+    if (l.includes(MARCA_INICIO)) dentro = true;
+    const fora = dentro ? '' : l;
+    if (l.includes(MARCA_FIM)) dentro = false;
+    return fora;
+  });
+}
+
+/** Cada `prova` existe e menciona o destino: o trecho (novo) ou a(s) linha(s) citada(s) (antigo). */
 export async function provarArestas(mapa: Mapa, ler: Leitor): Promise<{ ok: number; falhas: string[] }> {
   const falhas: string[] = [];
   let ok = 0;
   for (const [de, r] of Object.entries(mapa)) {
     for (const a of r.depende_de) {
-      const rotulo = `${de} → ${a.repo} (${a.tipo}) ${a.prova}`;
-      const [, arq, ini, fim] = /^(\S+):(\d+)(?:-(\d+))?$/.exec(a.prova)!;
-      const texto = await ler(de, arq!);
+      const p = a.prova;
+      const novo = typeof p === 'object';
+      const [, arqAntigo, ini, fim] = novo ? [] : /^(\S+):(\d+)(?:-(\d+))?$/.exec(p)!;
+      const arq = novo ? p.arquivo : arqAntigo!;
+      const rotulo = `${de} → ${a.repo} (${a.tipo}) ${novo ? `${arq} «${p.trecho}»` : p}`;
+      const texto = await ler(de, arq);
       if (texto === null) { falhas.push(`${rotulo}: arquivo não existe em ${de}`); continue; }
-      const linhas = texto.split('\n').slice(Number(ini) - 1, Number(fim ?? ini));
-      if (!linhas.length || linhas.every((l) => !l)) falhas.push(`${rotulo}: linha fora do arquivo (${texto.split('\n').length} linhas)`);
+      const todas = linhasForaDoBloco(texto);
+      if (novo) {
+        const n = todas.findIndex((l) => l.includes(p.trecho));
+        if (n < 0) falhas.push(`${rotulo}: o trecho não está no arquivo (fora do bloco mapa:)`);
+        else if (!menciona(p.trecho, a.repo)) falhas.push(`${rotulo}: o trecho não menciona ${a.repo}`);
+        else { ok++; console.log(`  ${de} → ${a.repo} (${a.tipo}): ${arq}:${n + 1}`); }
+        continue;
+      }
+      const linhas = todas.slice(Number(ini) - 1, Number(fim ?? ini));
+      if (!linhas.length || linhas.every((l) => !l)) falhas.push(`${rotulo}: linha fora do arquivo (${todas.length} linhas) ou dentro do bloco mapa:`);
       else if (!linhas.some((l) => menciona(l, a.repo))) falhas.push(`${rotulo}: a linha não menciona ${a.repo}: ${linhas[0]!.trim().slice(0, 100)}`);
       else ok++;
     }
