@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- O CI do brabo-ci cobre nele o que cobra dos outros (AT-820): jobs `shell` (shellcheck v0.10.0 por sha256; dois `SC2016` de `$ENV` do jq ficam com `disable` justificado) e `segredos` (gitleaks 8.30.1 por sha256, `gitleaks dir`); `coverage.thresholds` do vitest (`@vitest/coverage-v8`) com piso no valor medido, rodado por `pnpm test`; `coverage-floor.{ts,json,spec.ts}` saem (só serviam ao engine, que tem a própria cópia). Dogfood do `pr-police` local não entra: o `concurrency` por PR colide com o `politica.yml`.
+- Aposentados `claude.yml` e `claude-code-review.yml` (AT-821): nenhum dos 11 repos os chamava; voltam quando houver uso real, já com `fetch-depth: 0`, marketplace por SHA, `timeout-minutes` e `concurrency`.
+- `dependabot.yml`: o `npm` passa a `open-pull-requests-limit: 0` (só segurança), como nos outros repos, e o spec `dependabot-regra.spec.ts` guarda a regra (AT-822).
 - Action local `.github/actions/preparar` (AT-818): os reutilizáveis passam a fazer o checkout mínimo do `.brabo-ci` e `uses: ./.brabo-ci/.github/actions/preparar`, que confere o `ci_ref` (40 hex, uma vez só), instala o Node de `.node-version` (novo, `26.10.0`, lugar único; `ci.yml`, `painel.yml` e `dependencias-de-merge-rede.yml` usam `node-version-file`) e, com `dependencias: true`, as dependências de produção com o `pnpm/action-setup` pinado (sai o `npx --yes pnpm@11.3.0` do `qa-e2e-gatilho`). Antes, `pr-police`, `backmerge-gate`, `promotion-check`, `contracts-alinhado`, `dependabot-para-dev` e `refs-com-simbolo` rodavam `.ts` no Node da imagem. `vinculos` fica como está. Spec `workflows-reutilizaveis.spec.ts` reprova job com `.brabo-ci/` sem a `preparar` e `node-version:` literal; `workflows-dependencias.spec.ts` aceita `dependencias: true`.
 - Resumo do E2E: "1 pulada" no singular (resíduo da AT-791).
 
@@ -57,7 +60,7 @@
 
 Primeira versão, extraída do monorepo `daneiel/brabo` (EP-033, AT-695, ADR 0252) com o histórico dos caminhos.
 
-- Workflows reutilizáveis (`workflow_call`): `pr-police`, `approval-ladder`, `archive-merged-branch`, `backmerge-gate`, `promote`, `promotion-check`, `dependabot-para-dev`, `tag-release`, `claude` e `claude-code-review`.
+- Workflows reutilizáveis (`workflow_call`): `pr-police`, `approval-ladder`, `archive-merged-branch`, `backmerge-gate`, `promote`, `promotion-check`, `dependabot-para-dev`, `tag-release`.
 - Scripts da política em `scripts/ci/` (`pr-police`, `approval-ladder`, `version`, `gate`, `promote`, `promotion-check`, `archive-branch`, `tag-release`, `dependabot-*`, `actions-pinadas`), com vitest.
 - Modelos de comunidade: `ISSUE_TEMPLATE`, `pull_request_template.md`, `CODE_OF_CONDUCT`, `CONTRIBUTING`, `GOVERNANCE`, `SECURITY`, `SUPPORT`, `CODEOWNERS`, `FUNDING`.
 - CI próprio (`ci.yml`) e `dependabot.yml`.

@@ -113,10 +113,12 @@ Atenção a `permissions`: o job que chama precisa conceder pelo menos o que o r
 
 ```
 pnpm install
-pnpm test          # vitest dos scripts
+pnpm test          # vitest dos scripts, com piso de cobertura (coverage.thresholds no vitest.config.ts)
 pnpm typecheck
 pnpm actions:pinadas
 ```
+
+O `ci.yml` do próprio brabo-ci roda quatro jobs (AT-820): `actionlint`; `shell` (shellcheck v0.10.0 por sha256 em `scripts/ci/*.sh`); `segredos` (gitleaks por sha256, `gitleaks dir`, que varre a árvore, com o `.gitleaks.toml` sem allowlist); e `testar` (vitest com piso de cobertura, typecheck e `actions:pinadas`). O piso é à mão: sobe quando a cobertura sobe, nunca desce. Não há job que chame o `pr-police`/`approval-ladder` locais com o código da PR (dogfood): os dois reutilizáveis têm `concurrency` por PR e, no mesmo grupo do `politica.yml`, um cancelaria o outro, derrubando o check exigido. O exigido é sempre o `politica.yml` pinado por SHA, que a PR não consegue alterar.
 
 Branches permanentes: `dev` e `main`. Toda tag nasce de workflow. Licença MIT.
 
