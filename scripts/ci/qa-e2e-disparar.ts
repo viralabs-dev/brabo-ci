@@ -7,6 +7,8 @@
  * PR com base `dev` (AT-769, `PR_BASE_REF=dev`): seleciona as funcionalidades tocadas pelo catálogo do brabo-qa,
  * usa a imagem `sha-<12>` do head e publica o check `Regressivo do brabo-qa` (nunca exigido).
  *
+ * Na dev, depois do disparo, `qa-regressivo-lembrete.ts` deixa o comentário único "toca X e o regressivo de X não mudou" (AT-852).
+ *
  * Env: GH_TOKEN (token do App), GITHUB_REPOSITORY, PR_NUMERO, PR_HEAD_SHA, PR_HEAD_REF, GITHUB_RUN_URL;
  * opcionais (AT-773): PR_AUTOR (login do autor da PR; sem ele, GITHUB_ACTOR), GITHUB_RUN_ID, GITHUB_RUN_ATTEMPT, GITHUB_SHA, GITHUB_STEP_SUMMARY;
  * só na dev: PR_BASE_REF, PR_HEAD_REPO (full_name do repo do head, para a guarda de fork).
@@ -25,7 +27,8 @@ import {
 import { NOME_DO_CHECK_POR_MODO, montarCheck } from './qa-e2e-resumo.ts';
 import { escreverNoSummary, procurarRun, vinculosDoGatilho, type RunDoQa } from './qa-e2e-vinculos.ts';
 import { buscaTagsDoHead } from './qa-e2e-busca-tags.ts';
-import { lerCatalogo, selecionar } from './qa-regressivo-selecao.ts';
+import { lerCatalogo, selecionar, type Modo } from './qa-regressivo-selecao.ts';
+import { lembrar } from './qa-regressivo-lembrete.ts';
 
 export const NOME_DO_CHECK = NOME_DO_CHECK_POR_MODO.main;
 
@@ -84,12 +87,18 @@ async function principal(): Promise<void> {
 
   let extra: object = {};
   let sobreDono = '';
+  let lembrete: { modo: Modo; tocadas: string[] } | null = null;
   if (dev) {
     // Fork não recebe segredo nem publica imagem; a seleção só lê arquivos e o catálogo público.
     if (env('PR_HEAD_REPO') !== env('GITHUB_REPOSITORY')) return neutro('Regressivo não roda em PR de fork.');
     const r = await fetch(CATALOGO_URL);
     if (!r.ok) throw new Error(`catálogo do brabo-qa: ${r.status}`);
-    const s = selecionar({ repo: nome, arquivos: await arquivosDaPr(dono, nome, env('PR_NUMERO')), catalogo: lerCatalogo(await r.text()) });
+    const arquivos = await arquivosDaPr(dono, nome, env('PR_NUMERO'));
+    const catalogo = lerCatalogo(await r.text());
+    const s = selecionar({ repo: nome, arquivos, catalogo });
+    // Tocadas = sem o smoke da regra 3, que só entra pelos arquivos sem dono.
+    const tocadas = selecionar({ repo: nome, arquivos: arquivos.filter((a) => !s.semDono.includes(a)), catalogo }).funcionalidades;
+    lembrete = { modo: s.modo, tocadas };
     if (nome === 'brabo-contracts') return neutro('Consumido por TAG; o regressivo roda na PR que sobe a TAG.');
     if (s.modo === 'nenhum') return neutro('Sem funcionalidade tocada.');
     extra = { modo: s.modo, funcionalidades: s.funcionalidades };
@@ -147,6 +156,20 @@ async function principal(): Promise<void> {
   }
   console.log(`e2e-pr disparado (check ${criado.id})`);
   await registrarVinculos();
+  // Lembrete único na PR (RN-1032); erro vira aviso, nunca reprova.
+  if (lembrete) {
+    await lembrar(
+      {
+        gh,
+        texto: async (caminho, ref) => {
+          const r = await fetch(`https://api.github.com/repos/viralabs-dev/brabo-qa/contents/${caminho}?ref=${ref}`, { headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github.raw+json' } });
+          if (!r.ok) throw new Error(`GitHub GET ${caminho}@${ref}: ${r.status}`);
+          return r.text();
+        },
+      },
+      { dono, nome, pr: env('PR_NUMERO'), ...lembrete, aviso: (m) => console.log(`::warning::${m}`) },
+    );
+  }
 
   // Vínculos no Summary do run de origem; falha aqui nunca reprova o gatilho.
   async function registrarVinculos(): Promise<void> {

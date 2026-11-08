@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `qa-regressivo-lembrete.ts` novo e chamado pelo `qa-e2e-disparar.ts` na PR para a `dev`: quando a PR toca funcionalidades específicas (nunca o catálogo inteiro, nunca PR do qa ou do contracts) e nenhuma spec `@f-<id>` delas mudou na `dev` do brabo-qa desde a base nem numa PR do qa citada em `Depende-de:`, o App deixa UM comentário com a marca `<!-- lembrete-regressivo -->`, editado a cada push. Qualquer erro vira `::warning::`. Cumpre a RN-1032 e o ADR 0268, item 7, que prometiam o lembrete sem código. Spec com os casos do critério (AT-852).
+
 - `qa-e2e-disparar.ts`: o portão da `main` volta a achar a tag `-dev` do head nos repos de imagem; um `const dev` no laço sombreava o `dev` de "base é a dev" (AT-769) e a lista de tags do head ficava sempre vazia ("nenhuma tag -dev aponta para o head"). A decisão foi para `buscaTagsDoHead`, com teste (AT-789).
 
 - `dependencias-de-merge.yml` (reutilizável), `dependencias-de-merge-rede.yml` (cron de hora em hora, só roda a partir da `main`) e `scripts/ci/dependencias-de-merge.ts` novos: a PR declara `Depende-de: viralabs-dev/<repo>#<n>` e o check `Dependências de merge` (check-run do App) fica amarelo `in_progress` "esperando ..." até todas estarem MERGED; reprova owner/repo fora da lista dos 11, linha malformada, autorreferência, PR inexistente, fechada sem merge e ciclo até a profundidade 5; nunca `neutral`. O merge de uma PR atualiza o check das dependentes nos outros repos. Spec com mutações provadas. O template de PR ganhou o campo opcional `Depende-de:` (AT-787).
