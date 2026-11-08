@@ -1,4 +1,10 @@
 name: approval-ladder
+# propósito: Exige as aprovações certas de cada degrau (dev ou main) conforme o modo solo ou community; dispensa a PR do Dependabot e a de regeneração do bot na dev.
+# chamador:
+#   pull_request:
+#     types: [opened, edited, reopened, synchronize, ready_for_review]
+#   pull_request_review:
+#     types: [submitted, edited, dismissed]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.

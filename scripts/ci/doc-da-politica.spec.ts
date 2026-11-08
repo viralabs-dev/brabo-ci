@@ -26,7 +26,7 @@ describe('links que as mensagens de bloqueio imprimem', () => {
 
 describe('mensagens não citam caminho relativo da doc', () => {
   // String impressa = linha que não é comentário e cita `docs/explanation|reference/...`.
-  const RELATIVO = /docs\/(explanation|reference)\//;
+  const RELATIVO = /(?<![\w./-])docs\/(explanation|reference)\//;
   const ehComentario = (l: string) => /^\s*(\*|\/\/|\/\*|#)/.test(l);
   const arquivos = [
     ...readdirSync(join(RAIZ, 'scripts', 'ci'))

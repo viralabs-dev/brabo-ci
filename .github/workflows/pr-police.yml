@@ -1,4 +1,8 @@
 name: pr-police
+# propósito: Confere a forma de toda PR (nome da branch, origem e destino), reprova com o código da violação e o conserto, e escreve a label de família.
+# chamador:
+#   pull_request:
+#     types: [opened, edited, reopened, synchronize, ready_for_review]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.

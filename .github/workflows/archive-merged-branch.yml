@@ -1,4 +1,9 @@
 name: archive-merged-branch
+# propósito: Arquiva toda semana as branches já mergeadas e sem commit novo, movendo para refs/archive/<nome>; nunca apaga.
+# chamador:
+#   schedule:
+#     - cron: '0 12 * * 1'
+#   workflow_dispatch:
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.

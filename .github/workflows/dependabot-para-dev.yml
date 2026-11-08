@@ -1,4 +1,12 @@
 name: dependabot-para-dev
+# propósito: Fecha ou redireciona para a dev a PR de segurança do Dependabot que o GitHub abre contra a main.
+# chamador:
+#   push:
+#     branches: [dev]
+#   workflow_dispatch:
+#   pull_request_target:
+#     types: [opened, reopened]
+#     branches: [main]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.

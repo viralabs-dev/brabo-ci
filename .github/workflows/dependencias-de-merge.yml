@@ -1,4 +1,8 @@
 name: dependencias-de-merge
+# propósito: Faz o check Dependências de merge esperar as PRs citadas em `Depende-de: <org>/<repo>#<n>` até todas estarem mergeadas.
+# chamador:
+#   pull_request:
+#     types: [opened, edited, synchronize, reopened, closed]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos e passa os secrets do App:
 #   pull_request (types: opened, edited, synchronize, reopened, closed)
@@ -18,8 +22,10 @@ on:
         type: string
     secrets:
       APP_ID:
+        description: 'ID do GitHub App do bot da organização'
         required: true
       APP_PRIVATE_KEY:
+        description: 'Chave privada do GitHub App do bot da organização'
         required: true
 
 permissions:

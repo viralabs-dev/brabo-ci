@@ -1,4 +1,8 @@
 name: backmerge-gate
+# propósito: Trava toda PR cujo destino aguarda a retropropagação de um hotfix; só a PR de main para dev passa enquanto a trava existir.
+# chamador:
+#   pull_request:
+#     types: [opened, reopened, synchronize, edited]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.

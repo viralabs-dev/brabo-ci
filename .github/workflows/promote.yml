@@ -1,4 +1,7 @@
 name: promote
+# propósito: Calcula a versão do ciclo e abre a PR de promoção de um degrau ao próximo (padrão dev->main); o merge continua humano.
+# chamador:
+#   workflow_dispatch:
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
 # Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
@@ -23,8 +26,10 @@ on:
         default: 'dev->main'
     secrets:
       APP_ID:
+        description: 'ID do GitHub App do bot da organização'
         required: false
       APP_PRIVATE_KEY:
+        description: 'Chave privada do GitHub App do bot da organização'
         required: false
       BOT_TOKEN:
         description: 'PAT ou token do GitHub App do bot (opcional: sem ele os checks do PR de promoção nascem em action_required)'
