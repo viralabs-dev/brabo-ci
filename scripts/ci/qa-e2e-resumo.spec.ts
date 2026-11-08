@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NOME_DO_CHECK_POR_MODO, montarCheck, type LinhaDigest, type ResultadoE2e } from './qa-e2e-resumo.ts';
+import { LIMITE_DO_CHECK, NOME_DO_CHECK_POR_MODO, caber, montarCheck, recomendar, secaoMotivos, type FuncionalidadeDoRelatorio, type LinhaDigest, type RelatorioRegressivo, type ResultadoE2e, type SpecDoRelatorio } from './qa-e2e-resumo.ts';
 
 const linhas: LinhaDigest[] = (['api', 'engine', 'web', 'broker', 'backup'] as const).map((s) => ({
   servico: s,
@@ -98,5 +98,171 @@ describe('montarCheck com vínculos', () => {
   });
   it('sem vínculos o resumo é o de antes', () => {
     expect(montarCheck(base).summary).not.toContain('Vínculos');
+  });
+});
+
+// ---------- Relatório de decisão (AT-791) ----------
+
+const spec = (o: Partial<SpecDoRelatorio> = {}): SpecDoRelatorio => ({
+  funcionalidades: ['autenticacao'], titulo: 'entra', arquivo: 'e2e/testes/login.spec.ts', linha: 10, status: 'passou', tentativas: 1, duracao_ms: 1200, ...o,
+});
+const func = (o: Partial<FuncionalidadeDoRelatorio> = {}): FuncionalidadeDoRelatorio => ({
+  id: 'autenticacao', motivo: ['api: src/auth/x.ts'], specs: 1, passou: 1, falhou: 0, flaky: 0, pulou: 0, duracao_ms: 1200, resultado: 'verde', ...o,
+});
+const rel = (o: Partial<RelatorioRegressivo> = {}): RelatorioRegressivo => ({
+  versao: 1, origem: { repo: 'viralabs-dev/brabo-api', pr: 7, sha: 'abc1234' }, funcionalidades: [func()], specs: [spec()], ...o,
+});
+const run = 'https://github.com/viralabs-dev/brabo-qa/actions/runs/99';
+const comRel = (r: RelatorioRegressivo, o: Partial<ResultadoE2e> = {}) => montarCheck({ ...base, urlDoRun: run, modo: 'dev', relatorio: r, ...o });
+
+describe('recomendar (RN-1051)', () => {
+  const falha = (f: string[]) => [spec({ status: 'falhou', funcionalidades: f })];
+  it.each([
+    ['verde sem flaky', { causa: null, specs: [spec()] }, 'aprovar'],
+    ['verde com flaky', { causa: null, specs: [spec({ status: 'flaky' })] }, 'aprovar'],
+    ['digest', { causa: 'digest', specs: [] }, 'bloquear'],
+    ['assinatura', { causa: 'assinatura', specs: [] }, 'bloquear'],
+    ['spec em funcionalidade tocada', { causa: 'spec', specs: falha(['autenticacao']), tocadas: ['autenticacao'] }, 'bloquear'],
+    ['spec fora do que a PR toca', { causa: 'spec', specs: falha(['backlog']), tocadas: ['autenticacao'] }, 'aceitar com justificativa'],
+    ['spec sem funcionalidade', { causa: 'spec', specs: falha([]), tocadas: ['autenticacao'] }, 'aceitar com justificativa'],
+    ['sem `tocadas`, vale bloquear', { causa: 'spec', specs: falha(['backlog']) }, 'bloquear'],
+    ['ambiente', { causa: 'ambiente', specs: [] }, 'rodar de novo'],
+    ['sem resposta', { causa: 'sem-resposta', specs: [] }, 'rodar de novo'],
+  ] as const)('%s', (_n, entrada, acao) => {
+    expect(recomendar({ ...entrada, specs: [...entrada.specs] } as Parameters<typeof recomendar>[0]).acao).toBe(acao);
+  });
+  it('flaky vira aviso e a dev ganha o prefixo de atestado', () => {
+    expect(recomendar({ causa: null, specs: [spec({ status: 'flaky' })] }).rotulo).toContain('flaky');
+    expect(recomendar({ causa: null, specs: [], modo: 'dev' }).rotulo).toMatch(/^atestado \(não bloqueia\): aprovar/);
+    expect(recomendar({ causa: null, specs: [], modo: 'main' }).rotulo).toMatch(/^aprovar/);
+  });
+});
+
+describe('montarCheck com relatório', () => {
+  const vermelho = rel({
+    funcionalidades: [func({ passou: 0, falhou: 1, resultado: 'vermelho' }), func({ id: 'backlog', motivo: [], specs: 0, passou: 0, duracao_ms: 0, resultado: 'sem cobertura' })],
+    specs: [
+      spec({ status: 'falhou', tentativas: 2, erro: '\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m)\nlinha 2', anexos: ['trace.zip'] }),
+      spec({ funcionalidades: [], titulo: 'solta', arquivo: 'e2e/testes/solta.spec.ts', status: 'flaky', tentativas: 2 }),
+      spec({ funcionalidades: [], titulo: 'entrar', arquivo: 'e2e/entrar.setup.ts' }),
+    ],
+    tocadas: ['autenticacao'],
+  });
+  it('cabeçalho, recomendação, tabela, falha sem ANSI, flaky, balde e links', () => {
+    const c = comRel(vermelho, { causa: 'spec', semDono: ['src/zzz/x.ts'] });
+    expect(c.conclusion).toBe('failure');
+    expect(c.title).toBe('Regressivo vermelho: spec falhou');
+    expect(c.summary).toMatch(/^## Regressivo do brabo-qa: VERMELHO · causa spec/);
+    expect(c.summary).toContain('**Recomendação: atestado (não bloqueia): bloquear: spec em funcionalidade que a PR toca (autenticacao); corrigir antes**');
+    expect(c.summary).toContain('3 specs · 1 passaram · 1 falharam · 1 flaky');
+    expect(c.summary).toContain('| autenticacao | 1 | 0 | 1 | 0 | 1.2 s | vermelho ❌ |');
+    expect(c.summary).toContain('| sem funcionalidade | 2 |');
+    expect(c.summary.indexOf('| backlog |')).toBeGreaterThan(c.summary.indexOf('| autenticacao |'));
+    expect(c.summary).toContain('**[f-autenticacao] entra**');
+    expect(c.summary).toContain('expect(received)\nlinha 2');
+    expect(c.summary).not.toContain('\u001b');
+    expect(c.summary).toContain('### Flaky / retry');
+    expect(c.summary).toContain('- **autenticacao**: `api: src/auth/x.ts`');
+    expect(c.summary).toContain('- sem dono no mapa: `src/zzz/x.ts`');
+    expect(c.summary).toContain(`Run: ${run}`);
+    expect(c.summary).toContain('relatorio-regressivo-99');
+    expect(c.text).toContain('<details><summary>autenticacao');
+    expect(c.text).toContain('<details><summary>sem funcionalidade');
+    expect(c.text).toContain('(preparação)');
+  });
+  it('verde: aprovar e título verde; o main usa o nome do portão', () => {
+    const c = comRel(rel(), { modo: 'main' });
+    expect(c.title).toBe('E2E verde');
+    expect(c.summary).toContain('## E2E do brabo-qa: VERDE');
+    expect(c.summary).toContain('**Recomendação: aprovar: sem falha**');
+    expect(c.summary).not.toContain('### Falhas');
+  });
+  it('digest: o lugar das specs é a tabela de digests', () => {
+    const l = [...linhas];
+    l[0] = { ...l[0]!, encontrado: 'sha256:outro' };
+    const c = comRel(rel(), { causa: 'digest', linhas: l });
+    expect(c.summary).toContain('Causa: E2E vermelho: digest divergente');
+    expect(c.summary).toContain('### Digests e assinatura');
+    expect(c.summary).toContain('Recomendação: atestado (não bloqueia): bloquear');
+  });
+  it('escapa texto de PR: pipe, crase, < e cerca', () => {
+    const c = comRel(rel({ specs: [spec({ titulo: 'a|b`c<d>', status: 'falhou', erro: 'x ``` y' })] }), { causa: 'spec' });
+    expect(c.summary).toContain("a\\|b'c&lt;d>");
+    expect(c.summary).not.toContain('``` y');
+  });
+  it('sem relatório o resultado é o de antes, sem text', () => {
+    expect('text' in montarCheck(base)).toBe(false);
+  });
+});
+
+describe('caber (65 535)', () => {
+  it('500 specs falsas: summary e text ficam abaixo do limite do check, com aviso de corte', () => {
+    const specs = Array.from({ length: 500 }, (_, i) =>
+      spec({ funcionalidades: ['autenticacao', 'backlog'], titulo: `spec número ${i} ${'x'.repeat(150)}`, arquivo: `e2e/testes/${'d'.repeat(100)}${i}.spec.ts`, status: i % 7 === 0 ? 'falhou' : 'passou', erro: Array.from({ length: 40 }, (_, k) => `linha ${k} ${'e'.repeat(250)}`).join('\n'), anexos: ['trace.zip', 'screenshot.png'] }),
+    );
+    const grande = rel({
+      specs,
+      funcionalidades: [func({ specs: 500, passou: 400, falhou: 100, resultado: 'vermelho' }), func({ id: 'backlog', specs: 500, passou: 400, falhou: 100, resultado: 'vermelho' })],
+    });
+    const c = comRel(grande, { causa: 'spec', vinculos: '## Vínculos\n\n| a | b |\n|---|---|\n' });
+    expect(c.summary.length).toBeLessThanOrEqual(65_535);
+    expect(c.summary.length).toBeLessThanOrEqual(LIMITE_DO_CHECK);
+    expect(c.text!.length).toBeLessThanOrEqual(LIMITE_DO_CHECK);
+    expect(c.summary).toMatch(/… \d+ itens a mais no artefato relatorio-regressivo-99/);
+    expect(c.text).toMatch(/… \d+ itens a mais no artefato relatorio-regressivo-99/);
+    expect(c.summary).toMatch(/^## Regressivo do brabo-qa: VERMELHO/);
+  });
+  it('cabe: devolve inteiro e sem aviso', () => {
+    expect(caber([{ texto: 'a', prioridade: 1 }, { texto: 'b', prioridade: 2 }])).toEqual({ texto: 'a\n\nb', truncado: false });
+  });
+  it('estourou: tira primeiro a seção de maior prioridade e deixa o aviso', () => {
+    const r = caber([{ texto: 'cabeçalho', prioridade: 1 }, { texto: 'x'.repeat(100), prioridade: 5 }, { texto: 'tabela', prioridade: 2 }], 90, 'art');
+    expect(r.truncado).toBe(true);
+    expect(r.texto).toContain('cabeçalho');
+    expect(r.texto).toContain('tabela');
+    expect(r.texto).not.toContain('xxx');
+    expect(r.texto).toContain('… 1 itens a mais no artefato art');
+    expect(r.texto.length).toBeLessThanOrEqual(90);
+  });
+  it('nem uma seção cabe: corta o texto e respeita o limite', () => {
+    const r = caber([{ texto: 'y'.repeat(500), prioridade: 1 }], 100);
+    expect(r.texto.length).toBeLessThanOrEqual(100);
+    expect(r.texto).toContain('itens a mais');
+  });
+});
+
+describe('secaoMotivos', () => {
+  it('vazia quando não há motivo', () => {
+    expect(secaoMotivos([{ id: 'a', motivo: [] }])).toBe('');
+  });
+});
+
+describe('aceite preserva o relatório (AT-791)', () => {
+  const aceite = { justificativa: 'flaky conhecido do login', por: 'dono', em: '2026-11-08', urlDoRunVermelho: 'https://run/0' };
+  const vermelho = comRel(rel({ specs: [spec({ status: 'falhou' })], tocadas: ['autenticacao'] }), { causa: 'spec' });
+  it('o resumo e o texto do vermelho seguem sob o bloco do aceite, e cita contra a recomendação', () => {
+    const c = montarCheck({ ...base, causa: 'spec', aceite, resumoAnterior: vermelho.summary, textoAnterior: vermelho.text });
+    expect(c.conclusion).toBe('success');
+    expect(c.title).toBe('Aceito com justificativa');
+    expect(c.summary).toContain('Aceito por @dono em 2026-11-08.');
+    expect(c.summary).toContain('(aceito contra a recomendação)');
+    expect(c.summary).toContain('| autenticacao | 1 |');
+    expect(c.summary.indexOf('Aceito por')).toBeLessThan(c.summary.indexOf('## Regressivo'));
+    expect(c.text).toBe(vermelho.text);
+    expect(c.external_id).toBe('causa:spec');
+  });
+  it('recomendação "aceitar" não marca contra', () => {
+    const v = comRel(rel({ specs: [spec({ status: 'falhou', funcionalidades: ['backlog'] })], tocadas: ['autenticacao'] }), { causa: 'spec' });
+    const c = montarCheck({ ...base, causa: 'spec', aceite, resumoAnterior: v.summary });
+    expect(c.summary).toContain('Recomendação do relatório: atestado (não bloqueia): aceitar com justificativa');
+    expect(c.summary).not.toContain('contra a recomendação');
+  });
+  it('resumo anterior gigante continua dentro do limite', () => {
+    const c = montarCheck({ ...base, causa: 'spec', aceite, resumoAnterior: 'z'.repeat(70_000) });
+    expect(c.summary.length).toBeLessThanOrEqual(LIMITE_DO_CHECK);
+    expect(c.summary).toContain('Aceito por @dono');
+  });
+  it('sem resumo anterior o aceite é o de antes', () => {
+    expect(montarCheck({ ...base, causa: 'spec', aceite }).summary).toContain('| serviço |');
   });
 });

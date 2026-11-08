@@ -44,3 +44,21 @@ export function avaliarAceite(e: EntradaAceite): VereditoAceite {
   }
   return { aceito: true, justificativa };
 }
+
+/** A linha `**Recomendação: …**` que o relatório do regressivo põe no resumo do check (AT-791). */
+export function extrairRecomendacao(resumo: string): string | null {
+  return /\*\*Recomendação:\s*([^*\n]+?)\s*\*\*/.exec(resumo)?.[1] ?? null;
+}
+
+/** Aceitar vale mesmo contra `bloquear` (a decisão é do dono), mas fica registrado. */
+export const contraARecomendacao = (rec: string | null): boolean => /^(atestado[^:]*:\s*)?bloquear/i.test(rec ?? '');
+
+/** Resposta ao `/qa-aceitar`: cita a recomendação que o relatório dava (AT-791). */
+export function comentarioDoAceite(por: string, justificativa: string, resumoAnterior: string): string {
+  const rec = extrairRecomendacao(resumoAnterior);
+  return [
+    `Aceito com justificativa por @${por}: ${justificativa}`,
+    ...(rec ? [`Recomendação do relatório: ${rec}`] : []),
+    ...(contraARecomendacao(rec) ? ['Aceito contra a recomendação.'] : []),
+  ].join('\n\n');
+}
