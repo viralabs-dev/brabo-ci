@@ -24,6 +24,7 @@ Pine sempre por SHA: `uses: viralabs-dev/brabo-ci/.github/workflows/pr-police.ym
 | `publish-npm.yml` | `tag`, `pacotes` (diretórios, um por linha), `ci_ref` | - | publica pacotes npm no GitHub Packages a partir da tag (`vX.Y.Z-dev.N` com dist-tag `dev`, `vX.Y.Z` com `latest`): `pnpm pack`, `actions/attest` sobre o `.tgz` e `npm publish` desse mesmo arquivo; republicar a mesma versão só passa se a integridade bater. Permissões: `packages: write`, `id-token: write`, `attestations: write` (AT-770) |
 | `contracts-alinhado.yml` | `ci_ref` | - | a versão do brabo-contracts é a mesma no alias do `package.json`, no lock e nas constantes dos scripts de download; avisa, sem falhar, se difere do `componentes.json` do brabo. Não é check obrigatório (AT-770) |
 | `refs-com-simbolo.yml` | `ci_ref` | - | num irmão, cada ref `caminho:N` (`símbolo`) das RNs (`docs/business-rules*`) tem de apontar para onde o símbolo mora: a ref interna quebrada reprova; a ref para outro irmão só é listada no Summary (sem anotação; quem confere é a subida da trava do brabo). `--escrever` reancora no checkout e o job sobe o artefato `refs-patch` com o diff e a receita de `git apply` no Summary. Não é check obrigatório (AT-782) |
+| `cadeia.yml` | `ci_ref` | - | cadeia de suprimentos do CI do chamador: `actionlint` (com o `actionlint.yaml` do brabo-ci) e `pins` (todo `uses:` por SHA com `# vX`, em `.github/workflows` e `.github/actions`, por `actions-pinadas.ts --raiz .`). Chame pelo `ci.yml`, não pelo `politica.yml`. Não é check obrigatório (AT-819) |
 | `backmerge-gate.yml` | `ci_ref` | - | trava de retropropagação depois de hotfix |
 | `promotion-check.yml` | `ci_ref` | - | estado do PR de promoção (range, tag do degrau) |
 | `promote.yml` | `ci_ref`, `par` (padrão `dev->main`) | `BOT_TOKEN` (opcional) | abre o PR de promoção; o merge é humano |
@@ -83,6 +84,16 @@ jobs:
       ci_ref: <sha>
 ```
 
+Cadeia de suprimentos (no `ci.yml` do repositório que chama; o `<sha>` do `uses:` e o `ci_ref` são o mesmo):
+
+```yaml
+jobs:
+  cadeia:
+    uses: viralabs-dev/brabo-ci/.github/workflows/cadeia.yml@<sha>  # v1.0.0
+    with:
+      ci_ref: <sha>
+```
+
 Promoção e carimbo:
 
 ```yaml
@@ -106,6 +117,21 @@ jobs:
 Gatilhos dos outros: `backmerge-gate` e `promotion-check` em `pull_request` (`opened, reopened, synchronize, edited`); `archive-merged-branch` em `schedule` (`0 12 * * 1`) e `workflow_dispatch`; `dependabot-para-dev` em `push` na `dev`, `workflow_dispatch` e `pull_request_target` (`opened, reopened`, base `main`). Em PR, nunca ponha `if:` no job que chama `pr-police`, `approval-ladder`, `backmerge-gate` ou `promotion-check` (check obrigatório que se pula deixa veredito velho colado).
 
 Atenção a `permissions`: o job que chama precisa conceder pelo menos o que o reutilizável declara (por exemplo `contents: write` em `tag-release` e `archive-merged-branch`).
+
+## Reutilizáveis sem chamador (AT-819)
+
+Nenhum dos 11 repos chamava estes seis em `origin/dev` (conferido em 08/11/2026). Nada foi apagado: cada um tem destino e motivo. "Biblioteca para adoção" quer dizer que o reutilizável é suportado e testado aqui, para quem adotar a política do brabo-ci fora do Brabo (EP-034) ou quando um repo passar a precisar dele.
+
+| Reutilizável | Destino | Motivo |
+|---|---|---|
+| `dependencias-de-merge.yml` | a ligar (por PR em cada repo, fora desta) | Decidido na AT-787: o check é exigido em `dev` e `main`. Falta o `checks: write` no App e as provas; só então o chamador entra e o required liga. Os scripts e a rede de hora em hora (`dependencias-de-merge-rede.yml`) já usam o código. |
+| `promote.yml` | biblioteca para adoção | Abre a PR de promoção `dev->main`, que hoje o dono abre à mão ou por script local. Quando ligar, a AT-788 acrescenta o `Depende-de` automático. Sem plano de repo e sem efeito seguro de ligar sem a decisão do dono. |
+| `archive-merged-branch.yml` | biblioteca para adoção | Rotina semanal da AT-661 (segunda, `0 12 * * 1`), que rodava no monorepo. Nenhum repo separado a agendou ainda; arquivar branch é efeito destrutivo no remoto e pede escolha do repo e do dono. |
+| `backmerge-gate.yml` | biblioteca para adoção | Trava de retropropagação depois de hotfix. Só faz sentido onde há `hotfix/`; a nota não nomeia o repo. |
+| `promotion-check.yml` | biblioteca para adoção | Estado da PR de promoção. Só vale como check da `main` e depende de `promote`/carimbo; sem chamador ele não bloqueia nada. |
+| `dependabot-para-dev.yml` | biblioteca para adoção | Redireciona PR de segurança do Dependabot para a `dev`. Os repos hoje tratam isso pela política de PR e pelo `dependabot.yml`; ligar muda o fluxo de segurança. |
+
+`claude.yml` e `claude-code-review.yml` já foram aposentados (AT-821, ci#35). Aposentar de fato (apagar) um destes seis exige tirar a linha desta tabela no mesmo PR.
 
 ## Desenvolvimento
 

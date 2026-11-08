@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import { mensagemDeViolacao, verificarPins, type Workflow } from './actions-pinadas.ts';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
+import { afterAll, describe, expect, it } from 'vitest';
+import { lerWorkflows, mensagemDeViolacao, verificarPins, type Workflow } from './actions-pinadas.ts';
 
 /**
  * A regra: todo `uses:` de terceiro preso a commit SHA, com a versão num
@@ -78,5 +82,30 @@ describe('mensagemDeViolacao', () => {
       motivo: 'SHA sem a versão em comentário',
     });
     expect(mensagem).toContain('Dependabot');
+  });
+});
+
+describe('--raiz e .github/actions', () => {
+  const raiz = mkdtempSync(`${tmpdir()}/pins-`);
+  afterAll(() => rmSync(raiz, { recursive: true, force: true }));
+  mkdirSync(`${raiz}/.github/workflows`, { recursive: true });
+  mkdirSync(`${raiz}/.github/actions/x/y`, { recursive: true });
+  writeFileSync(`${raiz}/.github/workflows/ci.yml`, '      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4\n');
+  writeFileSync(`${raiz}/.github/actions/x/y/action.yml`, '    - uses: actions/setup-node@v4\n');
+  writeFileSync(`${raiz}/.github/actions/x/y/README.md`, 'uses: a/b@v1\n');
+  const script = fileURLToPath(new URL('./actions-pinadas.ts', import.meta.url));
+
+  it('lê workflows e action.yml em subpasta, e só eles', () => {
+    expect(lerWorkflows(raiz).map((w) => w.nome)).toEqual(['.github/workflows/ci.yml', '.github/actions/x/y/action.yml']);
+  });
+
+  it('repo sem .github/actions não quebra', () => {
+    expect(lerWorkflows(`${raiz}/.github/workflows`)).toEqual([]);
+  });
+
+  it('o CLI reprova a tag dentro da action composta do repo apontado', () => {
+    const r = spawnSync('node', [script, '--raiz', raiz], { encoding: 'utf8' });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain('.github/actions/x/y/action.yml:1');
   });
 });
