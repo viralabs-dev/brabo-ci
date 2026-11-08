@@ -4,7 +4,9 @@ Política de PR, branch, escada de aprovação, promoção, carimbo de tag, arqu
 
 ## Como funciona
 
-Cada workflow reutilizável faz um segundo checkout deste repositório em `.brabo-ci/` e roda `node .brabo-ci/scripts/ci/<script>.ts` a partir da raiz do repositório que chama. Por isso todos têm o input `ci_ref`: o **mesmo SHA (ou tag)** que você pôs no `uses:`. O padrão é `v1.0.0`.
+Cada workflow reutilizável faz um segundo checkout deste repositório em `.brabo-ci/` e roda `node .brabo-ci/scripts/ci/<script>.ts` a partir da raiz do repositório que chama. Por isso todos têm o input `ci_ref`: o **mesmo SHA de 40 hex** que você pôs no `uses:`. Ele é obrigatório e não tem padrão: um `uses:` não lê `${{ }}` e o reutilizável não sabe o próprio SHA, então quem chama repete o SHA. Tag ou input ausente rodaria o YAML de uma versão com os scripts de outra.
+
+Todo job que roda `.brabo-ci/...` começa com esse checkout mínimo e, logo depois, `uses: ./.brabo-ci/.github/actions/preparar` (`ci_ref`, e `dependencias: true` se o script importa pacote npm). A `preparar` confere o formato do `ci_ref` (40 hex), instala o Node de `.node-version` (o lugar único) e, se pedido, as dependências de produção com o pnpm pinado. Ela é LOCAL de propósito: um `uses:` remoto não aceita `${{ inputs.ci_ref }}`, e uma action remota pinada ficaria de SHA diferente dos scripts. O spec `workflows-reutilizaveis.spec.ts` reprova quem pular a `preparar` ou fixar `node-version:`. A action `vinculos` fica fora: roda no job de quem chama, e um `setup-node` dentro dela trocaria o Node dos passos seguintes; ela degrada com `::warning::` e nunca reprova.
 
 Os gatilhos (`on:`) ficam no repositório que chama. `vars` (`APPROVAL_MODE`, `OWNER_HANDLE`, `APROVADORES_*`) são lidas do repositório ou da organização que chama.
 

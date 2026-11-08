@@ -40,7 +40,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
-          node-version: 26.10.0
+          node-version-file: .node-version
 
       # Só leitura: sem `checks: write` (não há check). Sem `repositories`: lê os 11 repos da instalação.
       - name: Token do App
@@ -82,7 +82,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
-          node-version: 26.10.0
+          node-version-file: .node-version
 
       - name: Token do App
         id: app

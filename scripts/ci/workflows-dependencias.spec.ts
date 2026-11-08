@@ -43,7 +43,7 @@ export function jobsDe(yaml: string): { nome: string; corpo: string }[] {
 export function faltasDeInstalacao(yaml: string, raiz = RAIZ): string[] {
   const faltas: string[] = [];
   for (const { nome, corpo } of jobsDe(yaml)) {
-    const instala = /install[^\n]*--dir \.brabo-ci/.test(corpo);
+    const instala = /install[^\n]*--dir \.brabo-ci/.test(corpo) || /actions\/preparar[\s\S]*?dependencias: true/.test(corpo);
     for (const m of corpo.matchAll(/node \.brabo-ci\/(scripts\/ci\/[A-Za-z0-9_.-]+\.ts)/g)) {
       const rel = m[1];
       if (!rel) continue;
@@ -70,7 +70,7 @@ describe('workflows instalam o que os scripts importam (AT-785)', () => {
 
   it('aceita o mesmo job com a instalação', () => {
     const yaml =
-      'jobs:\n  disparar:\n    steps:\n      - run: npx --yes pnpm@11.3.0 install --frozen-lockfile --prod --ignore-scripts --dir .brabo-ci\n      - run: node .brabo-ci/scripts/ci/qa-e2e-disparar.ts\n';
+      'jobs:\n  disparar:\n    steps:\n      - uses: ./.brabo-ci/.github/actions/preparar\n        with:\n          dependencias: true\n      - run: node .brabo-ci/scripts/ci/qa-e2e-disparar.ts\n';
     expect(faltasDeInstalacao(yaml)).toEqual([]);
   });
 });

@@ -213,7 +213,7 @@ function secoesDoResumo(r: ResultadoE2e, rel: RelatorioRegressivo, rec: string, 
     `## ${NOME_DO_CHECK_POR_MODO[modo]}: ${r.causa ? 'VERMELHO' : 'VERDE'}${r.causa ? ` · causa ${r.causa}` : ''}`,
     `**Recomendação: ${rec.replace(/\*/g, '')}**`,
     `${modo === 'dev' ? 'Atestado da dev (não bloqueia)' : 'Portão da main'} · \`${limpar(rel.origem.repo, 80)}#${limpar(String(rel.origem.pr), 12)} @${limpar(rel.origem.sha, 12)}\` · ${seg(total)} de specs`,
-    `${rel.specs.length} specs · ${plural(conta('passou'), 'passou', 'passaram')} · ${plural(conta('falhou'), 'falhou', 'falharam')} · ${conta('flaky')} flaky${conta('pulou') ? ` · ${conta('pulou')} puladas` : ''}`,
+    `${rel.specs.length} specs · ${plural(conta('passou'), 'passou', 'passaram')} · ${plural(conta('falhou'), 'falhou', 'falharam')} · ${conta('flaky')} flaky${conta('pulou') ? ` · ${plural(conta('pulou'), 'pulada', 'puladas')}` : ''}`,
   ].join('\n\n');
 
   const cob = [...rel.funcionalidades.filter((f) => f.resultado !== 'sem cobertura'), ...rel.funcionalidades.filter((f) => f.resultado === 'sem cobertura')];
