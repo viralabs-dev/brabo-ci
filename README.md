@@ -33,7 +33,7 @@ Cada linha leva à página dele em `scripts/ci/docs/reference/workflows/`, **ger
 | `vinculos` | Escreve a tabela Vínculos (origem, irmãos, destino) e o diagrama Mermaid no Summary do run; nunca reprova o job. | [vinculos](scripts/ci/docs/reference/workflows/vinculos.md) |
 <!-- workflows:fim -->
 
-Quem escreve com o bot (`tag-release`, `promote`) aceita `APP_ID` e `APP_PRIVATE_KEY` (o token nasce dentro do job) ou `BOT_TOKEN`. Para subir a versão do contracts num consumidor, rode nele `scripts/ci/subir-contracts.sh <versão>`.
+Quem escreve com o bot (`tag-release`, `promote`) aceita `APP_ID` e `APP_PRIVATE_KEY` (o token nasce dentro do job) ou `BOT_TOKEN`. Para subir a versão do contracts num consumidor, rode nele `scripts/ci/subir-contracts.sh <versão>` (num lock semeado só as entradas do contracts são trocadas; ele também põe `minimumReleaseAgeExclude` no `pnpm-workspace.yaml`).
 
 ## Exemplo de chamada
 
