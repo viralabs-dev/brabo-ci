@@ -56,17 +56,26 @@ export async function esperarImagemAssinada(a: {
   limite: number;
   relogio?: Relogio;
   intervaloMs?: number;
+  /** Uma linha no início e em cada mudança de estado, nunca uma por volta. */
+  log?: (m: string) => void;
 }): Promise<string> {
   const relogio = a.relogio ?? relogioReal;
   const intervalo = a.intervaloMs ?? INTERVALO_PADRAO_MS;
   const nome = `ghcr.io/viralabs-dev/${a.imagem}:${a.tag}`;
   let existiu = false;
+  const log = a.log ?? (() => {});
+  const t0 = relogio.agora();
+  log(`esperando imagem ${nome}`);
   for (;;) {
     const digest = await a.digestDe(a.imagem, a.tag);
     if (digest) {
+      if (!existiu) log(`imagem existe após ${Math.round((relogio.agora() - t0) / 1000)} s; esperando assinatura`);
       existiu = true;
       const ref = `ghcr.io/viralabs-dev/${a.imagem}@${digest}`;
-      if (await a.assinada(ref)) return ref;
+      if (await a.assinada(ref)) {
+        log(`imagem assinada após ${Math.round((relogio.agora() - t0) / 1000)} s`);
+        return ref;
+      }
     }
     if (relogio.agora() + intervalo > a.limite) break;
     await relogio.dormir(intervalo);

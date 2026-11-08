@@ -17,6 +17,17 @@ describe('esperarImagemAssinada', () => {
     expect(r.t).toBe(40_000);
   });
 
+  it('loga o início e cada mudança de estado, sem linha por volta', async () => {
+    const r = falso();
+    const linhas: string[] = [];
+    await esperarImagemAssinada({ ...base, relogio: r, limite: 600_000, log: (m) => linhas.push(m), digestDe: async () => (r.t >= 20_000 ? D : null), assinada: async () => r.t >= 40_000 });
+    expect(linhas).toEqual([
+      'esperando imagem ghcr.io/viralabs-dev/brabo-web:sha-abc',
+      'imagem existe após 20 s; esperando assinatura',
+      'imagem assinada após 40 s',
+    ]);
+  });
+
   it('a imagem nunca aparece: ImagemAusente, dentro do teto', async () => {
     const r = falso();
     await expect(esperarImagemAssinada({ ...base, relogio: r, limite: 60_000, digestDe: async () => null, assinada: async () => true })).rejects.toThrow(ImagemAusente);

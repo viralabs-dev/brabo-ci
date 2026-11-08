@@ -99,7 +99,7 @@ async function principal(): Promise<void> {
     if (nome === 'brabo-contracts') return neutro('Consumido por TAG; o regressivo roda na PR que sobe a TAG.');
     if (s.modo === 'nenhum') return neutro('Sem funcionalidade tocada.');
     selecao = s;
-    extra = { modo: s.modo, funcionalidades: s.funcionalidades, motivos: s.motivos, semDono: s.semDono, tocadas: s.tocadas };
+    extra = { modo: s.modo, funcionalidades: s.funcionalidades, selecao: { motivos: s.motivos, semDono: s.semDono, tocadas: s.tocadas } };
     sobreDono = s.semDono.length > 0 ? `\n\nSem dono no mapa:\n${s.semDono.map((c) => `- ${c}`).join('\n')}` : '';
   } else if (nome !== 'brabo-contracts') {
     // Portão da main (AT-791): o conjunto segue o catálogo inteiro; a seleção pelo mapa é só informação,
@@ -108,7 +108,7 @@ async function principal(): Promise<void> {
       const r = await fetch(CATALOGO_URL);
       if (!r.ok) throw new Error(`catálogo do brabo-qa: ${r.status}`);
       selecao = selecionar({ repo: nome, arquivos: await arquivosDaPr(dono, nome, env('PR_NUMERO')), catalogo: lerCatalogo(await r.text()) });
-      extra = { motivos: selecao.motivos, semDono: selecao.semDono, tocadas: selecao.tocadas };
+      extra = { selecao: { motivos: selecao.motivos, semDono: selecao.semDono, tocadas: selecao.tocadas } };
     } catch (e) {
       console.log(`::warning::seleção informativa da main falhou (${(e as Error).message}); segue sem motivos`);
     }
@@ -119,6 +119,7 @@ async function principal(): Promise<void> {
   let causaDoErro: 'ambiente' | 'assinatura' = 'ambiente';
   // AT-790: o carimbo do head (tag -dev, imagem) e a assinatura da `sha-` ainda podem estar rodando; espera até o teto.
   const limite = relogioReal.agora() + tetoDoEnv(env('QA_ESPERA_MINUTOS'));
+  let avisouTag = false;
   const resolver = async (): Promise<EscolhaDeTags> => {
     const ultimaDev = {} as Record<(typeof CHAVES)[number], string>;
     const ultimaFinal = {} as Record<(typeof CHAVES)[number], string>;
@@ -131,7 +132,11 @@ async function principal(): Promise<void> {
       // fazia `!dev` ser sempre falso e o portão da main nunca achar a -dev do head (AT-789).
       const devMaisNova = maisNova(nomes.filter((t) => t.includes('-dev.')));
       const final = maisNova(nomes.filter((t) => !t.includes('-')));
-      if (!devMaisNova || !final) throw new SemTagParaOHead(`${repo} não tem tag ${devMaisNova ? 'final' : '-dev'} publicada`);
+      if (!devMaisNova || !final) {
+        if (!avisouTag) console.log(`esperando tag ${devMaisNova ? 'final' : '-dev'} de ${repo}`);
+        avisouTag = true;
+        throw new SemTagParaOHead(`${repo} não tem tag ${devMaisNova ? 'final' : '-dev'} publicada`);
+      }
       ultimaDev[c] = devMaisNova;
       ultimaFinal[c] = final;
       if (buscaTagsDoHead({ repo, repoDaPr: nome, baseDev: dev })) {
@@ -142,12 +147,14 @@ async function principal(): Promise<void> {
     return escolherTags({ repo: nome as RepoGatilho, headSha, headRef, baseRef: dev ? 'dev' : 'main', tagsDoHead, ultimaDev, ultimaFinal });
   };
   try {
+    const t0 = Date.now();
     escolha = await repetirAte(resolver, (e) => e instanceof SemTagParaOHead, limite);
+    if (avisouTag) console.log(`tags do head achadas após ${Math.round((Date.now() - t0) / 1000)} s`);
     // Só o repo do evento tem imagem nova; as outras já estão carimbadas e assinadas.
     const dono = nome.replace('brabo-', '');
     const tag = (escolha.tags as Record<string, string>)[dono];
     if (tag && dono !== 'infra' && dono !== 'qa') {
-      await esperarImagemAssinada({ imagem: nome, tag, digestDe: consultarGhcr, assinada: cosignAssinada, limite });
+      await esperarImagemAssinada({ imagem: nome, tag, digestDe: consultarGhcr, assinada: cosignAssinada, limite, log: (m) => console.log(m) });
     }
   } catch (e) {
     if (e instanceof AssinaturaAusente) causaDoErro = 'assinatura';
