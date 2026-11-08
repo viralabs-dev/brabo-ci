@@ -757,6 +757,15 @@ so that the map gets fixed. `brabo-contracts` has no regression on its own PR.
 - **ADR:** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origin:** AT-769 (EP-033)
 
+### RN-1075 — `brabo-runner` is attested by its own CI: the linux-x64 binary enters the PR, and the engine contract is proven only in TP-01 {#rn-1075}
+
+`brabo-runner` has no `qa-e2e.yml`, image or `@f-runner`/`@f-projetos` spec in `brabo-qa`; the catalog regression does not run on its PR (owner's decision of 2026-11-08, option b). The PR is attested by the `runner` job of its `ci.yml`: lint, types, tests, `dist` with `smoke`, and the linux-x64 binary with `build:bin` + `smoke:bin` (`--self-test-pty`, real PTY). The **runner ↔ engine contract** (ticket join, capabilities, exec, folder) is **not** proven on the PR: only in live TP-01. The `runner` keys of `funcionalidades.yml` stay in the catalog and serve only the map.
+
+- **Code:** the `runner` job of `brabo-runner`'s `.github/workflows/ci.yml`
+- **Test:** the job itself (log with `ok:` from `--self-test-pty`)
+- **ADR:** [0268](../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **Origin:** AT-853 (EP-033)
+
 ### RN-1034 — The PR to `main` runs the whole catalog in `E2E do brabo-qa`, and a feature without a spec shows up as "no coverage" without failing {#rn-1034}
 
 The `E2E do brabo-qa` check ([ADR 0267](../adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md))
