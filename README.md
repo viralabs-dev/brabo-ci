@@ -94,6 +94,7 @@ Não ponha `if:` no job que chama `pr-police`, `approval-ladder`, `backmerge-gat
 |---|---|---|
 | `approval-ladder` | Exige as aprovações certas de cada degrau (dev ou main) conforme o modo solo ou community; dispensa a PR do Dependabot e a de regeneração do bot na dev. | [approval-ladder](scripts/ci/docs/reference/workflows/approval-ladder.md) |
 | `archive-merged-branch` | Arquiva toda semana as branches já mergeadas e sem commit novo, movendo para refs/archive/<nome>; nunca apaga. | [archive-merged-branch](scripts/ci/docs/reference/workflows/archive-merged-branch.md) |
+| `arestas-alinhadas` | Prova que cada aresta do repos.yml do brabo existe no código (prova arquivo:N) e que REPOS, irmaos.lock e componentes.json batem com o mapa. | [arestas-alinhadas](scripts/ci/docs/reference/workflows/arestas-alinhadas.md) |
 | `backmerge-gate` | Trava toda PR cujo destino aguarda a retropropagação de um hotfix; só a PR de main para dev passa enquanto a trava existir. | [backmerge-gate](scripts/ci/docs/reference/workflows/backmerge-gate.md) |
 | `cadeia` | Cadeia de suprimentos do CI de quem chama: actionlint nos workflows e todo uses: preso a SHA com a versão em comentário. | [cadeia](scripts/ci/docs/reference/workflows/cadeia.md) |
 | `contracts-alinhado` | Confere que a versão do brabo-contracts é a mesma no package.json, no lock e nos scripts de download; só avisa se difere do componentes.json do brabo. | [contracts-alinhado](scripts/ci/docs/reference/workflows/contracts-alinhado.md) |
