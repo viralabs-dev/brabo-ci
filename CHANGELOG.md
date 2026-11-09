@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Docs (AT-862): a página de RN do brabo-ci vira índice (`scripts/ci/docs/business-rules/ci.md`, com a grade congelada das âncoras `#rn-NNN`) mais duas partes por faixa (`business-rules/ci/parte-01.md` e `parte-02.md`), em pt-BR e nas traduções en, ru e zh-Hans (ADR 0287). Nenhuma RN muda de número ou de texto; os links antigos `#rn-NNN` seguem valendo.
 - Docs (AT-867): a linha de badges logo abaixo do título mostra o CI da `dev` e o da `main`, a versão da `dev` (última tag `-dev`), licença MIT, documentação e Ko-fi, no estilo do `brabo` Sem release publicada, o badge de versão da `main` não entra.
 
 - Doc (AT-853): RN-1075 em `scripts/ci/docs/business-rules/ci.md` (e `en`, `ru`, `zh-Hans`): o `brabo-runner` se atesta pelo próprio CI (binário linux-x64 com `smoke:bin` na PR), e o contrato runner ↔ engine só é provado no TP-01.
