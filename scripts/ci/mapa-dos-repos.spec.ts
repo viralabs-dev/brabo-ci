@@ -10,9 +10,15 @@ describe('mapa-dos-repos (AT-825)', () => {
     const b = gerarBloco(lerMapa(base()), 'a');
     expect(b.startsWith(MARCA_INICIO) && b.endsWith(MARCA_FIM)).toBe(true);
     expect(b).toContain('| **a** | Faz A \\| com pipe | por tag | b (contrato, código) | — |');
-    expect(b).toContain('| b | Faz B | por clone | — | a (contrato, código) |');
+    expect(b).toContain('| [b](https://github.com/viralabs-dev/b) | Faz B | por clone | — | a (contrato, código) |');
     expect(b).toContain('a -->|contrato| b');
     expect(b).toContain('class a atual');
+  });
+  it('linka cada repo, menos o atual, para o DONO', () => {
+    const b = gerarBloco(lerMapa(base()), 'b');
+    expect(b).toContain('| [a](https://github.com/viralabs-dev/a) |');
+    expect(b).toContain('| **b** |');
+    expect(b).not.toContain('[b](');
   });
   it('o diagrama traz só as arestas do repo atual', () => {
     const m = lerMapa(base('\n  c: { papel: x, proposito: C, como_e_usado: y, depende_de: [{ repo: b, tipo: doc, prova: "r:1" }] }'));

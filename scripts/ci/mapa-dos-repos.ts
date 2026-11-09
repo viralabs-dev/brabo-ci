@@ -1,6 +1,6 @@
 /**
  * mapa-dos-repos — gera o bloco do mapa da seção "Onde se encaixa" dos READMEs (o título é do README.modelo.md) a partir do `repos.yml` do
- * `brabo` (AT-825, ADR 0281): uma tabela dos repos e um Mermaid só com as arestas do repo, rotuladas pelo tipo, entre
+ * `brabo` (AT-825, ADR 0281): uma tabela dos repos (o nome de cada um linka para o GitHub, exceto o do README) e um Mermaid só com as arestas do repo, rotuladas pelo tipo, entre
  * `<!-- mapa:inicio -->` e `<!-- mapa:fim -->`, com o repo do README destacado.
  *
  * Uso: `node scripts/ci/mapa-dos-repos.ts --repo <nome> [--fonte <url|caminho>] [--check] [README...]`
@@ -80,7 +80,8 @@ export function gerarBloco(mapa: Mapa, atual: string): string {
   const linhas = nomes.map((n) => {
     const r = mapa[n]!;
     const usado = nomes.flatMap((o) => mapa[o]!.depende_de.filter((a) => a.repo === n).map((a) => ({ repo: o, tipo: a.tipo })));
-    const nome = n === atual ? `**${n}**` : n;
+    // O próprio repo fica em negrito sem link (já se está nele); os outros linkam para o GitHub do mesmo dono (AT-873).
+    const nome = n === atual ? `**${n}**` : `[${n}](https://github.com/${DONO}/${n})`;
     return `| ${nome} | ${celula(r.proposito)} | ${celula(r.como_e_usado)} | ${celula(agrupar(r.depende_de))} | ${celula(agrupar(usado))} |`;
   });
   // O diagrama mostra só as arestas do repo atual (as que saem e as que chegam): o mapa inteiro está na tabela.
