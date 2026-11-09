@@ -8,7 +8,7 @@ import { aptaParaArquivar, deveArquivar, refDeArquivo } from './archive-branch.t
  */
 
 describe('deveArquivar', () => {
-  const repo = 'daneiel/brabo';
+  const repo = 'viralabs-dev/brabo';
 
   it('arquiva uma branch de feature normal, mergeada no mesmo repositório', () => {
     expect(deveArquivar('feature/reset-total-bootstrap', repo, repo)).toBe(true);
@@ -42,7 +42,7 @@ describe('refDeArquivo', () => {
 });
 
 describe('aptaParaArquivar', () => {
-  const repo = 'daneiel/brabo';
+  const repo = 'viralabs-dev/brabo';
   const base = {
     branch: 'feature/x',
     headRepo: repo,

@@ -7,6 +7,7 @@
 alarmar_tag() {
   local desfecho="$1" existente url
   case "${desfecho}" in failure|success) ;; *) return 0 ;; esac
+  # shellcheck disable=SC2016 # $ENV é do jq, não do shell
   existente="$(gh issue list --state open --limit 100 --json number,title \
     --jq '.[] | select(.title == $ENV.TITULO) | .number' | head -1)"
   if [ "${desfecho}" = "success" ]; then

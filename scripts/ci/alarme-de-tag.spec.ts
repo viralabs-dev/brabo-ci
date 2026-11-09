@@ -11,7 +11,7 @@ const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const falha = {
   branch: 'qa',
   sha: 'fdcc6093fb46700198ed00ee64bcd830b5399905',
-  urlDoRun: 'https://github.com/daneiel/brabo/actions/runs/32798660541',
+  urlDoRun: 'https://github.com/viralabs-dev/brabo/actions/runs/32798660541',
 };
 
 describe('tituloDoAlarme', () => {

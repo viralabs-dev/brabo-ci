@@ -1,10 +1,16 @@
 name: approval-ladder
+# propósito: Exige as aprovações certas de cada degrau (dev ou main) conforme o modo solo ou community; dispensa a PR do Dependabot e a de regeneração do bot na dev.
+# chamador:
+#   pull_request:
+#     types: [opened, edited, reopened, synchronize, ready_for_review]
+#   pull_request_review:
+#     types: [submitted, edited, dismissed]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
-# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+# Comentários abaixo vêm do monorepo de origem (`viralabs-dev/brabo-legacy`, arquivado) e falam dos gatilhos do chamador.
 
 # Exige as aprovações certas para cada degrau da escada.
-# Fonte da política: docs/explanation/branching-policy.md
+# Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 # A lógica vive em scripts/ci/approval-ladder.ts, testada por vitest.
 #
 # O pr-police diz se o PR está no LUGAR certo; este diz se ele tem as
@@ -19,10 +25,14 @@ on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'viralabs-dev/brabo-ci'
 
 permissions:
   contents: read
@@ -48,18 +58,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       # Os scripts da política moram no brabo-ci, não no repositório que chama.
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Avaliar a escada
         env:

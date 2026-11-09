@@ -88,6 +88,24 @@ describe('montarPayload', () => {
   });
 });
 
+describe('montarPayload com selecao (AT-791)', () => {
+  const selecao = { motivos: { autenticacao: ['api: src/auth/x.ts'] }, semDono: ['src/zzz'], tocadas: ['autenticacao'] };
+  it('leva a seleção numa chave só, sem tirar o resto', () => {
+    const p = montarPayload(escolherTags(base), { repo: 'o/r', pr: 1, headSha: 'a', checkRunId: 2 }, { selecao });
+    expect(p).toMatchObject({ selecao, check_run_id: 2, repo: 'o/r' });
+    expect(Object.keys(p.imagens)).toHaveLength(5);
+  });
+  // O repository_dispatch aceita no máximo 10 chaves em client_payload (422 no run 42491787715).
+  it('pior caso (dev, com origem e seleção) não passa de 10 chaves de topo', () => {
+    const ctx = { repo: 'o/r', pr: 1, headSha: 'a', checkRunId: 2, origem: { ator: 'x', runId: '1', runAttempt: '1', runUrl: 'u' } };
+    const dev = montarPayload(escolherTags(base), ctx, { modo: 'funcionalidades', funcionalidades: ['x'], selecao });
+    const main = montarPayload(escolherTags(base), ctx, { selecao });
+    expect(Object.keys(dev).length).toBeLessThanOrEqual(10);
+    expect(Object.keys(main).length).toBeLessThanOrEqual(10);
+    expect(Object.keys(montarPayload(escolherTags(base), ctx)).length).toBeLessThanOrEqual(10);
+  });
+});
+
 describe('maisNova', () => {
   it('ordena por semver, não por texto', () => {
     expect(maisNova(['v1.2.0-dev.9', 'v1.10.0-dev.1', 'v1.2.0-dev.10'])).toBe('v1.10.0-dev.1');

@@ -13,7 +13,7 @@ import {
   type Gate,
 } from './gate.ts';
 
-const REPO = 'daneiel/brabo';
+const REPO = 'viralabs-dev/brabo';
 
 function hotfix(tag: string, _legado = 60, prDev = 61): EntradaDeHistorico {
   return {
@@ -233,6 +233,6 @@ describe('serialização', () => {
     const texto = formatarGate(entrada, avaliarGate(travado('v0.2.1'), entrada, REPO));
     expect(texto).toContain('backmerge-gate: feature/x → dev');
     expect(texto).toContain('DESTINO-TRAVADO');
-    expect(texto).toContain('branching-policy.md');
+    expect(texto).toContain('/prd/explanation/branching-policy.html#the-back-merge-gate');
   });
 });

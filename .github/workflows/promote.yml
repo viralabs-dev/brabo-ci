@@ -1,10 +1,13 @@
 name: promote
+# propósito: Calcula a versão do ciclo e abre a PR de promoção de um degrau ao próximo (padrão dev->main); o merge continua humano.
+# chamador:
+#   workflow_dispatch:
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
-# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+# Comentários abaixo vêm do monorepo de origem (`viralabs-dev/brabo-legacy`, arquivado) e falam dos gatilhos do chamador.
 
 # Dispara a promoção de um degrau para o próximo.
-# Fonte da política: docs/explanation/branching-policy.md
+# Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 #
 # O workflow NÃO mergeia nada: ele calcula a versão do ciclo e abre o PR de
 # promoção. O merge continua sendo ato manual do humano, como toda entrada em
@@ -13,10 +16,14 @@ on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'viralabs-dev/brabo-ci'
       par:
         description: 'Par da esteira a promover'
         required: false
@@ -24,8 +31,10 @@ on:
         default: 'dev->main'
     secrets:
       APP_ID:
+        description: 'ID do GitHub App do bot da organização'
         required: false
       APP_PRIVATE_KEY:
+        description: 'Chave privada do GitHub App do bot da organização'
         required: false
       BOT_TOKEN:
         description: 'PAT ou token do GitHub App do bot (opcional: sem ele os checks do PR de promoção nascem em action_required)'
@@ -85,8 +94,8 @@ jobs:
               echo "\`$ATOR\` disparou, mas em \`APPROVAL_MODE=solo\` o responsável de"
               echo "release é **\`$OWNER\`** — o único autorizado a promover."
               echo
-              echo "A política está em \`docs/explanation/branching-policy.md\`, seção"
-              echo "\"Papéis\". Para mudar quem promove, mude a variável"
+              echo "A política está em https://viralabs-dev.github.io/brabo/prd/explanation/branching-policy.html#roles"
+              echo "(seção \"Papéis\"). Para mudar quem promove, mude a variável"
               echo "\`OWNER_HANDLE\`, não este workflow."
             } >> "$GITHUB_STEP_SUMMARY"
             exit 1
@@ -101,18 +110,18 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       # Os scripts da política moram no brabo-ci, não no repositório que chama.
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Validar o par e calcular a versão
         id: calculo

@@ -1,7 +1,15 @@
 name: dependabot-para-dev
+# propósito: Fecha ou redireciona para a dev a PR de segurança do Dependabot que o GitHub abre contra a main.
+# chamador:
+#   push:
+#     branches: [dev]
+#   workflow_dispatch:
+#   pull_request_target:
+#     types: [opened, reopened]
+#     branches: [main]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
-# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+# Comentários abaixo vêm do monorepo de origem (`viralabs-dev/brabo-legacy`, arquivado) e falam dos gatilhos do chamador.
 
 # Dependência entra pela `dev`, como todo o resto, e chega à `main` pela
 # promoção `dev → main`. Fonte da política:
@@ -33,10 +41,14 @@ on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'viralabs-dev/brabo-ci'
 
 permissions:
   contents: read
@@ -65,10 +77,14 @@ jobs:
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Decidir e aplicar
         env:

@@ -1,7 +1,7 @@
 /**
  * hotfix-gate — no merge de um hotfix em `main`: trava os degraus de baixo e
  * abre os PRs de retropropagação.
- * Fonte da política: docs/explanation/branching-policy.md
+ * Fonte da política: scripts/ci/docs/explanation/branching-policy.md
  *
  * Escreve `.release/gate.json` DIRETO na `main`. É a única exceção de escrita
  * direta em branch permanente além das tags, ela é do bot, e está registrada na
@@ -22,6 +22,7 @@ import {
   type EntradaDeHistorico,
 } from './gate.ts';
 import type { Permanente } from './pr-police.ts';
+import { LINKS_DA_POLITICA } from './doc-da-politica.ts';
 
 /** O corpo do PR de retropropagação: explica a trava e a ordem. */
 export function corpoDaRetropropagacao(
@@ -65,7 +66,7 @@ export function corpoDaRetropropagacao(
   l.push('');
   l.push('Segue o `approval-ladder` como qualquer PR — nada de exceção aqui.');
   l.push('');
-  l.push('<sub>A política inteira: `docs/explanation/branching-policy.md`</sub>');
+  l.push(`<sub>A política inteira: ${LINKS_DA_POLITICA.correcaoNascidaNoAlto}</sub>`);
   return l.join('\n');
 }
 

@@ -1,18 +1,28 @@
 name: refs-com-simbolo
+# propósito: Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora e que nenhum link relativo .md das RNs aponta para fora do repo; qualquer um quebrado reprova.
+# chamador:
+#   pull_request:
+#     types: [opened, reopened, synchronize]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci (AT-782). Num irmão, confere que cada
 # ref `caminho:N` (`símbolo`) das RNs (docs/business-rules*) aponta para onde o
 # símbolo mora. Ref interna quebrada REPROVA; ref para outro irmão só é listada
 # no Summary (sem anotação: quem confere é a subida da trava do brabo). O
-# artefato `refs-patch` traz a reancoragem pronta. Não é check obrigatório.
+# artefato `refs-patch` traz a reancoragem pronta. Também reprova link relativo
+# `.md` de RN cujo alvo não existe no próprio repo (AT-868, links-das-rns.ts).
+# Não é check obrigatório.
 on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA do `uses:` do chamador)'
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'viralabs-dev/brabo-ci'
 
 permissions:
   contents: read
@@ -30,14 +40,23 @@ jobs:
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
 
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
       # --escrever reancora o checkout; o código de saída continua sendo o do veredito de ANTES.
       - name: Conferir as refs
         run: node .brabo-ci/scripts/ci/refs-com-simbolo.ts --escrever --repo "${GITHUB_REPOSITORY##*/}"
+
+      # Roda mesmo se as refs reprovaram: são vereditos independentes.
+      - name: Links relativos das RNs
+        if: ${{ !cancelled() }}
+        run: node .brabo-ci/scripts/ci/links-das-rns.ts
 
       - name: Patch de reancoragem
         id: patch

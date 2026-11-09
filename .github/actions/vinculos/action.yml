@@ -1,4 +1,11 @@
 name: Vínculos
+# propósito: Escreve a tabela Vínculos (origem, irmãos, destino) e o diagrama Mermaid no Summary do run; nunca reprova o job.
+# chamador:
+#   - uses: <org>/brabo-ci/.github/actions/vinculos@<sha>  # vX.Y.Z
+#     with:
+#       irmaos: |
+#         ../brabo-infra
+#         <org>/brabo-api@<sha de 40 hex>
 description: >-
   Escreve a tabela "Vínculos" (origem, irmãos repo@SHA, destino) e o diagrama
   Mermaid no Summary do run e grava vinculos.md. Nunca reprova o job.

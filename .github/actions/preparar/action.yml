@@ -1,0 +1,46 @@
+name: Preparar o ambiente do brabo-ci
+# propósito: Depois do checkout mínimo do brabo-ci em .brabo-ci/, confere o ci_ref, instala o Node e, se pedido, as dependências de produção dos scripts.
+# chamador:
+#   - uses: ./.brabo-ci/.github/actions/preparar
+#     with:
+#       ci_ref: <sha>
+description: >-
+  Depois do checkout mínimo do brabo-ci em `.brabo-ci/`: confere o formato do
+  `ci_ref`, instala o Node de `.brabo-ci/.node-version` e, se pedido, as
+  dependências de produção dos scripts (com `--ignore-workspace`: o `pnpm-workspace.yaml` do chamador não conta). É LOCAL (`./.brabo-ci/...`) porque um
+  `uses:` não aceita expressão (`inputs.ci_ref`): assim ela é sempre do mesmo SHA dos scripts.
+inputs:
+  ci_ref:
+    description: 'O mesmo SHA de 40 hex do `uses:` do reutilizável.'
+    required: true
+  dependencias:
+    description: 'true instala as dependências de produção dos scripts (picomatch, yaml).'
+    required: false
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - name: Conferir o ci_ref
+      shell: bash
+      env:
+        CI_REF: ${{ inputs.ci_ref }}
+      run: |
+        if ! [[ "$CI_REF" =~ ^[0-9a-f]{40}$ ]]; then
+          echo "::error::ci_ref precisa ser o SHA de 40 hex do uses:"
+          exit 1
+        fi
+
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+      with:
+        node-version-file: .brabo-ci/.node-version
+
+    - if: inputs.dependencias == 'true'
+      uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
+      with:
+        package_json_file: .brabo-ci/package.json
+
+    - if: inputs.dependencias == 'true'
+      shell: bash
+      working-directory: .brabo-ci
+      # --ignore-workspace: sem ela o pnpm sobe até o pnpm-workspace.yaml do chamador e instala lá (AT-841).
+      run: pnpm install --prod --ignore-scripts --frozen-lockfile --ignore-workspace

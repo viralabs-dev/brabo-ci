@@ -5,6 +5,8 @@
  * Sintaxe apagável apenas (o Node executa este `.ts` por type stripping).
  */
 
+import { DONO } from './dono.ts';
+
 export type Servico = 'api' | 'engine' | 'web' | 'broker' | 'backup';
 export type RepoGatilho = 'brabo-api' | 'brabo-engine' | 'brabo-web' | 'brabo-broker' | 'brabo-infra' | 'brabo-qa';
 type Chave = 'api' | 'engine' | 'web' | 'broker' | 'infra';
@@ -107,7 +109,7 @@ export function montarPayload(
   extra: object = {},
 ) {
   const imagens = Object.fromEntries(
-    Object.entries(escolha.tags).map(([s, t]) => [s, `ghcr.io/viralabs-dev/brabo-${s}:${t}`]),
+    Object.entries(escolha.tags).map(([s, t]) => [s, `ghcr.io/${DONO}/brabo-${s}:${t}`]),
   ) as Record<Servico, string>;
   const o = ctx.origem;
   // `correlacao` entra no `run-name` do e2e-pr (`c=<run_id>-<attempt>`) para o gatilho achar o run disparado.
@@ -131,8 +133,8 @@ export async function paraDigest(
   consultar: (imagem: string, tag: string) => Promise<string | null>,
 ): Promise<string> {
   const digest = await consultar(imagem, tag);
-  if (!digest) throw new ImagemNaoPublicada(`ghcr.io/viralabs-dev/${imagem}:${tag} não está publicada`);
-  return `ghcr.io/viralabs-dev/${imagem}@${digest}`;
+  if (!digest) throw new ImagemNaoPublicada(`ghcr.io/${DONO}/${imagem}:${tag} não está publicada`);
+  return `ghcr.io/${DONO}/${imagem}@${digest}`;
 }
 
 const ACCEPT = [
@@ -143,10 +145,10 @@ const ACCEPT = [
 ].join(', ');
 
 export async function consultarGhcr(imagem: string, tag: string): Promise<string | null> {
-  const t = await fetch(`https://ghcr.io/token?scope=repository:viralabs-dev/${imagem}:pull`);
+  const t = await fetch(`https://ghcr.io/token?scope=repository:${DONO}/${imagem}:pull`);
   if (!t.ok) throw new Error(`token anônimo do ghcr falhou: ${t.status}`);
   const { token } = (await t.json()) as { token: string };
-  const r = await fetch(`https://ghcr.io/v2/viralabs-dev/${imagem}/manifests/${tag}`, {
+  const r = await fetch(`https://ghcr.io/v2/${DONO}/${imagem}/manifests/${tag}`, {
     method: 'HEAD',
     headers: { Authorization: `Bearer ${token}`, Accept: ACCEPT },
   });

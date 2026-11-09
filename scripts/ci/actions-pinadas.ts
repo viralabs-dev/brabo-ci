@@ -25,8 +25,9 @@
  * Sintaxe apagável apenas (o Node executa este `.ts` por type stripping).
  */
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { LINKS_DA_POLITICA } from './doc-da-politica.ts';
 
 /** Um `uses:` que não está preso a um commit imutável. */
 export interface Violacao {
@@ -116,18 +117,46 @@ export function mensagemDeViolacao(violacao: Violacao): string {
   );
 }
 
-// --- CLI: `node scripts/ci/actions-pinadas.ts` -----------------------------
+// --- CLI: `node scripts/ci/actions-pinadas.ts [--raiz <dir>]` -------------
+// --raiz aponta o repositório a conferir (padrão: este). Varre
+// .github/workflows/*.y*ml e .github/actions/**/action.y*ml.
 
-function lerWorkflows(diretorio: string): Workflow[] {
-  return readdirSync(diretorio)
-    .filter((nome) => nome.endsWith('.yml') || nome.endsWith('.yaml'))
-    .sort()
-    .map((nome) => ({ nome: `.github/workflows/${nome}`, conteudo: readFileSync(`${diretorio}/${nome}`, 'utf8') }));
+const EH_YAML = /\.ya?ml$/;
+const EH_ACTION = /^action\.ya?ml$/;
+
+function lerArquivos(raiz: string, diretorio: string, filtro: RegExp, recursivo: boolean): Workflow[] {
+  const base = `${raiz}/${diretorio}`;
+  const achados: Workflow[] = [];
+  const andar = (rel: string): void => {
+    for (const e of readdirSync(`${base}/${rel}`, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const sub = rel === '' ? e.name : `${rel}/${e.name}`;
+      if (e.isDirectory()) {
+        if (recursivo) andar(sub);
+      } else if (filtro.test(e.name)) {
+        achados.push({ nome: `${diretorio}/${sub}`, conteudo: readFileSync(`${base}/${sub}`, 'utf8') });
+      }
+    }
+  };
+  if (existsSync(base)) andar('');
+  return achados;
+}
+
+/** Workflows e actions compostas do repositório em `raiz`. */
+export function lerWorkflows(raiz: string): Workflow[] {
+  return [
+    ...lerArquivos(raiz, '.github/workflows', EH_YAML, false),
+    ...lerArquivos(raiz, '.github/actions', EH_ACTION, true),
+  ];
 }
 
 function principal(): void {
-  const diretorio = fileURLToPath(new URL('../../.github/workflows', import.meta.url));
-  const workflows = lerWorkflows(diretorio);
+  const i = process.argv.indexOf('--raiz');
+  const raiz = i === -1 ? fileURLToPath(new URL('../..', import.meta.url)) : (process.argv[i + 1] ?? '');
+  if (raiz === '') {
+    console.error('::error::actions-pinadas: --raiz pede um diretório.');
+    process.exit(2);
+  }
+  const workflows = lerWorkflows(raiz);
   const violacoes = verificarPins(workflows);
 
   const total = workflows.reduce(
@@ -135,7 +164,7 @@ function principal(): void {
     0,
   );
 
-  console.log(`actions-pinadas: ${total} \`uses:\` em ${workflows.length} workflows.`);
+  console.log(`actions-pinadas: ${total} \`uses:\` em ${workflows.length} arquivos.`);
 
   if (violacoes.length > 0) {
     for (const violacao of violacoes) {
@@ -143,7 +172,7 @@ function principal(): void {
     }
     console.error(
       `::error::actions-pinadas: ${violacoes.length} action(s) sem pin imutável. ` +
-        'Ver docs/explanation/cadeia-de-suprimentos-do-ci.md e o comentário no topo de ' +
+        `Ver ${LINKS_DA_POLITICA.cadeiaDeSuprimentos} e o comentário no topo de ` +
         'scripts/ci/actions-pinadas.ts.',
     );
     process.exit(1);

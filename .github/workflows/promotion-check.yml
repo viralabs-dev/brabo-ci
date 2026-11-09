@@ -1,10 +1,14 @@
 name: promotion-check
+# propósito: Confere o estado da PR de promoção: range limpo, tag do degrau de baixo carimbada e merge possível.
+# chamador:
+#   pull_request:
+#     types: [opened, reopened, synchronize, edited]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
-# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+# Comentários abaixo vêm do monorepo de origem (`viralabs-dev/brabo-legacy`, arquivado) e falam dos gatilhos do chamador.
 
 # Confere o ESTADO do repositório num PR de promoção.
-# Fonte da política: docs/explanation/branching-policy.md
+# Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 #
 # Workflow separado do `pr-police` de propósito: aquele valida a FORMA do PR
 # (nome, origem, destino) e este valida o ESTADO (range, tag do degrau de
@@ -14,10 +18,14 @@ on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'viralabs-dev/brabo-ci'
 
 permissions:
   contents: read
@@ -45,10 +53,14 @@ jobs:
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Conferir a promoção
         env:

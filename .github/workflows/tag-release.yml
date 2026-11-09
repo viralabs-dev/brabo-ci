@@ -1,11 +1,15 @@
 name: tag-release
+# propósito: Carimba a tag do estágio a cada merge numa permanente e, se o merge foi um hotfix, trava o gate e abre as PRs de retropropagação.
+# chamador:
+#   push:
+#     branches: [dev, main]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
-# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+# Comentários abaixo vêm do monorepo de origem (`viralabs-dev/brabo-legacy`, arquivado) e falam dos gatilhos do chamador.
 
 # Carimba a tag do estágio a cada merge numa permanente, e — quando o merge é
 # um hotfix — trava o gate de retropropagação e abre os PRs que o resolvem.
-# Fonte da política: docs/explanation/branching-policy.md
+# Fonte da política: scripts/ci/docs/explanation/branching-policy.md
 #
 # NENHUM JOB DE DEPLOY. A tag é o produto final deste workflow e o registro do
 # que ESTARIA em cada estágio — vale mesmo sem ambiente. Quando houver deploy,
@@ -24,10 +28,14 @@ on:
   workflow_call:
     inputs:
       ci_ref:
-        description: 'Ref do brabo-ci de onde vêm os scripts (use o MESMO SHA ou tag do `uses:` do chamador)'
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'viralabs-dev/brabo-ci'
     secrets:
       APP_ID:
         description: 'ID do GitHub App do bot. Com APP_ID e APP_PRIVATE_KEY o token é gerado AQUI: output de job que carrega token é descartado pelo Actions, então o chamador não consegue passá-lo como BOT_TOKEN'
@@ -83,10 +91,6 @@ jobs:
           # dispara a Release — degradação visível, não silenciosa.
           token: ${{ steps.app.outputs.token || secrets.BOT_TOKEN || github.token }}
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       - name: O PAT está configurado?
         if: env.TEM_PAT != 'true'
         run: |
@@ -96,10 +100,14 @@ jobs:
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Calcular a tag
         id: calculo
@@ -169,18 +177,18 @@ jobs:
           # aberto com o `GITHUB_TOKEN` não dispara workflow.
           token: ${{ steps.app.outputs.token || secrets.BOT_TOKEN }}
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       # Os scripts da política moram no brabo-ci, não no repositório que chama.
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Abrir os PRs e calcular a trava
         env:
@@ -244,18 +252,18 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.app.outputs.token || secrets.BOT_TOKEN }}
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       # Os scripts da política moram no brabo-ci, não no repositório que chama.
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Calcular a destrava
         env:
@@ -323,18 +331,18 @@ jobs:
         with:
           token: ${{ github.token }}
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: 26.10.0
-
       # Os scripts da política moram no brabo-ci, não no repositório que chama.
       - name: Scripts do brabo-ci
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: viralabs-dev/brabo-ci
+          repository: ${{ inputs.ci_repo }}
           ref: ${{ inputs.ci_ref }}
           path: .brabo-ci
           persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
 
       - name: Compor o alarme
         id: alarme
