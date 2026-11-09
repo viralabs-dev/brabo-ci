@@ -43,7 +43,7 @@ Só o que mora aqui está descrito aqui. As regras transversais (gitflow, commit
 ## Documentação é parte do pronto
 - A doc da política mora em `scripts/ci/docs/` (fonte pt-BR; `en`, `ru`, `zh-Hans` em i18n). O site é agregado pelo `brabo`, que lê a doc de cada repo; nunca crie `website/docs/`. Atualize a doc na mesma mudança.
 - Mudança observável → `CHANGELOG.md` (Unreleased). Toda tag nasce de workflow.
-- RN nova → `caminho:N` e o teste que a cobre em `scripts/ci/docs/business-rules/ci.md`; a numeração é global (varra branches locais e remoto) e a âncora `{#rn-NNN}` não muda. ADR novo mora no `brabo`; ADR aceito nunca é editado.
+- RN nova → `caminho:N` e o teste que a cobre na ÚLTIMA parte (arquivo parte-NN.md) da pasta `scripts/ci/docs/business-rules/ci/` (o ci.md dela é só o índice com a grade congelada; ADR 0287); a numeração é global (varra branches locais e remoto) e a âncora `{#rn-NNN}` não muda. ADR novo mora no `brabo`; ADR aceito nunca é editado.
 - Sem informação suficiente, escreva `> **TODO(humano):** <pergunta>.`. Diagramas em Mermaid.
 - Este arquivo não passa de 12 mil caracteres (`wc -m`, nunca `wc -c`); o que só vale para uma área vai para o doc dela ou para `.claude/rules/` com `paths:`. Guarda: `scripts/ci/claude-md.spec.ts`.
 
