@@ -363,6 +363,24 @@ describe('PR de regeneração do bot dispensa review só na dev', () => {
     expect(formatarEscada(solo(doBot), v)).toContain('dispensado de review (ADR 0255)');
   });
 
+  it('chore/capturas-versao aberta pelo bot é dispensada (AT-878)', () => {
+    const v = avaliarEscada(solo({ ...doBot, origem: 'chore/capturas-versao' }));
+    expect(v.ok).toBe(true);
+    expect(v.dispensadoPorBotDeRegeneracao).toBe(true);
+  });
+
+  it('chore/capturas-versao aberta por humano não é dispensada (AT-878)', () => {
+    const v = avaliarEscada(solo({ ...doBot, origem: 'chore/capturas-versao', autorDoPr: 'contribuidor', tipoDoAutor: 'User' }));
+    expect(v.ok).toBe(false);
+    expect(v.dispensadoPorBotDeRegeneracao).toBe(false);
+  });
+
+  it('chore/capturas-da-doc (imagem mudou) continua pedindo o dono, mesmo do bot (AT-878)', () => {
+    const v = avaliarEscada(solo({ ...doBot, origem: 'chore/capturas-da-doc' }));
+    expect(v.ok).toBe(false);
+    expect(v.dispensadoPorBotDeRegeneracao).toBe(false);
+  });
+
   it('o bot certo em outra branch não ganha a dispensa', () => {
     const v = avaliarEscada(solo({ ...doBot, origem: 'chore/outra' }));
     expect(v.ok).toBe(false);

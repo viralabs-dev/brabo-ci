@@ -19,7 +19,7 @@ traducao_de: c165be09458a5dfdc42010867a29adf8a36ccd99
 > `Escada de aprovação` 是 11 个 `viralabs-dev/brabo*` 仓库中 `dev` 和 `main` 的
 > ruleset 里的 **required** 检查；`brabo`、`brabo-qa` 和 `brabo-infra` 获得
 > “main 与 dev 禁止 force push”ruleset；GitHub App `viralabs-dev-brabo` 在分支
-> `chore/regenera-gerados` → `dev` 上的 PR 免除阶梯（作者且分支；`main` 仍走完整阶梯）。
+> `chore/regenera-gerados` 与 `chore/capturas-versao` → `dev` 上的 PR 免除阶梯（作者且分支；`main` 仍走完整阶梯）。
 > 在 GitHub 上的应用仍是手动的。
 
 ## 前提：三个分支必须存在

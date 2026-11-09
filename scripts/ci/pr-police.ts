@@ -82,8 +82,8 @@ export function ehBranchDoDependabot(head: string, autor?: string, tipoDoAutor?:
   return autor !== 'dependabot' || tipoDoAutor === 'Bot';
 }
 
-/** Branch FIXA em que o GitHub App `viralabs-dev-brabo` abre a PR de regeneração (ADR 0255). */
-export const BRANCH_DE_REGENERACAO = 'chore/regenera-gerados';
+/** Branches FIXAS em que o GitHub App `viralabs-dev-brabo` abre PR isenta da escada (ADR 0255; AT-878, ADR 0289). */
+export const BRANCHES_DO_BOT: readonly string[] = ['chore/regenera-gerados', 'chore/capturas-versao'];
 const LOGINS_DO_BOT_DE_REGENERACAO: readonly string[] = [
   'viralabs-dev-brabo[bot]',
   'app/viralabs-dev-brabo',
@@ -91,7 +91,7 @@ const LOGINS_DO_BOT_DE_REGENERACAO: readonly string[] = [
 
 /** Autor E branch, as duas — a mesma régua do Dependabot (o destino `dev` é checado pela escada). */
 export function ehPrDeRegeneracaoDoBot(head: string, autor?: string, tipoDoAutor?: string): boolean {
-  if (head !== BRANCH_DE_REGENERACAO) return false;
+  if (!BRANCHES_DO_BOT.includes(head)) return false;
   if (typeof autor !== 'string') return false;
   return LOGINS_DO_BOT_DE_REGENERACAO.includes(autor) || (tipoDoAutor === 'Bot' && autor === 'viralabs-dev-brabo');
 }

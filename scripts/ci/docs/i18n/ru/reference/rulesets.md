@@ -20,7 +20,7 @@ keywords: [rulesets, защита веток, обязательные пров�
 > `Escada de aprovação` — **обязательные** (required) проверки в ruleset `dev` и `main`
 > всех 11 репозиториев `viralabs-dev/brabo*`; `brabo`, `brabo-qa` и `brabo-infra`
 > получают ruleset «main e dev sem force push»; а PR GitHub App
-> `viralabs-dev-brabo` из ветки `chore/regenera-gerados` в `dev` освобождается от
+> `viralabs-dev-brabo` из веток `chore/regenera-gerados` и `chore/capturas-versao` в `dev` освобождается от
 > лестницы (автор И ветка; `main` по-прежнему проходит всю лестницу). Применение в
 > GitHub остаётся ручным.
 

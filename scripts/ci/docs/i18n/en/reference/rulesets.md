@@ -22,7 +22,7 @@ The policy that these rules apply is in
 > `Escada de aprovação` are **required** checks in the ruleset of `dev` and `main`
 > of the 11 repositories `viralabs-dev/brabo*`; `brabo`, `brabo-qa` and `brabo-infra`
 > get the ruleset "main and dev without force push"; and the PR of the GitHub App
-> `viralabs-dev-brabo` on the branch `chore/regenera-gerados` → `dev` skips the
+> `viralabs-dev-brabo` on the branches `chore/regenera-gerados` and `chore/capturas-versao` → `dev` skips the
 > ladder (author AND branch; `main` keeps the whole ladder). Applying it on
 > GitHub remains manual.
 
