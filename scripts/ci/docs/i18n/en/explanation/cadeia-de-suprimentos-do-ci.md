@@ -72,7 +72,7 @@ The scanner versions have a second constraint: they must match
 scanner from the one that runs in production is a false green. The
 comment promising that was there since Phase 5; the step that *enforces*
 it (`Versões dos scanners batem com o Dockerfile.prod do engine`, in the
-`lint` job) arrived only with [#408](https://github.com/daneiel/brabo/pull/408).
+`lint` job) arrived only with [#408](https://github.com/viralabs-dev/brabo-legacy/pull/408).
 
 ### Actions: commit SHA, with the version alongside {#actions-commit-sha-with-the-version-alongside}
 

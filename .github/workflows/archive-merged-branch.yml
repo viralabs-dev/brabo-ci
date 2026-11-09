@@ -6,7 +6,7 @@ name: archive-merged-branch
 #   workflow_dispatch:
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
-# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+# Comentários abaixo vêm do monorepo de origem (`viralabs-dev/brabo-legacy`, arquivado) e falam dos gatilhos do chamador.
 
 # Toda segunda às 09:00 (Brasília), arquiva a branch mergeada sem commit depois
 # do merge — exceto dev, main (permanentes), qa (aposentada) e gh-pages (deploy do site de docs). "Arquivar" é

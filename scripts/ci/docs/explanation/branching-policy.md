@@ -234,7 +234,7 @@ tem nada que reescrever refs no de outra pessoa.
 
 A decisão em si — quais quatro nomes são excluídos, e a checagem de fork — é
 uma função pura testada
-([`scripts/ci/archive-branch.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/archive-branch.ts)),
+([`scripts/ci/archive-branch.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/archive-branch.ts)),
 não shell inline: é a parte deste mecanismo em que errar de fato justifica
 testes — e a elegibilidade também (`aptaParaArquivar`, mesmo
 arquivo). O mesmo script então chama a API do GitHub: cria a ref
@@ -297,7 +297,7 @@ forma diferente:
   `target-branch`. O `.github/workflows/dependabot-para-dev.yml` pega cada PR
   aberto do Dependabot contra a `main` e faz uma de duas coisas, decidida por
   uma função pura testada
-  ([`scripts/ci/dependabot-para-dev.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/dependabot-para-dev.ts)):
+  ([`scripts/ci/dependabot-para-dev.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/dependabot-para-dev.ts)):
   - **fecha** o PR com a justificativa, quando o lockfile da `dev` já resolve
     toda dependência do PR só em versões `>=` o limiar;
   - **redireciona** o PR para a `dev` em todos os outros casos — uma versão
@@ -349,7 +349,7 @@ escrevendo `docs-not-needed:` no corpo.
 Desde a AT-094 **o bot escreve essa linha**, e só nessa classe de PR. Um
 passo do job `Drift, gerados e build` (`.github/workflows/docs-check.yml`),
 logo antes da deriva, chama
-[`scripts/ci/dependabot-justifica-pin.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/dependabot-justifica-pin.ts)
+[`scripts/ci/dependabot-justifica-pin.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/dependabot-justifica-pin.ts)
 sobre o mesmo intervalo que a deriva avalia. Ele escreve a linha quando **as
 duas** coisas valem:
 

@@ -72,7 +72,7 @@ k3d.
 отличного от работающего в production, — ложный зелёный. Комментарий,
 обещавший это, был там со времён Фазы 5; шаг, который это *проверяет*
 (`Versões dos scanners batem com o Dockerfile.prod do engine`, в job
-`lint`), появился только с [#408](https://github.com/daneiel/brabo/pull/408).
+`lint`), появился только с [#408](https://github.com/viralabs-dev/brabo-legacy/pull/408).
 
 ### Actions: SHA коммита с версией рядом {#actions-commit-sha-with-the-version-alongside}
 

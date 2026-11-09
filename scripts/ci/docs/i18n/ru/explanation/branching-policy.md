@@ -235,7 +235,7 @@ sha источника.
 
 Само решение — какие четыре имени исключены, и проверка fork — это
 протестированная чистая функция
-([`scripts/ci/archive-branch.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/archive-branch.ts)),
+([`scripts/ci/archive-branch.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/archive-branch.ts)),
 а не встроенный shell: это та часть механизма, где ошибка действительно
 оправдывает тесты, — как и сама пригодность (`aptaParaArquivar`, тот же
 файл). Затем тот же скрипт вызывает API GitHub: создаёт ref
@@ -297,7 +297,7 @@ PR, открытые `dependabot[bot]` и `github-actions[bot]`, **освобо�
   `target-branch`. `.github/workflows/dependabot-para-dev.yml` берёт каждый
   открытый PR Dependabot против `main` и делает одно из двух, по решению
   протестированной чистой функции
-  ([`scripts/ci/dependabot-para-dev.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/dependabot-para-dev.ts)):
+  ([`scripts/ci/dependabot-para-dev.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/dependabot-para-dev.ts)):
   - **закрывает** PR с обоснованием, когда lockfile `dev` уже разрешает
     каждую зависимость PR только в версии `>=` порога;
   - **перенаправляет** PR в `dev` во всех остальных случаях — версия ниже
@@ -351,7 +351,7 @@ PR Dependabot, обновляющий action, трогает файлы workflow
 Начиная с AT-094 **эту строку пишет бот**, и только в этом классе PR. Шаг
 job `Drift, gerados e build` (`.github/workflows/docs-check.yml`) сразу
 перед дрейфом вызывает
-[`scripts/ci/dependabot-justifica-pin.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/dependabot-justifica-pin.ts)
+[`scripts/ci/dependabot-justifica-pin.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/dependabot-justifica-pin.ts)
 на том же интервале, который оценивает дрейф. Он пишет строку, когда верны
 **обе** вещи:
 

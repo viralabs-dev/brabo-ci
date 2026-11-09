@@ -238,7 +238,7 @@ repository — it has no business rewriting refs in someone else's.
 
 The decision itself — which four names are excluded, and the fork check —
 is a tested pure function
-([`scripts/ci/archive-branch.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/archive-branch.ts)),
+([`scripts/ci/archive-branch.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/archive-branch.ts)),
 not inline shell: it's the part of this mechanism that's actually worth
 getting wrong tests for — and so is the eligibility
 (`aptaParaArquivar`, same file). The same script then calls the GitHub
@@ -297,7 +297,7 @@ Two mechanisms, because GitHub treats the two kinds of update differently:
   `target-branch`. `.github/workflows/dependabot-para-dev.yml` takes each open
   Dependabot PR against `main` and does one of two things, decided by a tested
   pure function
-  ([`scripts/ci/dependabot-para-dev.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/dependabot-para-dev.ts)):
+  ([`scripts/ci/dependabot-para-dev.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/dependabot-para-dev.ts)):
   - **close** it with the justification, when `dev`'s lockfile already
     resolves every dependency of the PR only at versions `>=` the threshold;
   - **retarget** it to `dev` in every other case — a version below the
@@ -347,7 +347,7 @@ body.
 Since AT-094 the **bot writes that line**, and only in that class of PR. A
 step of the `Drift, gerados e build` job (`.github/workflows/docs-check.yml`),
 right before the drift, calls
-[`scripts/ci/dependabot-justifica-pin.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/dependabot-justifica-pin.ts)
+[`scripts/ci/dependabot-justifica-pin.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/dependabot-justifica-pin.ts)
 on the same range the drift evaluates. It writes the line when **both** hold:
 
 - the **author** is Dependabot (`ehBranchDoDependabot`: the `dependabot/`

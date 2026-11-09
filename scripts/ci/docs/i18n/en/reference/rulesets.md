@@ -279,7 +279,7 @@ and only two:
 > plus small tails, is what turns "≈150s vs 159s" into "177s vs 343s".
 > Premise 1 stopped applying for an orthogonal reason: **no ruleset is
 > applied to this repository yet** — `gh api
-> repos/daneiel/brabo/branches/dev/protection` still returns `404`, same as
+> repos/viralabs-dev/brabo-legacy/branches/dev/protection` still returns `404`, same as
 > the "Current state" note at the top of this page — so there was no
 > required check to erase. The required-checks table above already reflects
 > the rename. **If a ruleset is ever applied**, list `Testes TS (api)`,
@@ -591,15 +591,15 @@ Interface: **Settings → Rules → Rulesets → New ruleset**.
 Via API, if you'd rather version the command:
 
 ```bash
-gh api -X POST repos/daneiel/brabo/rulesets --input ruleset-permanentes.json
-gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
+gh api -X POST repos/viralabs-dev/brabo/rulesets --input ruleset-permanentes.json
+gh api repos/viralabs-dev/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 ```
 
 > **TODO(human):** the two payload `.json` files aren't versioned here
 > because the rulesets API requires `repository_id` and app ids that vary
 > by installation — a fixed file would get copied wrong. If you want to
 > version them, generate with
-> `gh api repos/daneiel/brabo/rulesets/<id> > docs/reference/...` after
+> `gh api repos/viralabs-dev/brabo/rulesets/<id> > docs/reference/...` after
 > applying through the interface, and this document will then point to
 > them.
 
@@ -612,7 +612,7 @@ repository versions the source, GitHub receives the application.
 `Deploy from a branch`**, with branch **`gh-pages`** and folder
 **`/ (root)`**.
 
-**Already applied.** `gh api repos/daneiel/brabo/pages` returns
+**Already applied.** `gh api repos/viralabs-dev/brabo-legacy/pages` returns
 `"build_type": "legacy"` with `source.branch: "gh-pages"`, and all three
 rungs respond live.
 
@@ -695,7 +695,7 @@ No `|| true` on purpose: if the command fails, you need to see it.
 
 ```bash
 # do the rulesets exist and are they active?
-gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
+gh api repos/viralabs-dev/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 
 # does the protection respond? (should be REJECTED)
 git push origin HEAD:dev

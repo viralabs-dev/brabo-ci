@@ -51,7 +51,7 @@ chart 按**版本**而不是按 digest 从各自的仓库获取（`deploy/k8s/he
 扫描器的版本有第二个约束：它们必须与 `docker/engine/Dockerfile.prod` 一致，因为针对与生产中运行的不同的扫描器进行测试
 是假绿。承诺这一点的注释自 Fase 5 起就在那里；**强制执行**它的步骤
 （`Versões dos scanners batem com o Dockerfile.prod do engine`，在 `lint` job 中）直到
-[#408](https://github.com/daneiel/brabo/pull/408) 才到来。
+[#408](https://github.com/viralabs-dev/brabo-legacy/pull/408) 才到来。
 
 ### Actions：提交 SHA，旁边带版本 {#actions-commit-sha-with-the-version-alongside}
 
