@@ -13,7 +13,7 @@ import {
   type Gate,
 } from './gate.ts';
 
-const REPO = 'daneiel/brabo';
+const REPO = 'viralabs-dev/brabo';
 
 function hotfix(tag: string, _legado = 60, prDev = 61): EntradaDeHistorico {
   return {

@@ -5,7 +5,7 @@ name: promotion-check
 #     types: [opened, reopened, synchronize, edited]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
-# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+# Comentários abaixo vêm do monorepo de origem (`viralabs-dev/brabo-legacy`, arquivado) e falam dos gatilhos do chamador.
 
 # Confere o ESTADO do repositório num PR de promoção.
 # Fonte da política: scripts/ci/docs/explanation/branching-policy.md

@@ -275,7 +275,7 @@ CPU). До AT-303..305 у того, кто хотел укоротить PR, б�
 > плюс маленьких хвостов, и превращает «≈150s против 159s» в
 > «177s против 343s». Посылка 1 перестала действовать по ортогональной причине:
 > **к этому репозиторию ещё не применён ни один ruleset** — `gh api
-> repos/daneiel/brabo/branches/dev/protection` по-прежнему возвращает `404`,
+> repos/viralabs-dev/brabo-legacy/branches/dev/protection` по-прежнему возвращает `404`,
 > как в заметке «Текущее состояние» вверху этой страницы, — так что удалять
 > было нечего. Таблица обязательных проверок выше уже отражает новое имя.
 > **Если ruleset когда-нибудь будет применён**, перечислите `Testes TS (api)`,
@@ -576,15 +576,15 @@ workflow, никогда вручную**. Тег, созданный вручн
 Через API, если предпочитаете версионировать команду:
 
 ```bash
-gh api -X POST repos/daneiel/brabo/rulesets --input ruleset-permanentes.json
-gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
+gh api -X POST repos/viralabs-dev/brabo/rulesets --input ruleset-permanentes.json
+gh api repos/viralabs-dev/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 ```
 
 > **TODO(humano):** два файла `.json` с payload здесь не версионируются, потому
 > что API rulesets требует `repository_id` и id приложений, различающиеся от
 > установки к установке, — фиксированный файл скопировали бы неправильно. Если
 > хотите их версионировать, сгенерируйте через
-> `gh api repos/daneiel/brabo/rulesets/<id> > docs/reference/...` после
+> `gh api repos/viralabs-dev/brabo/rulesets/<id> > docs/reference/...` после
 > применения через интерфейс, и этот документ начнёт указывать на них.
 
 ## Settings → Pages: источник — ветка `gh-pages`
@@ -596,7 +596,7 @@ gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 `Deploy from a branch`**, с веткой **`gh-pages`** и папкой
 **`/ (root)`**.
 
-**Уже применено.** `gh api repos/daneiel/brabo/pages` возвращает
+**Уже применено.** `gh api repos/viralabs-dev/brabo-legacy/pages` возвращает
 `"build_type": "legacy"` с `source.branch: "gh-pages"`, и все три ступени
 отвечают в сети.
 
@@ -675,7 +675,7 @@ gh label create correcao-alta   --color D93F0B --description "hotfix: a fix that
 
 ```bash
 # do the rulesets exist and are they active?
-gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
+gh api repos/viralabs-dev/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 
 # does the protection respond? (should be REJECTED)
 git push origin HEAD:dev

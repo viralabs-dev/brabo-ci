@@ -7,7 +7,7 @@ name: approval-ladder
 #     types: [submitted, edited, dismissed]
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
-# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+# Comentários abaixo vêm do monorepo de origem (`viralabs-dev/brabo-legacy`, arquivado) e falam dos gatilhos do chamador.
 
 # Exige as aprovações certas para cada degrau da escada.
 # Fonte da política: scripts/ci/docs/explanation/branching-policy.md

@@ -4,7 +4,7 @@ name: promote
 #   workflow_dispatch:
 
 # REUTILIZÁVEL (workflow_call) — brabo-ci. O chamador declara os gatilhos; veja o README.
-# Comentários abaixo vêm do monorepo de origem (daneiel/brabo) e falam dos gatilhos do chamador.
+# Comentários abaixo vêm do monorepo de origem (`viralabs-dev/brabo-legacy`, arquivado) e falam dos gatilhos do chamador.
 
 # Dispara a promoção de um degrau para o próximo.
 # Fonte da política: scripts/ci/docs/explanation/branching-policy.md

@@ -225,7 +225,7 @@ CPU）。在 AT-303..305 之前，想缩短 PR 的人有两个目标，且只有
 > 前提 2 在 web 套件增长到与 api 套件成本相当时不再成立——拆分三个规模相当的组件，而不是
 > 一个大的加若干小尾巴，正是把"≈150s 对 159s"变成"177s 对 343s"的原因。前提 1 因一个
 > 正交的原因不再成立：**本仓库尚未应用任何 ruleset**——`gh api
-> repos/daneiel/brabo/branches/dev/protection` 仍返回 `404`，与本页顶部的"当前状态"
+> repos/viralabs-dev/brabo-legacy/branches/dev/protection` 仍返回 `404`，与本页顶部的"当前状态"
 > 说明一致——所以没有可抹掉的必需检查。上面的必需检查表已反映新名称。**如果将来应用了
 > ruleset**，请列出 `Testes TS (api)`、`Testes TS (web)` 和 `Testes TS (pacotes)`——
 > 绝不要列出已退役的名称 `Testes TS (api + web)`，它会悄无声息地匹配不到任何东西并卡住
@@ -463,14 +463,14 @@ changelog 的 Release，而且没有任何错误。
 通过 API，如果你更愿意对命令做版本管理：
 
 ```bash
-gh api -X POST repos/daneiel/brabo/rulesets --input ruleset-permanentes.json
-gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
+gh api -X POST repos/viralabs-dev/brabo/rulesets --input ruleset-permanentes.json
+gh api repos/viralabs-dev/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 ```
 
 > **TODO(humano):** 两个 `.json` payload 文件没有在这里版本化，因为 rulesets API 需要
 > `repository_id` 以及随安装而变化的 app id——一个固定文件会被错误地复制。如果想对它们做
 > 版本管理，请在通过界面应用之后用
-> `gh api repos/daneiel/brabo/rulesets/<id> > docs/reference/...` 生成，本文档届时会指向它们。
+> `gh api repos/viralabs-dev/brabo/rulesets/<id> > docs/reference/...` 生成，本文档届时会指向它们。
 
 ## Settings → Pages：来源是分支 `gh-pages`
 
@@ -479,7 +479,7 @@ gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 **Settings → Pages → Build and deployment → Source：
 `Deploy from a branch`**，分支 **`gh-pages`**，文件夹 **`/ (root)`**。
 
-**已经应用。** `gh api repos/daneiel/brabo/pages` 返回 `"build_type": "legacy"` 和
+**已经应用。** `gh api repos/viralabs-dev/brabo-legacy/pages` 返回 `"build_type": "legacy"` 和
 `source.branch: "gh-pages"`，三个台阶都在线响应。
 
 中间那一步值得记录，因为它令人困惑：当 `build_type` 为 `"workflow"` 时，`docs-deploy.yml`
@@ -542,7 +542,7 @@ gh label create correcao-alta   --color D93F0B --description "hotfix: a fix that
 
 ```bash
 # do the rulesets exist and are they active?
-gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
+gh api repos/viralabs-dev/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 
 # does the protection respond? (should be REJECTED)
 git push origin HEAD:dev

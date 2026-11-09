@@ -275,7 +275,7 @@ só dois:
 > um grande mais caudas pequenas, é o que transforma "≈150s contra 159s" em
 > "177s contra 343s". A premissa 1 deixou de valer por um motivo ortogonal:
 > **nenhum ruleset está aplicado a este repositório ainda** — `gh api
-> repos/daneiel/brabo/branches/dev/protection` ainda devolve `404`, igual à
+> repos/viralabs-dev/brabo-legacy/branches/dev/protection` ainda devolve `404`, igual à
 > nota de "Estado atual" no topo desta página —, então não havia check
 > obrigatório a apagar. A tabela de checks obrigatórios acima já reflete o
 > novo nome. **Se um ruleset for aplicado algum dia**, liste `Testes TS (api)`,
@@ -602,8 +602,8 @@ Interface: **Settings → Rules → Rulesets → New ruleset**.
 Pela API, se preferir versionar o comando:
 
 ```bash
-gh api -X POST repos/daneiel/brabo/rulesets --input ruleset-permanentes.json
-gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
+gh api -X POST repos/viralabs-dev/brabo/rulesets --input ruleset-permanentes.json
+gh api repos/viralabs-dev/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 ```
 
 O Ruleset 3, em cada um dos seis repositórios (`<repo>`), com o id do App
@@ -632,7 +632,7 @@ JSON
 > aqui porque a API de rulesets exige `repository_id` e ids de app que variam
 > por instalação — um arquivo fixo seria copiado errado. Se quiser
 > versioná-los, gere com
-> `gh api repos/daneiel/brabo/rulesets/<id> > docs/reference/...` depois de
+> `gh api repos/viralabs-dev/brabo/rulesets/<id> > docs/reference/...` depois de
 > aplicar pela interface, e este documento passará a apontar para eles.
 
 ## Settings → Pages: a fonte é a branch `gh-pages`
@@ -644,7 +644,7 @@ fonte, o GitHub recebe a aplicação.
 `Deploy from a branch`**, com a branch **`gh-pages`** e a pasta
 **`/ (root)`**.
 
-**Já aplicado.** `gh api repos/daneiel/brabo/pages` devolve
+**Já aplicado.** `gh api repos/viralabs-dev/brabo-legacy/pages` devolve
 `"build_type": "legacy"` com `source.branch: "gh-pages"`, e os três degraus
 respondem no ar.
 
@@ -726,7 +726,7 @@ Sem `|| true` de propósito: se o comando falhar, você precisa ver.
 
 ```bash
 # do the rulesets exist and are they active?
-gh api repos/daneiel/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
+gh api repos/viralabs-dev/brabo/rulesets --jq '.[] | "\(.name): \(.enforcement)"'
 
 # does the protection respond? (should be REJECTED)
 git push origin HEAD:dev

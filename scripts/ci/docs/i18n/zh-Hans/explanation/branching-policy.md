@@ -187,7 +187,7 @@ ref 的人可以恢复，用一条
 范围是本仓库——它没有任何理由去改写别人仓库里的 ref。
 
 决定本身——哪四个名称被排除，以及 fork 检查——是一个经过测试的纯函数
-（[`scripts/ci/archive-branch.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/archive-branch.ts)），
+（[`scripts/ci/archive-branch.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/archive-branch.ts)），
 而不是内联 shell：这是这个机制中出错真正值得测试的部分——资格也是（`aptaParaArquivar`，
 同一文件）。然后同一个脚本调用 GitHub API：创建 `refs/archive/` ref（或在该名称之前已被归档时
 强制更新它），读回它并确认它指向分支的 SHA，然后才删除 `refs/heads/`——这样一次失败永远不会在
@@ -230,7 +230,7 @@ ref 的人可以恢复，用一条
 - **安全更新**在仓库界面中开启，GitHub 总是针对**默认**分支（`main`）打开它们，忽略
   `target-branch`。`.github/workflows/dependabot-para-dev.yml` 处理每个针对 `main` 打开的
   Dependabot PR，并做两件事之一，由一个经过测试的纯函数决定
-  （[`scripts/ci/dependabot-para-dev.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/dependabot-para-dev.ts)）：
+  （[`scripts/ci/dependabot-para-dev.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/dependabot-para-dev.ts)）：
   - 当 `dev` 的 lockfile 已经把 PR 的每个依赖都只解析为 `>=` 阈值的版本时，带着理由**关闭**
     PR；
   - 在所有其他情况下把 PR **重定向**到 `dev`——低于阈值的版本、lockfile 中缺失的包、无法比较
@@ -268,7 +268,7 @@ workflow 的评论会在 PR 中说明这一点。
 自 AT-094 起**机器人写这一行**，而且只在这一类 PR 上。`Drift, gerados e build` job
 （`.github/workflows/docs-check.yml`）中的一个步骤，就在漂移检查之前，在漂移检查评估的同一区间上
 调用
-[`scripts/ci/dependabot-justifica-pin.ts`](https://github.com/daneiel/brabo/blob/dev/scripts/ci/dependabot-justifica-pin.ts)。
+[`scripts/ci/dependabot-justifica-pin.ts`](https://github.com/viralabs-dev/brabo-ci/blob/dev/scripts/ci/dependabot-justifica-pin.ts)。
 当**两件**事都成立时它写下这一行：
 
 - **作者**是 Dependabot（`ehBranchDoDependabot`：前缀 `dependabot/` **和**应用的登录名——单独的
