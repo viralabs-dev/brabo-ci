@@ -1,5 +1,5 @@
 name: refs-com-simbolo
-# propósito: Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora; ref interna quebrada reprova.
+# propósito: Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora e que nenhum link relativo .md das RNs aponta para fora do repo; qualquer um quebrado reprova.
 # chamador:
 #   pull_request:
 #     types: [opened, reopened, synchronize]
@@ -8,7 +8,9 @@ name: refs-com-simbolo
 # ref `caminho:N` (`símbolo`) das RNs (docs/business-rules*) aponta para onde o
 # símbolo mora. Ref interna quebrada REPROVA; ref para outro irmão só é listada
 # no Summary (sem anotação: quem confere é a subida da trava do brabo). O
-# artefato `refs-patch` traz a reancoragem pronta. Não é check obrigatório.
+# artefato `refs-patch` traz a reancoragem pronta. Também reprova link relativo
+# `.md` de RN cujo alvo não existe no próprio repo (AT-868, links-das-rns.ts).
+# Não é check obrigatório.
 on:
   workflow_call:
     inputs:
@@ -50,6 +52,11 @@ jobs:
       # --escrever reancora o checkout; o código de saída continua sendo o do veredito de ANTES.
       - name: Conferir as refs
         run: node .brabo-ci/scripts/ci/refs-com-simbolo.ts --escrever --repo "${GITHUB_REPOSITORY##*/}"
+
+      # Roda mesmo se as refs reprovaram: são vereditos independentes.
+      - name: Links relativos das RNs
+        if: ${{ !cancelled() }}
+        run: node .brabo-ci/scripts/ci/links-das-rns.ts
 
       - name: Patch de reancoragem
         id: patch
