@@ -11,6 +11,8 @@ keywords: [business rules, ci]
 
 ## Feature regression and run links (RN-1031..1035, RN-1043..1045)
 
+<a id="rn-1031"></a>
+
 ### RN-1031 — The feature catalog and the path → feature map live in a single file, and the spec binds to it by tag {#rn-1031}
 
 `brabo-qa/funcionalidades.yml` is the only source: each feature has an `id`
@@ -31,6 +33,8 @@ theme outside `temas.yml`, a glob that matches no file of the sibling
   active features and globs that match)
 - **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origin:** AT-769 (EP-033)
+
+<a id="rn-1032"></a>
 
 ### RN-1032 — The PR to `dev` runs the regression only for the features it touched, under the `Regressivo do brabo-qa` check, which is NEVER required {#rn-1032}
 
@@ -56,6 +60,8 @@ changed.
 - **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origin:** AT-769 (EP-033)
 
+<a id="rn-1033"></a>
+
 ### RN-1033 — Three cross-cutting file rules apply before the map: nothing, whole catalog and no owner {#rn-1033}
 
 In order: (1) docs, `*.md`, `CHANGELOG.md`, `.github/**` (except `qa-e2e.yml`
@@ -74,6 +80,8 @@ so that the map gets fixed. `brabo-contracts` has no regression on its own PR.
 - **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origin:** AT-769 (EP-033)
 
+<a id="rn-1075"></a>
+
 ### RN-1075 — `brabo-runner` is attested by its own CI: the linux-x64 binary enters the PR, and the engine contract is proven only in TP-01 {#rn-1075}
 
 `brabo-runner` has no `qa-e2e.yml`, image or `@f-runner`/`@f-projetos` spec in `brabo-qa`; the catalog regression does not run on its PR (owner's decision of 2026-11-08, option b). The PR is attested by the `runner` job of its `ci.yml`: lint, types, tests, `dist` with `smoke`, and the linux-x64 binary with `build:bin` + `smoke:bin` (`--self-test-pty`, real PTY). The **runner ↔ engine contract** (ticket join, capabilities, exec, folder) is **not** proven on the PR: only in live TP-01. The `runner` keys of `funcionalidades.yml` stay in the catalog and serve only the map.
@@ -82,6 +90,8 @@ so that the map gets fixed. `brabo-contracts` has no regression on its own PR.
 - **Test:** the job itself (log with `ok:` from `--self-test-pty`)
 - **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origin:** AT-853 (EP-033)
+
+<a id="rn-1034"></a>
 
 ### RN-1034 — The PR to `main` runs the whole catalog in `E2E do brabo-qa`, and a feature without a spec shows up as "no coverage" without failing {#rn-1034}
 
@@ -100,6 +110,8 @@ pass unchanged; a `spec` or `ambiente` red remains acceptable through
 - **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origin:** AT-769 (EP-033)
 
+<a id="rn-1035"></a>
+
 ### RN-1035 — The PR to `dev` publishes the signed `sha-<12>` image, only for its own repository, and the cleanup deletes the orphans {#rn-1035}
 
 So that the regression has something to run, the `ci.yml` of api, engine, web and broker
@@ -115,6 +127,8 @@ in the others. Each `synchronize` leaves an orphan `sha-*`, so
 - **Test:** `scripts/ci/qa-e2e-imagens.spec.ts` (the choice per base)
 - **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origin:** AT-769 (EP-033)
+
+<a id="rn-1043"></a>
 
 ### RN-1043 — Every run that reads another repository publishes `## Vínculos` at the top of the Summary, and the helper never fails the job {#rn-1043}
 
@@ -137,6 +151,8 @@ SHAs from the `.git/irmaos-sha.lst` that `montar-layout.sh` writes
   origin) and `scripts/ci/validar-payload.spec.ts`
 - **ADR:** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **Origin:** AT-773 (EP-033)
+
+<a id="rn-1044"></a>
 
 ### RN-1044 — The destination run of a dispatch or a tag has a `run-name` with the origin, and the dispatch correlation goes in the name as `c=<run_id>-<attempt>` {#rn-1044}
 
@@ -161,6 +177,8 @@ does not break. The origin of a tag-dispatched run comes from the `Carimbo: <url
 - **ADR:** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **Origin:** AT-773 (EP-033)
 
+<a id="rn-1045"></a>
+
 ### RN-1045 — The App's check points to the `brabo-qa` run from the start, and the origin run records the link of the dispatched run {#rn-1045}
 
 The `anunciar` job of `e2e-pr.yml`, with no `needs` and in parallel with `e2e`, updates the
@@ -180,6 +198,8 @@ check's link (which already points to qa) and a warning. `alarmar-prova.sh` atta
 - **Origin:** AT-773 (EP-033)
 
 ## Publishing npm packages (RN-1042)
+
+<a id="rn-1042"></a>
 
 ### RN-1042 — The package only goes out through the tag, with the version's dist-tag and the same version in every package {#rn-1042}
 
@@ -201,6 +221,8 @@ Republishing the version only passes if the registry already holds the same file
 
 ## Merge dependency across repositories (RN-1047..1050)
 
+<a id="rn-1047"></a>
+
 ### RN-1047 — The PR declares the dependency with `Depende-de: viralabs-dev/<repo>#<n>`, and a malformed line fails instead of passing silently {#rn-1047}
 
 Each merge dependency of the PR is a line of the body, `Depende-de:` followed by
@@ -219,6 +241,8 @@ interpolated into a `run:`.
   the owner, the self-reference and the malformed line
 - **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origin:** AT-787 (EP-033)
+
+<a id="rn-1048"></a>
 
 ### RN-1048 — The `Dependências de merge` check has four states, never `neutral`, and waiting is yellow {#rn-1048}
 
@@ -239,6 +263,8 @@ uses `continue-on-error`: what fails is the check, and a job failure only warns.
 - **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origin:** AT-787 (EP-033)
 
+<a id="rn-1049"></a>
+
 ### RN-1049 — The dependency's merge updates the check of the PRs that cite it, and the hourly cron is only a safety net {#rn-1049}
 
 When a PR in a repo is merged, the `avisar-dependentes` job, in the merged PR's own
@@ -258,6 +284,8 @@ because `schedule` only runs from the default branch.
 - **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origin:** AT-787 (EP-033)
 
+<a id="rn-1050"></a>
+
 ### RN-1050 — A dependency cycle fails with the whole path, up to depth 5 {#rn-1050}
 
 The evaluation follows the `Depende-de` lines of the open dependencies, step by step,
@@ -270,6 +298,8 @@ remove the line that closes the cycle: the PR needs no bypass.
 - **Test:** `scripts/ci/dependencias-de-merge.spec.ts`, with the A↔B cycle and the exceeded depth
 - **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origin:** AT-787 (EP-033)
+
+<a id="rn-1071"></a>
 
 ### RN-1071 — The promotion PR depends on the open promotions of the earlier layers, and the order is a tested list {#rn-1071}
 
@@ -292,6 +322,8 @@ promotions already open, on a best-effort basis. The union of the layers is the
 - **ADR:** [0284](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md), which revises decision 7 of [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origin:** AT-788 (EP-033)
 
+<a id="rn-1072"></a>
+
 ### RN-1072 — The merge of a promotion and the cron reevaluate the promotions of the following layers {#rn-1072}
 
 Since the inferred dependency is not written in the body, the `in:body` search does not
@@ -306,6 +338,8 @@ below it is woken by its own event or by the cron.
 - **Origin:** AT-788 (EP-033)
 
 ## The regression decision report (RN-1051..1053)
+
+<a id="rn-1051"></a>
 
 ### RN-1051 — The regression report comes from a single JSON, and the recommendation follows a fixed six-line rule {#rn-1051}
 
@@ -329,6 +363,8 @@ In `dev` mode the same label comes out with the prefix "atestado (não bloqueia)
 - **ADR:** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **Origin:** AT-791 (EP-033)
 
+<a id="rn-1052"></a>
+
 ### RN-1052 — `/qa-aceitar` preserves the red report and records the acceptance against the recommendation {#rn-1052}
 
 Today the acceptance rebuilds the check with `linhas: []`, and so it erases the digest table and the
@@ -348,6 +384,8 @@ apply: the report is only the attestation.
   summary preservation and the "against the recommendation" record get their test in L1
 - **ADR:** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **Origin:** AT-791 (EP-033)
+
+<a id="rn-1053"></a>
 
 ### RN-1053 — A spec without an `@f-*` tag shows up as "no feature" and never disappears from the report {#rn-1053}
 
@@ -369,6 +407,8 @@ coverage" with a spec red, which is the finding of qa#28.
 - **Origin:** AT-791 (EP-033)
 
 ## The trigger waits for the stamp and the signature before going red (RN-1066)
+
+<a id="rn-1066"></a>
 
 ### RN-1066 — The trigger waits for the stamp and the signature before failing on environment or signature {#rn-1066}
 
@@ -398,6 +438,8 @@ the event's repo; those of the other services are already stamped and signed.
 
 ## The change panel (RN-1054..1056, ADR 0278)
 
+<a id="rn-1054"></a>
+
 ### RN-1054 — Every change has a panel that composes the runs {#rn-1054}
 
 Each change (a `Depende-de` component, a standalone PR or a tag) has a
@@ -412,6 +454,8 @@ há N min". The panel **never fails**.
 - **ADR:** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **Origin:** AT-792 (EP-033)
 
+<a id="rn-1055"></a>
+
 ### RN-1055 — The panel publishes no check on PRs; the link stays in the origin runs {#rn-1055}
 
 The Vínculos helper, in auto mode with a PR, writes the line `Disparado | Painel da
@@ -424,6 +468,8 @@ with write access is the dispatch one (`contents: write`, restricted to `brabo-c
 - **Test:** `scripts/ci/vinculos.spec.ts`
 - **ADR:** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **Origin:** AT-792 (EP-033)
+
+<a id="rn-1056"></a>
 
 ### RN-1056 — One panel per component {#rn-1056}
 

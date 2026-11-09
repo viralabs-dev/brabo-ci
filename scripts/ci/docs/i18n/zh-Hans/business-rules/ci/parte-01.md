@@ -11,6 +11,8 @@ keywords: [regras de negócio, ci]
 
 ## PR Gates
 
+<a id="rn-037"></a>
+
 ### RN-037 — Infra 成为一个领域：Workflows 按提供方生成 CI，Lead 整合为单个 PR {#rn-037}
 
 ADR 0038 模型的第二个实例，继 QA 领域（RN-036）之后——有一个结构性区别：Infra 领域的两个委派**总是**运行（Dockerfile/compose 由 Lead 自己完成——“委派给自己”；CI 流水线由 Workflows 子智能体完成），从不豁免其中之一。`Workflows` 根据上下文的 `gitProvider` 决定流水线格式
@@ -51,6 +53,8 @@ ADR 0038 模型的第二个实例，继 QA 领域（RN-036）之后——有一�
 
 ## `dbre` 角色变成两个机械脚本（RN-400..403，ADR 0093）
 
+<a id="rn-401"></a>
+
 ### RN-401 — linter 不是 CI gate：它扫描整个仓库，而不是 PR 的 diff {#rn-401}
 
 针对仓库中真实的迁移运行 `pnpm --filter api lint:migracao` 会在已合并并接受的迁移中**发现**三处（`0006_whole_princess_powerful.sql:22` 和 `0034_quick_saracen.sql:33`——
@@ -64,6 +68,8 @@ TYPE`）。这不是要顺手修正的缺陷（与 CLAUDE.md 中保护 Z/AD/AE �
 - **ADR：** [0093](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
 
 ## 仪表盘上的“N 个智能体在线”——**实时**状态，从不是历史在场（RN-409，ADR 0097）
+
+<a id="rn-411"></a>
 
 ### RN-411 — 第四个待处理工作信号：dev agent 说的是 `dev.*`，而不是 `agent.status` {#rn-411}
 
@@ -112,6 +118,8 @@ Lead/UX Designer/Staff/Infra）的词汇。`Engine.Dev.DevAgentServer`（经由
 ---
 
 ## RAG 检索留下痕迹，痕迹冻结权重（RN-479..481）
+
+<a id="rn-498"></a>
 
 ### RN-498 — RAG 的 golden-set 在 CI 中真正运行，**定时**——gate 仍然是 `warn` {#rn-498}
 
@@ -234,6 +242,8 @@ golden_set.rag` 诞生、“从不在 CI 中”，原因与 QA 的 golden-set（
 
 [FASE 28](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-28-pasta-do-usuario.md) 明文拒绝了一行安装程序，只要产物尚未签名（BRB-005），这就是为什么 [FASE 29](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-29-instalacao-de-uma-linha.md) 在安装**之前**先签名。第 2 次会话，[ADR 0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md)。
 
+<a id="rn-524"></a>
+
 ### RN-524 — 发布的产物由工作流身份签名，在同一次运行中校验，校验失败时拒绝而不是警告 {#rn-524}
 
 每个正式 tag 都为它发布的东西签名，并**在发布 Release 之前校验所签的东西**：
@@ -254,6 +264,8 @@ as imagens publicadas」，`permissions` 块中带 `id-token: write`）；
 **来源：** FASE 29，第 2 次会话。为镜像和二进制关闭 **BRB-005**。「不」覆盖二进制的操作系统*代码签名*（macOS 公证、Windows Authenticode），那需要付费身份，仍在待办中。
 
 ## `install.sh` 完成安装（RN-547，FASE 30）
+
+<a id="rn-549"></a>
 
 ### RN-549 — 干净机器上的 E2E 证明「整个」安装：五个环节、在运行中等待的代理，以及无人回到终端即被接手的第一个项目 {#rn-549}
 
@@ -294,6 +306,8 @@ as imagens publicadas」，`permissions` 块中带 `id-token: write`）；
   [阶段的范围划定](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md)
 
 ## 设备密钥获得界面，界面说明吊销的范围（RN-561）
+
+<a id="rn-565"></a>
 
 ### RN-565 — 已签名的清单随 Release「已有」的东西发出，不等待永远构建不出来的平台 {#rn-565}
 

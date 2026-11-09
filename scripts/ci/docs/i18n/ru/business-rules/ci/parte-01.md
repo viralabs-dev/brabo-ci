@@ -11,6 +11,8 @@ keywords: [regras de negócio, ci]
 
 ## Gates PR
 
+<a id="rn-037"></a>
+
 ### RN-037 — Infra становится областью: Workflows генерирует CI по провайдеру, Lead консолидирует в единый PR {#rn-037}
 
 Второй экземпляр модели ADR 0038, после области QA (RN-036), — с одним
@@ -69,6 +71,8 @@ keywords: [regras de negócio, ci]
 
 ## Роль `dbre` становится двумя механическими скриптами (RN-400..403, ADR 0093)
 
+<a id="rn-401"></a>
+
 ### RN-401 — Линтер — не gate CI: он просматривает весь репозиторий, а не diff PR {#rn-401}
 
 Запуск `pnpm --filter api lint:migracao` против реальных миграций
@@ -93,6 +97,8 @@ TYPE`). Это не дефект для исправления мимоходо�
 - **ADR:** [0093](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
 
 ## "N агентов онлайн" на дашборде — статус В РЕАЛЬНОМ ВРЕМЕНИ, никогда историческое присутствие (RN-409, ADR 0097)
+
+<a id="rn-411"></a>
 
 ### RN-411 — Четвёртый сигнал незавершённой работы: dev agents говорят `dev.*`, а не `agent.status` {#rn-411}
 
@@ -204,6 +210,8 @@ engine", было верным, когда его писали, — и имен�
 ---
 
 ## Поиск RAG оставляет след, и след замораживает веса (RN-479..481)
+
+<a id="rn-498"></a>
 
 ### RN-498 — Золотой набор RAG реально выполняется в CI, ПО РАСПИСАНИЮ — и gate остаётся `warn` {#rn-498}
 
@@ -391,6 +399,8 @@ ExUnit нет пропуска во время выполнения, и видн
 [ФАЗА 29](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-29-instalacao-de-uma-linha.md) подписывает **до**
 установки. Сессия 2, [ADR 0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md).
 
+<a id="rn-524"></a>
+
 ### RN-524 — Опубликованный артефакт подписывается идентичностью workflow, проверяется в том же прогоне, а проверка отказывает, а не предупреждает {#rn-524}
 
 Каждый финальный тег подписывает то, что публикует, и **проверяет подписанное
@@ -441,6 +451,8 @@ macOS, Authenticode Windows), требующий платной идентичн
 backlog.
 
 ## `install.sh` завершает установку (RN-547, ФАЗА 30) {#o-installsh-fecha-a-instalação-rn-547-fase-30}
+
+<a id="rn-549"></a>
 
 ### RN-549 — E2E на чистой машине доказывает ВСЮ установку: пять звеньев, агент на ногах в ожидании и первый проект, подхваченный без возврата в терминал {#rn-549}
 
@@ -616,6 +628,8 @@ workflow E2E установщика; и никакого ослабленног�
   [срез фазы](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md)
 
 ## Ключ устройства получает экран, а экран говорит об охвате отзыва (RN-561) {#a-chave-de-dispositivo-ganha-tela-e-a-tela-diz-o-alcance-de-revogar-rn-561}
+
+<a id="rn-565"></a>
 
 ### RN-565 — Подписанный манифест выходит с тем, что ЕСТЬ в Release, и не ждёт платформу, которая никогда не собирается {#rn-565}
 
