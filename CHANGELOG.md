@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `mapa-dos-repos.ts` (AT-873): na tabela "Onde se encaixa" o nome de cada repo vira link `[brabo-x](https://github.com/<DONO>/brabo-x)`, com o `DONO` de `dono.ts`; o próprio repo fica em negrito sem link. Sem `click` no Mermaid: o GitHub roda o Mermaid em modo estrito e não ativa links de nó. Quem usa o kit repina e regenera o bloco (`node scripts/ci/mapa-dos-repos.ts --repo <repo>`) para o `mapa-alinhado` seguir verde.
 - Docs (AT-866): o padrão `daneiel/brabo` sai da doc da política. Os comandos de `rulesets.md` (e traduções) apontam para `viralabs-dev/brabo`; o link de `branching-policy.md` vai para `viralabs-dev/brabo-ci`; o de `cadeia-de-suprimentos-do-ci.md` (PR #408) para `viralabs-dev/brabo-legacy`, onde a PR mora. Os comentários de cabeçalho dos 8 workflows e os fixtures de 4 specs trocam o nome pelo do produto. Sem mudança de comportamento: os checks não leem o nome do monorepo.
 - Docs (AT-862): a página de RN do brabo-ci vira índice (`scripts/ci/docs/business-rules/ci.md`, com a grade congelada das âncoras `#rn-NNN`) mais duas partes por faixa (`business-rules/ci/parte-01.md` e `parte-02.md`), em pt-BR e nas traduções en, ru e zh-Hans (ADR 0287). Nenhuma RN muda de número ou de texto; os links antigos `#rn-NNN` seguem valendo.
 - Docs (AT-867): a linha de badges logo abaixo do título mostra o CI da `dev` e o da `main`, a versão da `dev` (última tag `-dev`), licença MIT, documentação e Ko-fi, no estilo do `brabo` Sem release publicada, o badge de versão da `main` não entra.

@@ -17,7 +17,7 @@ Cada seção diz para quem é e o que a pessoa consegue fazer depois de ler. Det
 <Para quem: quem quer o mapa. Depois de ler, a pessoa aponta de quem este repo depende e quem quebra se ele mudar.>
 
 <!-- mapa:inicio -->
-<!-- Gerado do repos.yml do brabo: `node scripts/ci/mapa-dos-repos.ts --repo <repo>`. Não edite à mão. -->
+<!-- Gerado do repos.yml do brabo: `node scripts/ci/mapa-dos-repos.ts --repo <repo>`. Não edite à mão. O nome de cada repo na tabela é link para o GitHub; o do próprio repo fica em negrito. -->
 <!-- mapa:fim -->
 
 ## Como é usado
