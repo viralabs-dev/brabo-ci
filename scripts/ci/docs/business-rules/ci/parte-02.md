@@ -28,7 +28,7 @@ kebab-case, tema fora do `temas.yml`, glob que não casa nenhum arquivo do irmã
 - **Teste:** `scripts/ci/funcionalidades.spec.ts` (o validador) e
   `scripts/ci/qa-regressivo-catalogo-real.spec.ts:12` (o catálogo real tem as 14
   funcionalidades ativas e globs que casam)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origem:** AT-769 (EP-033)
 
 ### RN-1032 — A PR para a `dev` roda o regressivo só das funcionalidades que tocou, sob o check `Regressivo do brabo-qa`, que NUNCA é exigido {#rn-1032}
@@ -52,7 +52,7 @@ mudou.
 - **Teste:** `scripts/ci/qa-e2e-resumo.spec.ts` (o nome por modo) e
   `scripts/ci/qa-regressivo-selecao.spec.ts:33` (a seleção por mapa) e
   `scripts/ci/qa-regressivo-lembrete.spec.ts` (o lembrete)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origem:** AT-769 (EP-033)
 
 ### RN-1033 — Três regras de arquivo transversal valem antes do mapa: nada, catálogo inteiro e sem dono {#rn-1033}
@@ -70,7 +70,7 @@ para o mapa ser corrigido. O `brabo-contracts` não tem regressivo na própria P
   `scripts/ci/qa-regressivo-selecao.ts:43` (`SMOKE`)
 - **Teste:** `scripts/ci/qa-regressivo-selecao.spec.ts:41` (regra 1),
   `:55` (regra 2 por repositório), `:58` (regra 3)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origem:** AT-769 (EP-033)
 
 ### RN-1075 — O `brabo-runner` se atesta pelo próprio CI: o binário linux-x64 entra na PR, e o contrato com o engine só é provado no TP-01 {#rn-1075}
@@ -79,12 +79,12 @@ O `brabo-runner` não tem `qa-e2e.yml`, imagem nem spec `@f-runner`/`@f-projetos
 
 - **Código:** job `runner` do `.github/workflows/ci.yml` do `brabo-runner`
 - **Teste:** o próprio job (log com `ok:` do `--self-test-pty`)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origem:** AT-853 (EP-033)
 
 ### RN-1034 — A PR para a `main` roda o catálogo inteiro no `E2E do brabo-qa`, e funcionalidade sem spec aparece como "sem cobertura" sem reprovar {#rn-1034}
 
-O check `E2E do brabo-qa` ([ADR 0267](../../adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md))
+O check `E2E do brabo-qa` ([ADR 0267](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md))
 roda todas as specs e monta a tabela `funcionalidade | specs | resultado`.
 Funcionalidade do catálogo sem spec entra como `sem cobertura` e **não
 reprova** (decisão do dono de 06/11/2026): com a regra oposta a `main` ficaria
@@ -96,7 +96,7 @@ passam sem alteração; vermelho de `spec` ou `ambiente` segue aceitável por
   linha da tabela), `scripts/ci/qa-e2e-resumo.ts:22` (o nome do check da `main`)
 - **Teste:** `scripts/ci/qa-e2e-resumo.spec.ts` (a tabela e a linha sem
   cobertura)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origem:** AT-769 (EP-033)
 
 ### RN-1035 — A PR para a `dev` publica a imagem `sha-<12>` assinada, só do próprio repositório, e a limpeza apaga as órfãs {#rn-1035}
@@ -112,7 +112,7 @@ nos outros. Cada `synchronize` deixa uma `sha-*` órfã, então o
 - **Código:** `scripts/ci/qa-e2e-imagens.ts:83` (a escolha de `sha-<12>` para
   `dev` e `hotfix`)
 - **Teste:** `scripts/ci/qa-e2e-imagens.spec.ts` (a escolha por base)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Origem:** AT-769 (EP-033)
 
 ### RN-1043 — Todo run que lê outro repositório publica `## Vínculos` no topo do Summary, e o helper nunca reprova o job {#rn-1043}
@@ -126,7 +126,7 @@ vira `?` e um `::warning::`. A `origem` inválida é só descartada, com aviso. 
 step leva `continue-on-error`: o helper nunca reprova um job. No `brabo`, o
 `docs-check`, o `docs-deploy`, o `docs-audit` e o `regenera-gerados` passam os
 SHAs do `.git/irmaos-sha.lst` que o `montar-layout.sh` grava
-([ADR 0274](../../adr/0274-os-gerados-leem-os-irmaos-por-uma-trava-de-shas.md)), e o
+([ADR 0274](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0274-os-gerados-leem-os-irmaos-por-uma-trava-de-shas.md)), e o
 `release.yml` passa o `infra` por caminho.
 
 - **Código:** `scripts/ci/vinculos.ts:57` (`montar`), `.github/actions/vinculos/action.yml:31`
@@ -134,7 +134,7 @@ SHAs do `.git/irmaos-sha.lst` que o `montar-layout.sh` grava
   `.github/workflows/docs-check.yml:89` (o `brabo` repassa os irmãos)
 - **Teste:** `scripts/ci/vinculos.spec.ts` (fixtures, valor malicioso, origem
   vazia) e `scripts/ci/validar-payload.spec.ts`
-- **ADR:** [0271](../../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
+- **ADR:** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **Origem:** AT-773 (EP-033)
 
 ### RN-1044 — O run de destino de um dispatch ou de uma tag tem `run-name` com a origem, e a correlação do dispatch vai no nome como `c=<run_id>-<attempt>` {#rn-1044}
@@ -157,7 +157,7 @@ o `tag-release` grava na mensagem da tag anotada.
   (`comCarimbo`), `.github/workflows/release.yml:3` (o `run-name` da tag)
 - **Teste:** `scripts/ci/qa-e2e-vinculos.spec.ts` (o casamento do `c=`) e
   `scripts/ci/qa-e2e-imagens.spec.ts`
-- **ADR:** [0271](../../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
+- **ADR:** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **Origem:** AT-773 (EP-033)
 
 ### RN-1045 — O check do App aponta para o run do `brabo-qa` desde o início, e o run de origem registra o link do run disparado {#rn-1045}
@@ -175,7 +175,7 @@ link do check (que já aponta para o qa) e um aviso. O `alarmar-prova.sh` anexa 
   `scripts/ci/qa-e2e-vinculos.ts:42` (`vinculosDoGatilho`),
   `scripts/ci/qa-e2e-disparar.ts:154` (o aviso quando o run não é achado)
 - **Teste:** `scripts/ci/fechar-check.spec.ts` e `scripts/ci/qa-e2e-vinculos.spec.ts`
-- **ADR:** [0271](../../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
+- **ADR:** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **Origem:** AT-773 (EP-033)
 
 ## Publicação de pacotes npm (RN-1042)
@@ -216,7 +216,7 @@ interpolado num `run:`.
   publicado no `brabo-ci`; ainda não existe na `dev` do `brabo`
 - **Teste:** `scripts/ci/dependencias-de-merge.spec.ts`, com a regex, a allowlist,
   o owner, a autorreferência e a linha malformada
-- **ADR:** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origem:** AT-787 (EP-033)
 
 ### RN-1048 — O check `Dependências de merge` tem quatro estados, nunca `neutral`, e a espera é amarela {#rn-1048}
@@ -235,7 +235,7 @@ usa `continue-on-error`: o que reprova é o check, e a falha do job só avisa.
 - **Código:** `scripts/ci/dependencias-de-merge.ts` (a função pura de avaliação) e
   `.github/workflows/dependencias-de-merge.yml` (o reutilizável), no `brabo-ci`
 - **Teste:** `scripts/ci/dependencias-de-merge.spec.ts`, um caso para cada estado
-- **ADR:** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origem:** AT-787 (EP-033)
 
 ### RN-1049 — O merge da dependência atualiza o check das PRs que a citam, e o cron horário é só rede {#rn-1049}
@@ -254,7 +254,7 @@ porque o `schedule` só roda da branch padrão.
   `.github/workflows/dependencias-de-merge.yml` (o job e o cron), no `brabo-ci`
 - **Teste:** `scripts/ci/dependencias-de-merge.spec.ts`, com a busca simulada e o
   corpo que não casa mais
-- **ADR:** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origem:** AT-787 (EP-033)
 
 ### RN-1050 — O ciclo de dependências reprova com o caminho inteiro, até a profundidade 5 {#rn-1050}
@@ -267,7 +267,7 @@ tirar a linha que fecha o ciclo: a PR não precisa de bypass.
 
 - **Código:** `scripts/ci/dependencias-de-merge.ts` (o percurso até a profundidade 5), no `brabo-ci`
 - **Teste:** `scripts/ci/dependencias-de-merge.spec.ts`, com o ciclo A↔B e a profundidade estourada
-- **ADR:** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origem:** AT-787 (EP-033)
 
 ### RN-1071 — A PR de promoção depende das promoções abertas das camadas anteriores, e a ordem é uma lista testada {#rn-1071}
@@ -288,7 +288,7 @@ lista `REPOS`, sem repetição, e o spec guarda isso.
 
 - **Código:** `scripts/ci/dependencias-de-merge.ts` (`CAMADAS_DE_PROMOCAO`, `predecessores`, `avaliar`, modo `linhas`) e `scripts/ci/abrir-pr-de-promocao.sh`, no `brabo-ci`
 - **Teste:** `scripts/ci/dependencias-de-merge.spec.ts` (bloco "promoção em camadas")
-- **ADR:** [0284](../../adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md), que revê a decisão 7 do [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0284](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md), que revê a decisão 7 do [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Origem:** AT-788 (EP-033)
 
 ### RN-1072 — O merge de uma promoção e o cron reavaliam as promoções das camadas seguintes {#rn-1072}
@@ -301,7 +301,7 @@ baixo é acordada pelo próprio evento dela ou pelo cron.
 
 - **Código:** `scripts/ci/dependencias-de-merge.ts` (modos `avisar-dependentes` e `varrer`)
 - **Teste:** `scripts/ci/dependencias-de-merge.spec.ts` (`sucessores`); a busca em si é o GitHub, provada na próxima promoção
-- **ADR:** [0284](../../adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md)
+- **ADR:** [0284](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md)
 - **Origem:** AT-788 (EP-033)
 
 ## O relatório de decisão do regressivo (RN-1051..1053)
@@ -325,7 +325,7 @@ No modo `dev` o mesmo rótulo sai com o prefixo "atestado (não bloqueia)".
   existem na `dev` (AT-791, lanes L1 e L2)
 - **Teste:** `scripts/ci/qa-e2e-resumo.spec.ts` (o check por modo); a regra de
   recomendação e o JSON v1 ganham o teste na L1 e na L2
-- **ADR:** [0277](../../adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
+- **ADR:** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **Origem:** AT-791 (EP-033)
 
 ### RN-1052 — O `/qa-aceitar` preserva o relatório do vermelho e registra o aceite contra a recomendação {#rn-1052}
@@ -345,7 +345,7 @@ se aplica: o relatório é só o atestado.
   (`avaliarAceite`, que segue lendo o `external_id` `causa:*`)
 - **Teste:** `scripts/ci/qa-e2e-aceite.spec.ts` (o veredito do aceite); o
   preservar do resumo e o registro "contra a recomendação" ganham o teste na L1
-- **ADR:** [0277](../../adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
+- **ADR:** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **Origem:** AT-791 (EP-033)
 
 ### RN-1053 — A spec sem tag `@f-*` aparece como "sem funcionalidade" e nunca some do relatório {#rn-1053}
@@ -364,7 +364,7 @@ cobertura" com um vermelho de spec, que é o achado da qa#28.
   "sem funcionalidade" no relatório ainda não existe (AT-791, lanes L1 e L2)
 - **Teste:** `scripts/ci/qa-regressivo-selecao.spec.ts` (a seleção por mapa e o
   `semDono`); o balde no relatório ganha o teste na L2
-- **ADR:** [0277](../../adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
+- **ADR:** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **Origem:** AT-791 (EP-033)
 
 ## O gatilho espera o carimbo e a assinatura antes do vermelho (RN-1066)
@@ -408,7 +408,7 @@ há N min". O painel **nunca reprova**.
 
 - **Código:** `scripts/ci/painel.ts:235` (`terminou`, a régua de parada)
 - **Teste:** `scripts/ci/painel.spec.ts`
-- **ADR:** [0278](../../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
+- **ADR:** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **Origem:** AT-792 (EP-033)
 
 ### RN-1055 — O painel não publica check nas PRs; o link fica nas runs de origem {#rn-1055}
@@ -421,7 +421,7 @@ com escrita é o do dispatch (`contents: write`, restrito ao `brabo-ci`). Por is
 
 - **Código:** `scripts/ci/vinculos.ts:164` (`linhaDoPainel`, a linha do Vínculo)
 - **Teste:** `scripts/ci/vinculos.spec.ts`
-- **ADR:** [0278](../../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
+- **ADR:** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **Origem:** AT-792 (EP-033)
 
 ### RN-1056 — Um painel por componente {#rn-1056}
@@ -434,5 +434,5 @@ dispara o novo.
 - **Código:** `scripts/ci/painel.ts:247` (`jaTemPainel`); `scripts/ci/painel.ts:90`
   (`superado`, que o painel em curso consulta)
 - **Teste:** `scripts/ci/painel.spec.ts`
-- **ADR:** [0278](../../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
+- **ADR:** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **Origem:** AT-792 (EP-033)

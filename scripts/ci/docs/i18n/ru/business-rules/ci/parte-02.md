@@ -30,7 +30,7 @@ ADR), `status` и `caminhos: {<repo>: [globs]}`. Файл живёт в `brabo-q
 - **Тест:** `scripts/ci/funcionalidades.spec.ts` (валидатор) и
   `scripts/ci/qa-regressivo-catalogo-real.spec.ts:12` (в реальном каталоге 14
   активных функциональностей и globs, которые совпадают)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Источник:** AT-769 (EP-033)
 
 ### RN-1032 — PR в `dev` запускает регрессионный прогон только затронутых функциональностей под проверкой `Regressivo do brabo-qa`, которая НИКОГДА не обязательна {#rn-1032}
@@ -54,7 +54,7 @@ brabo-qa`, создаваемая App на `head_sha`: `success`, `failure` (в�
 - **Тест:** `scripts/ci/qa-e2e-resumo.spec.ts` (имя по режиму) и
   `scripts/ci/qa-regressivo-selecao.spec.ts:33` (выбор по карте) и
   `scripts/ci/qa-regressivo-lembrete.spec.ts` (напоминание)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Источник:** AT-769 (EP-033)
 
 ### RN-1033 — Три правила сквозных файлов действуют раньше карты: ничего, весь каталог и без владельца {#rn-1033}
@@ -73,7 +73,7 @@ glob, запускает smoke `instalacao` + `autenticacao`, а сводка п
   `scripts/ci/qa-regressivo-selecao.ts:43` (`SMOKE`)
 - **Тест:** `scripts/ci/qa-regressivo-selecao.spec.ts:41` (правило 1),
   `:55` (правило 2 по репозиторию), `:58` (правило 3)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Источник:** AT-769 (EP-033)
 
 ### RN-1075 — `brabo-runner` подтверждается собственным CI: бинарник linux-x64 входит в PR, а контракт с engine проверяется только в TP-01 {#rn-1075}
@@ -82,12 +82,12 @@ glob, запускает smoke `instalacao` + `autenticacao`, а сводка п
 
 - **Код:** задание `runner` в `.github/workflows/ci.yml` репозитория `brabo-runner`
 - **Тест:** само задание (лог с `ok:` от `--self-test-pty`)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Источник:** AT-853 (EP-033)
 
 ### RN-1034 — PR в `main` запускает весь каталог в `E2E do brabo-qa`, а функциональность без spec показывается как «без покрытия» и не проваливает проверку {#rn-1034}
 
-Проверка `E2E do brabo-qa` ([ADR 0267](../../adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md))
+Проверка `E2E do brabo-qa` ([ADR 0267](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md))
 запускает все spec и собирает таблицу `funcionalidade | specs | resultado`.
 Функциональность каталога без spec попадает как `sem cobertura` и **не
 проваливает** проверку (решение владельца от 06/11/2026): при обратном правиле
@@ -99,7 +99,7 @@ glob, запускает smoke `instalacao` + `autenticacao`, а сводка п
   таблицы), `scripts/ci/qa-e2e-resumo.ts:22` (имя проверки `main`)
 - **Тест:** `scripts/ci/qa-e2e-resumo.spec.ts` (таблица и строка «без
   покрытия»)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Источник:** AT-769 (EP-033)
 
 ### RN-1035 — PR в `dev` публикует подписанный образ `sha-<12>` только своего репозитория, а очистка удаляет осиротевшие {#rn-1035}
@@ -116,7 +116,7 @@ broker публикует `ghcr.io/viralabs-dev/brabo-<app>:sha-<12 primeiros do
 - **Код:** `scripts/ci/qa-e2e-imagens.ts:83` (выбор `sha-<12>` для
   `dev` и `hotfix`)
 - **Тест:** `scripts/ci/qa-e2e-imagens.spec.ts` (выбор по базе)
-- **ADR:** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR:** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **Источник:** AT-769 (EP-033)
 
 ### RN-1043 — Каждый запуск, читающий другой репозиторий, публикует `## Vínculos` в начале Summary, а хелпер никогда не проваливает job {#rn-1043}
@@ -131,7 +131,7 @@ checkout. Каждое значение проходит через regex до �
 `continue-on-error`: хелпер никогда не проваливает job. В `brabo` `docs-check`,
 `docs-deploy`, `docs-audit` и `regenera-gerados` передают SHA из
 `.git/irmaos-sha.lst`, который записывает `montar-layout.sh`
-([ADR 0274](../../adr/0274-os-gerados-leem-os-irmaos-por-uma-trava-de-shas.md)), а
+([ADR 0274](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0274-os-gerados-leem-os-irmaos-por-uma-trava-de-shas.md)), а
 `release.yml` передаёт `infra` по пути.
 
 - **Код:** `scripts/ci/vinculos.ts:57` (`montar`), `.github/actions/vinculos/action.yml:31`
@@ -139,7 +139,7 @@ checkout. Каждое значение проходит через regex до �
   `.github/workflows/docs-check.yml:89` (`brabo` передаёт соседей)
 - **Тест:** `scripts/ci/vinculos.spec.ts` (fixtures, вредоносное значение, пустой
   источник) и `scripts/ci/validar-payload.spec.ts`
-- **ADR:** [0271](../../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
+- **ADR:** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **Источник:** AT-773 (EP-033)
 
 ### RN-1044 — У целевого запуска dispatch или тега есть `run-name` с источником, а корреляция dispatch передаётся в имени как `c=<run_id>-<attempt>` {#rn-1044}
@@ -162,7 +162,7 @@ runs `brabo-qa` каждые 5 с до 60 с, сопоставляя `c=`. `atte
   (`comCarimbo`), `.github/workflows/release.yml:3` (`run-name` тега)
 - **Тест:** `scripts/ci/qa-e2e-vinculos.spec.ts` (сопоставление `c=`) и
   `scripts/ci/qa-e2e-imagens.spec.ts`
-- **ADR:** [0271](../../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
+- **ADR:** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **Источник:** AT-773 (EP-033)
 
 ### RN-1045 — Проверка App указывает на запуск `brabo-qa` с самого начала, а исходный запуск записывает ссылку на запущенный {#rn-1045}
@@ -180,7 +180,7 @@ Vínculos, с токеном App только с `checks: write` и чистым
   `scripts/ci/qa-e2e-vinculos.ts:42` (`vinculosDoGatilho`),
   `scripts/ci/qa-e2e-disparar.ts:154` (предупреждение, когда запуск не найден)
 - **Тест:** `scripts/ci/fechar-check.spec.ts` и `scripts/ci/qa-e2e-vinculos.spec.ts`
-- **ADR:** [0271](../../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
+- **ADR:** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **Источник:** AT-773 (EP-033)
 
 ## Публикация npm-пакетов (RN-1042) {#publicação-de-pacotes-npm-rn-1042}
@@ -222,7 +222,7 @@ Vínculos, с токеном App только с `checks: write` и чистым
   опубликован в `brabo-ci`; в `dev` у `brabo` его пока нет
 - **Тест:** `scripts/ci/dependencias-de-merge.spec.ts`, с regex, allowlist,
   владельцем, самоссылкой и некорректной строкой
-- **ADR:** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Источник:** AT-787 (EP-033)
 
 ### RN-1048 — У проверки `Dependências de merge` четыре состояния, никогда не `neutral`, а ожидание жёлтое {#rn-1048}
@@ -241,7 +241,7 @@ merge`. Без строки `Depende-de` выходит `success` «Sem dependê
 - **Код:** `scripts/ci/dependencias-de-merge.ts` (чистая функция оценки) и
   `.github/workflows/dependencias-de-merge.yml` (переиспользуемый workflow), в `brabo-ci`
 - **Тест:** `scripts/ci/dependencias-de-merge.spec.ts`, по случаю на каждое состояние
-- **ADR:** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Источник:** AT-787 (EP-033)
 
 ### RN-1049 — Merge зависимости обновляет проверку PR, которые на неё ссылаются, а часовой cron — лишь страховочная сеть {#rn-1049}
@@ -260,7 +260,7 @@ merge`. Без строки `Depende-de` выходит `success` «Sem dependê
   `.github/workflows/dependencias-de-merge.yml` (job и cron), в `brabo-ci`
 - **Тест:** `scripts/ci/dependencias-de-merge.spec.ts`, с имитацией поиска и
   телом, которое больше не подходит
-- **ADR:** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Источник:** AT-787 (EP-033)
 
 ### RN-1050 — Цикл зависимостей проваливает проверку с полным путём, до глубины 5 {#rn-1050}
@@ -273,7 +273,7 @@ merge`. Без строки `Depende-de` выходит `success` «Sem dependê
 
 - **Код:** `scripts/ci/dependencias-de-merge.ts` (обход до глубины 5), в `brabo-ci`
 - **Тест:** `scripts/ci/dependencias-de-merge.spec.ts`, с циклом A↔B и превышенной глубиной
-- **ADR:** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Источник:** AT-787 (EP-033)
 
 ### RN-1071 — PR продвижения зависит от открытых продвижений предыдущих слоёв, а порядок — это проверенный список {#rn-1071}
@@ -294,7 +294,7 @@ brabo-workspace; 2 brabo-api, brabo-engine, brabo-web, brabo-runner и brabo-bro
 
 - **Код:** `scripts/ci/dependencias-de-merge.ts` (`CAMADAS_DE_PROMOCAO`, `predecessores`, `avaliar`, режим `linhas`) и `scripts/ci/abrir-pr-de-promocao.sh`, в `brabo-ci`
 - **Тест:** `scripts/ci/dependencias-de-merge.spec.ts` (блок «promoção em camadas»)
-- **ADR:** [0284](../../adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md), пересматривающий решение 7 из [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR:** [0284](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md), пересматривающий решение 7 из [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **Источник:** AT-788 (EP-033)
 
 ### RN-1072 — Merge продвижения и cron заново оценивают продвижения последующих слоёв {#rn-1072}
@@ -307,7 +307,7 @@ brabo-workspace; 2 brabo-api, brabo-engine, brabo-web, brabo-runner и brabo-bro
 
 - **Код:** `scripts/ci/dependencias-de-merge.ts` (режимы `avisar-dependentes` и `varrer`)
 - **Тест:** `scripts/ci/dependencias-de-merge.spec.ts` (`sucessores`); сам поиск — это GitHub, он будет доказан на следующем продвижении
-- **ADR:** [0284](../../adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md)
+- **ADR:** [0284](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md)
 - **Источник:** AT-788 (EP-033)
 
 ## Отчёт-решение регрессионного прогона (RN-1051..1053) {#o-relatório-de-decisão-do-regressivo-rn-10511053}
@@ -332,7 +332,7 @@ brabo-workspace; 2 brabo-api, brabo-engine, brabo-web, brabo-runner и brabo-bro
   `dev` пока не существуют (AT-791, lanes L1 и L2)
 - **Тест:** `scripts/ci/qa-e2e-resumo.spec.ts` (проверка по режиму); правило
   рекомендации и JSON v1 получают тест в L1 и L2
-- **ADR:** [0277](../../adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
+- **ADR:** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **Источник:** AT-791 (EP-033)
 
 ### RN-1052 — `/qa-aceitar` сохраняет отчёт о красном и записывает принятие против рекомендации {#rn-1052}
@@ -352,7 +352,7 @@ digests и таблицу функциональностей красного п
   (`avaliarAceite`, который продолжает читать `external_id` `causa:*`)
 - **Тест:** `scripts/ci/qa-e2e-aceite.spec.ts` (вердикт принятия); сохранение
   сводки и запись «против рекомендации» получают тест в L1
-- **ADR:** [0277](../../adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
+- **ADR:** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **Источник:** AT-791 (EP-033)
 
 ### RN-1053 — Spec без тега `@f-*` показывается как «без функциональности» и никогда не пропадает из отчёта {#rn-1053}
@@ -371,7 +371,7 @@ spec в этой корзине становится **принять с обо�
   «без функциональности» в отчёте пока нет (AT-791, lanes L1 и L2)
 - **Тест:** `scripts/ci/qa-regressivo-selecao.spec.ts` (выбор по карте и
   `semDono`); корзина в отчёте получает тест в L2
-- **ADR:** [0277](../../adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
+- **ADR:** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **Источник:** AT-791 (EP-033)
 
 ## Триггер ждёт штамп и подпись, прежде чем стать красным (RN-1066) {#o-gatilho-espera-o-carimbo-e-a-assinatura-antes-do-vermelho-rn-1066}
@@ -416,7 +416,7 @@ spec в этой корзине становится **принять с обо�
 
 - **Код:** `scripts/ci/painel.ts:235` (`terminou`, правило остановки)
 - **Тест:** `scripts/ci/painel.spec.ts`
-- **ADR:** [0278](../../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
+- **ADR:** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **Источник:** AT-792 (EP-033)
 
 ### RN-1055 — Панель не публикует проверку в PR; ссылка остаётся в исходных runs {#rn-1055}
@@ -429,7 +429,7 @@ mudança`. Она указывает на `…/brabo-ci/actions/workflows/painel
 
 - **Код:** `scripts/ci/vinculos.ts:164` (`linhaDoPainel`, строка Vínculo)
 - **Тест:** `scripts/ci/vinculos.spec.ts`
-- **ADR:** [0278](../../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
+- **ADR:** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **Источник:** AT-792 (EP-033)
 
 ### RN-1056 — Одна панель на компонент {#rn-1056}
@@ -442,5 +442,5 @@ mudança`. Она указывает на `…/brabo-ci/actions/workflows/painel
 - **Код:** `scripts/ci/painel.ts:247` (`jaTemPainel`); `scripts/ci/painel.ts:90`
   (`superado`, который опрашивает работающая панель)
 - **Тест:** `scripts/ci/painel.spec.ts`
-- **ADR:** [0278](../../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
+- **ADR:** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **Источник:** AT-792 (EP-033)
