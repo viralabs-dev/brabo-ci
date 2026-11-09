@@ -24,7 +24,7 @@ keywords: [regras de negócio, ci]
 неизвестное) генерирует `.github/workflows/ci.yml`. Каждый файл перед
 завершением проходит через `validate_infra_file` — hadolint для Dockerfile,
 `actionlint` для workflow GitHub Actions
-([ADR 0039](../../adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md);
+([ADR 0039](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md);
 у `.gitlab-ci.yml` нет локальной проверки — задокументированный пробел, а не
 полурешение).
 
@@ -58,7 +58,7 @@ keywords: [regras de negócio, ci]
   и доказательство того, что контракт `ExecuteInfraPrUseCase`/`InfraGateRunner`
   не изменился: `execute-infra-pr.use-case.spec.ts` и
   `infra_gate_runner_test.exs` проходят **вообще без изменений**
-- **Источник:** [ADR 0038](../../adr/0038-hierarquia-de-agentes.md), [ADR 0039](../../adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md)
+- **Источник:** [ADR 0038](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0038-hierarquia-de-agentes.md), [ADR 0039](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md)
 
 Со стороны `apps/web` (Фаза 8d): панель команды группирует `infra`/
 `infra-workflows` так же, как QA (RN-036), а лента излагает делегирования
@@ -90,7 +90,7 @@ TYPE`). Это не дефект для исправления мимоходо�
   конце файла); решение задокументировано в заголовке файла и в ADR
 - **Тест:** неприменимо к CI (шага нет); ручной прогон против реального
   репозитория записан в ADR 0093, раздел Последствия
-- **ADR:** [0093](../../adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
+- **ADR:** [0093](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
 
 ## "N агентов онлайн" на дашборде — статус В РЕАЛЬНОМ ВРЕМЕНИ, никогда историческое присутствие (RN-409, ADR 0097)
 
@@ -98,14 +98,14 @@ TYPE`). Это не дефект для исправления мимоходо�
 
 Найдено РЕАЛЬНЫМ использованием, а не тестом: в сессии выполнения поднялись
 пять dev agents, перешли в `idle_tripped` (автоматический выключатель
-[RN-047](../engine.md#rn-047), заблокированные в ожидании, пока
+[RN-047](https://github.com/viralabs-dev/brabo-engine/blob/dev/docs/business-rules/engine.md#rn-047), заблокированные в ожидании, пока
 пользователь вручную разблокирует задачу), а 30-секундный heartbeat
 (`Engine.Sessions.SessionServer.handle_info(:heartbeat_timeout, state)`)
 закрыл сессию снизу, пока работа — и ожидание решения человека —
 продолжались.
 
 У `GetSessionPendingWorkUseCase` уже был третий сигнал
-([RN-064](../web.md#rn-064)) для той же проблемы: агент
+([RN-064](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-064)) для той же проблемы: агент
 активирован, без последующего `idle`, удерживает сессию. Но этот сигнал
 читает только `agent.status`, словарь РАЗГОВОРНЫХ агентов
 (Criativo/PO/Arquiteto/Dev Lead/UX Designer/Staff/Infra).
@@ -119,7 +119,7 @@ TYPE`). Это не дефект для исправления мимоходо�
 
 ЧЕТВЁРТЫЙ сигнал ищет ПОСЛЕДНЕЕ событие `dev.*` каждого `actor.id`
 (`dev-<modulo>`/`dev-<modulo>-2`, тот же ключ, что в
-[RN-195](../web.md#rn-195)), уже появлявшегося в сессии,
+[RN-195](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-195)), уже появлявшегося в сессии,
 — как третий сигнал, но по нескольким типам событий вместо одного, потому что
 состояние dev agent — это не ОДИН тип с переменным `payload.status`, а
 отдельные типы событий на каждый переход. Линейка: `pending: true`, когда
@@ -133,12 +133,12 @@ TYPE`). Это не дефект для исправления мимоходо�
 `dev.awaiting_gate` и `dev.awaiting_approval` как последнее событие
 изначально НЕ запускали этот сигнал — они остались вне линейки в том виде, в
 каком она была решена тогда. `awaiting_gate` был ИЗВЕСТНЫМ остаточным
-пробелом; [RN-412](../api.md#rn-412) закрыла его вместе с `awaiting_approval` (по
+пробелом; [RN-412](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/business-rules/api.md#rn-412) закрыла его вместе с `awaiting_approval` (по
 новому аргументу, а не по исходному — см. RN-412).
 
 `dev.blocked_by_container` вошёл ПОЗЖЕ, по тому же аргументу и по столь же
 реальной находке. Тип родился с
-[RN-502](../engine.md#rn-502)/[ADR 0143](../../adr/0143-agentes-de-dev-so-depois-do-container.md)
+[RN-502](https://github.com/viralabs-dev/brabo-engine/blob/dev/docs/business-rules/engine.md#rn-502)/[ADR 0143](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0143-agentes-de-dev-so-depois-do-container.md)
 — dev agent не забирает задачу, пока у проекта нет зарегистрированного
 `running`-контейнера, — а список `DEV_EVENT_TYPES` сценария использования за
 этим не последовал. Поскольку именно этот список сценарий ЗАПРАШИВАЕТ, событие
@@ -298,7 +298,7 @@ ExUnit нет пропуска во время выполнения, и видн
 - **Где:** `.github/workflows/golden-set-rag.yml`, `apps/api/config/gates.yml`
   (`rag-acertivo`), `apps/engine/mix.exs`,
   `apps/api/scripts/seed-golden-set-rag.ts`
-- **ADR:** [0138](../../adr/0138-golden-set-do-rag-em-ci-agendado.md)
+- **ADR:** [0138](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0138-golden-set-do-rag-em-ci-agendado.md)
 - **Источник:** план владельца продукта, Часть 2 / Этап 3
 
 ## ФАЗА 29 — установка одной строкой: подписывать то, что публикуется {#fase-29--a-instalação-de-uma-linha-assinar-o-que-se-publica}
@@ -386,10 +386,10 @@ ExUnit нет пропуска во время выполнения, и видн
 
 ## Когда что-то идёт не так {#quando-dá-errado}
 
-[ФАЗА 28](../../explanation/fase-28-pasta-do-usuario.md) письменно отвергла
+[ФАЗА 28](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-28-pasta-do-usuario.md) письменно отвергла
 установщик одной строкой, пока артефакты не подписаны (BRB-005), и поэтому
-[ФАЗА 29](../../explanation/fase-29-instalacao-de-uma-linha.md) подписывает **до**
-установки. Сессия 2, [ADR 0149](../../adr/0149-assinatura-dos-artefatos-publicados.md).
+[ФАЗА 29](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-29-instalacao-de-uma-linha.md) подписывает **до**
+установки. Сессия 2, [ADR 0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md).
 
 ### RN-524 — Опубликованный артефакт подписывается идентичностью workflow, проверяется в том же прогоне, а проверка отказывает, а не предупреждает {#rn-524}
 
@@ -398,13 +398,13 @@ ExUnit нет пропуска во время выполнения, и видн
 
 - **пять образов** подписываются **по DIGEST** (их было четыре, когда это
   правило писалось; пятый, брокер, вошёл с
-  [ADR 0162](../../adr/0162-broker-publicado-e-oferecido-pelo-instalador.md)),
+  [ADR 0162](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0162-broker-publicado-e-oferecido-pelo-instalador.md)),
   прочитанному из `.release/images.json`, — никогда по тегу. Тег — подвижный
   указатель: подпись `:5.0.0` удостоверяла бы то, на что тег указывал в момент
   подписи, а не то, на что он указывает, когда кто-то скачивает. Digest — то,
   что манифест уже регистрирует и что продакшн-overlay уже применяет (ADR 0119);
 - **бинарники** runner (пять целей, когда родилось это правило, **четыре** с
-  [ADR 0174](../../adr/0174-runner-sem-binario-darwin-x64.md), убравшего
+  [ADR 0174](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0174-runner-sem-binario-darwin-x64.md), убравшего
   `darwin-x64`) покрываются **ОДНИМ** подписанным `checksums.txt`, а не
   подписью на бинарник — тот, кто проверит три и забудет четвёртый, не может
   знать, что забыл;
@@ -412,7 +412,7 @@ ExUnit нет пропуска во время выполнения, и видн
   workflow, и приватного ключа на хранении нет. Собственная пара ключей
   означала бы ещё один секрет CI, а этот репозиторий уже видел, как PAT молча
   истёк и провалил два прогона `tag-release`
-  ([ADR 0139](../../adr/0139-o-alarme-de-esteira-ganha-destinatario.md));
+  ([ADR 0139](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0139-o-alarme-de-esteira-ganha-destinatario.md));
 - **сбой проверки — именованный отказ, никогда предупреждение.**
   Предупреждение, принимаемое кликом, — проверка, которой не существует.
 
@@ -444,17 +444,17 @@ backlog.
 
 ### RN-549 — E2E на чистой машине доказывает ВСЮ установку: пять звеньев, агент на ногах в ожидании и первый проект, подхваченный без возврата в терминал {#rn-549}
 
-Сессия 8 [ФАЗЫ 30](../../explanation/fase-30-runner-por-maquina.md), последняя — и
+Сессия 8 [ФАЗЫ 30](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md), последняя — и
 единственная, которая могла ответить на вопрос, которого добивается вся фаза:
 *на чистой машине `install.sh` заканчивается с локальным агентом на ногах и
 сопряжённым, а человек создаёт первый проект в режиме Runner, не возвращаясь в
-терминал?* До сих пор ответом было записанное намерение: [RN-547](../produto.md#rn-547)
+терминал?* До сих пор ответом было записанное намерение: [RN-547](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-547)
 связала пять команд и письменно объявила, что в её тестах `brabo-runner` —
 дублёр на shell, а api — `node:http`: *«доказывается СВЯЗЫВАНИЕ, никогда
 интеграция»*.
 
 **Harness родился не здесь: его РАСШИРИЛИ.** `.github/workflows/install-e2e.yml`
-существует с ФАЗЫ 29 ([RN-534](../produto.md#rn-534)) и уже запускает опубликованный
+существует с ФАЗЫ 29 ([RN-534](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-534)) и уже запускает опубликованный
 установщик на эфемерном runner Actions — буквально чистой машине, без Brabo,
 без `.env`, без маркера. То, что он доказывал, останавливалось на `.env`: план,
 состояние, три обещания никогда не удалять, путь без TTY и подъём с
@@ -463,14 +463,14 @@ backlog.
 
 **Он НЕ запускается в `pull_request`, и следствие заявлено, а не скрыто.**
 Установщик проверяет собственное происхождение против **подписанного**
-`checksums.txt` Release ([RN-526](../produto.md#rn-526)), который существует только после
+`checksums.txt` Release ([RN-526](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-526)), который существует только после
 финального тега; единственный способ запустить его в PR — дать ему дверь для
 ПРОПУСКА проверки, дверь, которую отвергает
-[ADR 0150](../../adr/0150-instalador-de-uma-linha.md) и которая, однажды открытая,
+[ADR 0150](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0150-instalador-de-uma-linha.md) и которая, однажды открытая,
 действовала бы для любого, а не только для CI. Следовательно: **PR, написавший
 этот E2E, его не выполнил**, и его проверки прошли, не проверив ни строки
 добавленного. Это то же решение, что у golden-set RAG
-([ADR 0138](../../adr/0138-golden-set-do-rag-em-ci-agendado.md)), по той же причине.
+([ADR 0138](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0138-golden-set-do-rag-em-ci-agendado.md)), по той же причине.
 
 **Отсюда половина, которая ВЫПОЛНЯЕТСЯ в PR, и в этом причина её
 существования.** Workflow, запускаемый только на теге, — workflow, чья ошибка
@@ -485,17 +485,17 @@ backlog.
 бы паролем, — поэтому тест считает приглашения и велит смотреть файл ответов.
 
 **Что E2E начал доказывать, и у каждого утверждения есть владелец.** Пять
-звеньев [RN-547](../produto.md#rn-547), по одному, против НАСТОЯЩИХ api и бинарника, —
-учётная запись ([RN-546](../produto.md#rn-546)), пара, сгенерированная на машине, и
-поставленный `kid` ([RN-551](../runner.md#rn-551)), регистрация публичного
-([RN-552](../api.md#rn-552)) и unit машины ([RN-545](../runner.md#rn-545)). Плюс инвариант
-[RN-475](../web.md#rn-475), измеренный на ДИСКЕ, а не в выводе (файл, который читает
+звеньев [RN-547](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-547), по одному, против НАСТОЯЩИХ api и бинарника, —
+учётная запись ([RN-546](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-546)), пара, сгенерированная на машине, и
+поставленный `kid` ([RN-551](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-551)), регистрация публичного
+([RN-552](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/business-rules/api.md#rn-552)) и unit машины ([RN-545](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-545)). Плюс инвариант
+[RN-475](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-475), измеренный на ДИСКЕ, а не в выводе (файл, который читает
 runner, имеет `kid`, имеет `d`, а `.parcial` исчез, когда `finish` закрылся),
 пароль, отсутствующий в `.env`, маркере и логе, и `ownerEmail`,
 присутствующий в маркере.
 
 **ОТРИЦАТЕЛЬНОЕ доказательство ценнее всего, и это отсутствие блока ожидающих
-пунктов.** [RN-547](../produto.md#rn-547) велит сообщать о каждом падающем звене в
+пунктов.** [RN-547](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-547) велит сообщать о каждом падающем звене в
 именованном финальном блоке — и выходить с **0** всё равно. E2E, смотрящий на
 код выхода, дал бы зелёный с четырьмя из пяти сломанных звеньев. *«Ни одного
 ожидающего пункта»* — единственный способ утверждать, что все пять замкнулись,
@@ -503,14 +503,14 @@ runner, имеет `kid`, имеет `d`, а `.parcial` исчез, когда `
 
 **Сигнал, что агент ЖДЁТ НА НОГАХ, — СТРОКА, никогда состояние менеджера, — и
 этот выбор — центральное решение этого E2E.** `perguntarEstado` отображает
-`activating` в `rodando` ([RN-088](../web.md#rn-088), справедливо: «поднимается» — не
+`activating` в `rodando` ([RN-088](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-088), справедливо: «поднимается» — не
 «остановлен»), так что и `systemctl is-active`, и
 `brabo-runner service status --machine` отвечают *на ногах* для процесса,
 который умрёт через две секунды. Это ровно та гонка, которую прячет
 фиксированный `sleep`, а измерение здесь не того артефакта — бинарника на
 диске, записанной unit — самый лёгкий способ для E2E дать зелёный, ничего не
 доказав. Выбранный сигнал — строка, которую процесс пишет при ВХОДЕ в ожидание
-([RN-550](../runner.md#rn-550)): она существует только после того, как агент прочитал ключ
+([RN-550](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-550)): она существует только после того, как агент прочитал ключ
 машины с диска, получил тикет, по-настоящему поговорил с api и получил ПУСТОЙ
 список, — доказывает сопряжение и ожидание сразу. И это не выборка состояния:
 это факт, уже записанный в journal, который не отменяется. Поэтому ожидание её с
@@ -520,20 +520,20 @@ runner, имеет `kid`, имеет `d`, а `.parcial` исчез, когда `
 вместо неё.
 
 **Итог фазы измеряется через API, а не через БРАУЗЕР.** Субъект утверждения —
-АГЕНТ, а не страница: он наблюдает `GET /runner/projects` ([RN-543](../produto.md#rn-543)),
+АГЕНТ, а не страница: он наблюдает `GET /runner/projects` ([RN-543](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-543)),
 факт api. Браузер создал бы проект через ТОТ ЖЕ маршрут с лишним слоем, падающим
 по причинам, не связанным с обещанием, — и не сделал бы утверждение сильнее,
 потому что оно по-прежнему строка journal агента. Слой браузера существует
-(`e2e/`, [ADR 0120](../../adr/0120-e2e-de-navegador-contra-o-compose-de-producao.md)),
+(`e2e/`, [ADR 0120](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0120-e2e-de-navegador-contra-o-compose-de-producao.md)),
 отвечает на другой вопрос (три origin, cookie `httpOnly`, CSRF), имеет
 собственный lockfile и предполагает поднятый продакшн-compose: притащить его
 сюда заставило бы E2E установщика зависеть от второго harness, установленного
 на машине, которая должна быть чистой. Доказывать мастер — работа набора тестов
 web, и там он уже покрыт. Шаг измеряет всю цепочку: учётная запись, рождённая в
 терминале, **проходит вход** без какой-либо ссылки подтверждения, личный
-workspace [RN-410](../api.md#rn-410) существует, проект рождается `runner`, и агент
+workspace [RN-410](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/business-rules/api.md#rn-410) существует, проект рождается `runner`, и агент
 подхватывает его сам в пределах периодичности
-15 с/30 с/60 с из [RN-550](../runner.md#rn-550).
+15 с/30 с/60 с из [RN-550](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-550).
 
 **Идемпотентность измеряется той половиной, которую E2E достаёт без
 переустановки.** Api по-настоящему отвечает `409` на второй `first-account` —
@@ -543,7 +543,7 @@ workspace [RN-410](../api.md#rn-410) существует, проект рожд
 ожидающий пункт) — классификация HTTP-кода, покрытая в
 `install-fechamento.spec.ts` против тестового сервера: повторить её здесь
 потребовало бы второй полной установки, которая идёт путём МИГРАЦИИ
-([RN-530](../infra.md#rn-530)) — доказанная резервная копия, удалить, пересоздать, — а это
+([RN-530](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/business-rules/infra.md#rn-530)) — доказанная резервная копия, удалить, пересоздать, — а это
 отдельная поставка.
 
 **Единственное расхождение между этим runner и чистой машиной — в ОКРУЖЕНИИ, и
@@ -607,13 +607,13 @@ workflow E2E установщика; и никакого ослабленног�
 - **ЗАЯВЛЕННЫЙ пробел:** этот E2E **не запускается в PR, который его написал**,
   и ни одна его проверка не доказывает ни строки добавленного — первый
   реальный запуск — следующий финальный тег. Также вне, и не по забывчивости:
-  второй запуск установщика путём МИГРАЦИИ ([RN-530](../infra.md#rn-530)) — резервная
+  второй запуск установщика путём МИГРАЦИИ ([RN-530](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/business-rules/infra.md#rn-530)) — резервная
   копия, доказательство восстановления, удаление и пересоздание, — macOS
   (полный шаг — Linux: `launchd` и Docker, которого нет у hosted runner) и
   браузер
-- **ADR:** [0155](../../adr/0155-a-primeira-conta-nasce-no-terminal.md)
+- **ADR:** [0155](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0155-a-primeira-conta-nasce-no-terminal.md)
 - **Источник:** ФАЗА 30, сессия 8 —
-  [срез фазы](../../explanation/fase-30-runner-por-maquina.md)
+  [срез фазы](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md)
 
 ## Ключ устройства получает экран, а экран говорит об охвате отзыва (RN-561) {#a-chave-de-dispositivo-ganha-tela-e-a-tela-diz-o-alcance-de-revogar-rn-561}
 
@@ -621,8 +621,8 @@ workflow E2E установщика; и никакого ослабленног�
 
 Подписанный `checksums.txt` ([RN-524](#rn-524)) — предусловие двух других
 правил: без него `GET /runner-releases/binary` отказывает с
-`release_sem_manifesto` ([RN-525](../produto.md#rn-525)), а `install.sh` отказывает сам себе
-([RN-526](../produto.md#rn-526)) — **на всех платформах, включая те, что приложили бинарник
+`release_sem_manifesto` ([RN-525](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-525)), а `install.sh` отказывает сам себе
+([RN-526](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-526)) — **на всех платформах, включая те, что приложили бинарник
 как надо**. Задерживающийся манифест — не задержавшийся манифест: для
 того, кто устанавливает в этот промежуток, это отсутствующий манифест.
 
@@ -670,7 +670,7 @@ label, удаление платформы или оплата runner — реш
 > стало выбором: ждать Bun или убрать платформу. Правило выше от этого не
 > меняется.
 
-> **Решено 2026-09-27 ([ADR 0174](../../adr/0174-runner-sem-binario-darwin-x64.md), AT-065):
+> **Решено 2026-09-27 ([ADR 0174](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0174-runner-sem-binario-darwin-x64.md), AT-065):
 > платформа убрана.** Матрица стала из ЧЕТЫРЁХ целей, и `ALVOS_ESPERADOS`
 > последовал — именно против него объявляется отсутствие, и оставить там
 > `darwin-x64` заставило бы каждый манифест вечно объявлять нехватку, которая
@@ -698,12 +698,12 @@ label, удаление платформы или оплата runner — реш
   тест, и предел объявлен в начале файла: job доказывается только на финальном
   теге и ни на одном ещё не запускался
 - **ЗАЯВЛЕННЫЙ пробел:** матрица из ТРЁХ целей с
-  [ADR 0187](../../adr/0187-runner-sem-binario-win32-x64.md) (`win32-x64` убран по
+  [ADR 0187](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0187-runner-sem-binario-win32-x64.md) (`win32-x64` убран по
   тому же образцу ADR 0174, и `ALVOS_ESPERADOS` последовал), а Release
   по-прежнему получает **два** — `darwin-arm64` доказан в пробном прогоне
-  ([RN-688](../runner.md#rn-688)), и не хватает лишь финального тега, чтобы его
+  ([RN-688](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-688)), и не хватает лишь финального тега, чтобы его
   проверить. Манифест родится, покрывая два, и **скажет** об этом, а в этом
   разница между частичным и молчаливым. А при полностью падающей матрице job
   тратит оба ожидания, прежде чем отказать
-- **ADR:** [0149](../../adr/0149-assinatura-dos-artefatos-publicados.md)
+- **ADR:** [0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md)
 - **Источник:** AT-051 (EP-009/HS-035)

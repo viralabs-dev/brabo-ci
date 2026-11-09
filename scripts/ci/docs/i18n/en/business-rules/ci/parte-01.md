@@ -24,7 +24,7 @@ and GitLab): `"gitlab"` generates `.gitlab-ci.yml`; any other value
 (`"github"`, `"local"`, or unknown) generates `.github/workflows/ci.yml`.
 Each file goes through `validate_infra_file` before finishing — hadolint
 for Dockerfile, `actionlint` for GitHub Actions workflow
-([ADR 0039](../../adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md);
+([ADR 0039](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md);
 `.gitlab-ci.yml` has no local validation, a documented gap, not a
 half-solution).
 
@@ -59,7 +59,7 @@ one).
   — and the proof that the `ExecuteInfraPrUseCase`/`InfraGateRunner`
   contract didn't change: `execute-infra-pr.use-case.spec.ts` and
   `infra_gate_runner_test.exs` pass **with no change at all**
-- **Origin:** [ADR 0038](../../adr/0038-hierarquia-de-agentes.md), [ADR 0039](../../adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md)
+- **Origin:** [ADR 0038](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0038-hierarquia-de-agentes.md), [ADR 0039](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md)
 
 On the `apps/web` side (Phase 8d): the team panel groups `infra`/
 `infra-workflows` the same way as QA (RN-036), and the feed narrates the
@@ -90,7 +90,7 @@ BLOCK a merge — today it's a manual opinion, not an automatic verdict.
   end of the file); decision documented in the file's header and in the ADR
 - **Test:** not applicable to CI (there's no step); the manual run against the
   real repository is recorded in ADR 0093, Consequences section
-- **ADR:** [0093](../../adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
+- **ADR:** [0093](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
 
 ## "N agents online" on the dashboard — LIVE status, never historical presence (RN-409, ADR 0097)
 
@@ -98,14 +98,14 @@ BLOCK a merge — today it's a manual opinion, not an automatic verdict.
 
 Found by real USE, not by test: in an execution session, five dev
 agents came up, became `idle_tripped` (the circuit breaker of
-[RN-047](../engine.md#rn-047), stuck waiting for the user to unblock a task
+[RN-047](https://github.com/viralabs-dev/brabo-engine/blob/dev/docs/business-rules/engine.md#rn-047), stuck waiting for the user to unblock a task
 manually), and the 30-second heartbeat
 (`Engine.Sessions.SessionServer.handle_info(:heartbeat_timeout, state)`)
 closed the session from underneath while the work — and the wait for a human
 decision — continued.
 
 `GetSessionPendingWorkUseCase` already had a third signal
-([RN-064](../web.md#rn-064)) for the same problem: an agent activated, with no later
+([RN-064](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-064)) for the same problem: an agent activated, with no later
 `idle`, holds the session. But that signal only reads `agent.status`, the
 vocabulary of CONVERSATIONAL agents (Criativo/PO/Arquiteto/Dev
 Lead/UX Designer/Staff/Infra). `Engine.Dev.DevAgentServer` (via
@@ -119,7 +119,7 @@ by the third signal, because no `agent.status` exists for it.
 
 The FOURTH signal fetches the LAST `dev.*` event of each `actor.id`
 (`dev-<modulo>`/`dev-<modulo>-2`, the same key as
-[RN-195](../web.md#rn-195)) that has already appeared in the session — like the third signal,
+[RN-195](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-195)) that has already appeared in the session — like the third signal,
 but over multiple event types instead of just one, because the
 dev agent's state isn't ONE type with a variable `payload.status`, it's distinct event
 TYPES per transition. The ruler: `pending: true` when the
@@ -133,12 +133,12 @@ count.
 `dev.awaiting_gate` and `dev.awaiting_approval`, as the last event, did NOT
 originally trigger this signal — they were left out of the ruler as
 decided at the time. `awaiting_gate` was a KNOWN residual gap; 
-[RN-412](../api.md#rn-412) closed it, together with `awaiting_approval` (by a
+[RN-412](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/business-rules/api.md#rn-412) closed it, together with `awaiting_approval` (by a
 new argument, not the original — see RN-412).
 
 `dev.blocked_by_container` came in LATER, by the same argument and through an
 equally real finding. The type was born with
-[RN-502](../engine.md#rn-502)/[ADR 0143](../../adr/0143-agentes-de-dev-so-depois-do-container.md) — the dev
+[RN-502](https://github.com/viralabs-dev/brabo-engine/blob/dev/docs/business-rules/engine.md#rn-502)/[ADR 0143](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0143-agentes-de-dev-so-depois-do-container.md) — the dev
 agent doesn't claim a task before the project has a registered `running`
 container — and the use case's `DEV_EVENT_TYPES` list didn't keep up.
 Since it's the list the use case QUERIES, the event became invisible: the
@@ -297,7 +297,7 @@ recorded the floor.
 - **Where:** `.github/workflows/golden-set-rag.yml`, `apps/api/config/gates.yml`
   (`rag-acertivo`), `apps/engine/mix.exs`,
   `apps/api/scripts/seed-golden-set-rag.ts`
-- **ADR:** [0138](../../adr/0138-golden-set-do-rag-em-ci-agendado.md)
+- **ADR:** [0138](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0138-golden-set-do-rag-em-ci-agendado.md)
 - **Origin:** the product owner's plan, Part 2 / Stage 3
 
 ## PHASE 29 — the one-line installation: signing what is published
@@ -385,10 +385,10 @@ recorded the floor.
 
 ## When things go wrong
 
-[PHASE 28](../../explanation/fase-28-pasta-do-usuario.md) refused in writing the
+[PHASE 28](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-28-pasta-do-usuario.md) refused in writing the
 one-line installer while the artifacts were not signed (BRB-005), and
-that is why [PHASE 29](../../explanation/fase-29-instalacao-de-uma-linha.md)
-signs **before** installing. Session 2, [ADR 0149](../../adr/0149-assinatura-dos-artefatos-publicados.md).
+that is why [PHASE 29](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-29-instalacao-de-uma-linha.md)
+signs **before** installing. Session 2, [ADR 0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md).
 
 ### RN-524 — A published artifact is signed by workflow identity, verified in the same run, and the verification refuses instead of warning {#rn-524}
 
@@ -397,13 +397,13 @@ publishing the Release**:
 
 - the **five images** are signed **by DIGEST** (they were four when this
   rule was written; the fifth, the broker, came in with
-  [ADR 0162](../../adr/0162-broker-publicado-e-oferecido-pelo-instalador.md)), read from
+  [ADR 0162](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0162-broker-publicado-e-oferecido-pelo-instalador.md)), read from
   `.release/images.json` — never by tag. A tag is a moving pointer: signing
   `:5.0.0` would attest what that tag pointed to at the instant of signing, and not
   what it points to when someone downloads. The digest is what the manifest already records
   and what the production overlay already applies (ADR 0119);
 - the runner **binaries** (five targets when this rule was born, **four**
-  since [ADR 0174](../../adr/0174-runner-sem-binario-darwin-x64.md), which removed
+  since [ADR 0174](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0174-runner-sem-binario-darwin-x64.md), which removed
   `darwin-x64`) are covered by **ONE** signed `checksums.txt`, and not by
   one signature per binary — whoever verifies three and forgets the fourth has
   no way of knowing they forgot;
@@ -411,7 +411,7 @@ publishing the Release**:
   the workflow itself, and there is no private key in custody. An own key pair
   would mean one more CI secret, and this repository has already seen a PAT
   expire silently and fail two runs of `tag-release`
-  ([ADR 0139](../../adr/0139-o-alarme-de-esteira-ganha-destinatario.md));
+  ([ADR 0139](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0139-o-alarme-de-esteira-ganha-destinatario.md));
 - **a verification failure is a named refusal, never a warning.** A warning one accepts
   by clicking is a verification that does not exist.
 
@@ -442,16 +442,16 @@ Windows Authenticode), which requires a paid identity and stays in the backlog.
 
 ### RN-549 — The E2E on a clean machine proves the WHOLE installation: the five links, the agent up and waiting, and the first project picked up without anyone going back to the terminal {#rn-549}
 
-Session 8 of [PHASE 30](../../explanation/fase-30-runner-por-maquina.md), the last — and the
+Session 8 of [PHASE 30](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md), the last — and the
 only one that could answer the question the whole phase pursues: *on a clean
 machine, does `install.sh` end with the local agent up and paired, and does the person create
 the first project in Runner mode without going back to the terminal?* Until now the answer was
-a written intention: [RN-547](../produto.md#rn-547) chained the five commands and declared,
+a written intention: [RN-547](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-547) chained the five commands and declared,
 in writing, that in its tests `brabo-runner` is a shell stand-in and the api is a
 `node:http` — *"what is proven is the CHAINING, never the integration"*.
 
 **The harness was not born here: it was EXTENDED.** `.github/workflows/install-e2e.yml`
-has existed since PHASE 29 ([RN-534](../produto.md#rn-534)) and already runs the published installer on an
+has existed since PHASE 29 ([RN-534](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-534)) and already runs the published installer on an
 ephemeral Actions runner — which is literally a clean machine, without Brabo, without
 `.env`, without a marker. What it proved stopped at `.env`: plan, state, the three
 promises to never delete, the path without a TTY, and the startup with a simulated TTY. A
@@ -460,13 +460,13 @@ signature) to measure the cheap side.
 
 **It does NOT run on `pull_request`, and the consequence is declared instead of
 hidden.** The installer verifies its own origin against a Release's **signed**
-`checksums.txt` ([RN-526](../produto.md#rn-526)), which only exists after a final
+`checksums.txt` ([RN-526](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-526)), which only exists after a final
 tag; the only way to make it run on a PR would be giving it a door to SKIP
-verification — the door [ADR 0150](../../adr/0150-instalador-de-uma-linha.md)
+verification — the door [ADR 0150](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0150-instalador-de-uma-linha.md)
 refuses, and which once opened would hold for anyone, not only for CI. Hence: **the
 PR that wrote this E2E did not execute it**, and its checks passed without exercising
 a single line of what it added. It is the same decision as the RAG golden-set
-([ADR 0138](../../adr/0138-golden-set-do-rag-em-ci-agendado.md)), for the same reason.
+([ADR 0138](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0138-golden-set-do-rag-em-ci-agendado.md)), for the same reason.
 
 **Hence the half that RUNS on PRs, and it is the reason it exists.** A workflow that only runs
 on tags is a workflow whose error shows up on the tag, when the release is already going out and
@@ -480,29 +480,29 @@ new `read -r` in the installer misaligns all the following ones — the base wou
 password —, so the test counts the prompts and says to look at the answers file.
 
 **What the E2E came to prove, and each assertion has an owner.** The five links of
-[RN-547](../produto.md#rn-547), one by one, against a REAL api and binary — the account
-([RN-546](../produto.md#rn-546)), the pair generated on the machine and the stamped `kid`
-([RN-551](../runner.md#rn-551)), the registration of the public key ([RN-552](../api.md#rn-552)) and the
-per-machine unit ([RN-545](../runner.md#rn-545)). Plus the invariant of [RN-475](../web.md#rn-475) measured on the
+[RN-547](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-547), one by one, against a REAL api and binary — the account
+([RN-546](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-546)), the pair generated on the machine and the stamped `kid`
+([RN-551](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-551)), the registration of the public key ([RN-552](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/business-rules/api.md#rn-552)) and the
+per-machine unit ([RN-545](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-545)). Plus the invariant of [RN-475](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-475) measured on the
 DISK and not in the output (the file the runner reads has `kid`, has `d`, and the
 `.parcial` vanished when `finish` closed), the password absent from `.env`, from the
 marker and from the log, and the `ownerEmail` present in the marker.
 
 **The NEGATIVE proof is the one worth the most, and it is the absence of the pending block.**
-[RN-547](../produto.md#rn-547) says to report each link that fails in a named final block — and
+[RN-547](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-547) says to report each link that fails in a named final block — and
 exit **0** all the same. An E2E that looked at the exit code would go green with
 four of the five links broken. *"No pending items"* is the only way to assert
 that the five closed, including the ones the workflow does not know how to name.
 
 **The signal that the agent is UP waiting is the LINE, never the manager's state — and that
 choice is this E2E's central decision.**
-`perguntarEstado` maps `activating` to `rodando` ([RN-088](../web.md#rn-088), with
+`perguntarEstado` maps `activating` to `rodando` ([RN-088](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-088), with
 reason: "coming up" is not "stopped"), so both `systemctl is-active` and
 `brabo-runner service status --machine` answer *up* for a process that will
 die two seconds later. It is exactly the race a fixed `sleep` hides, and
 measuring the wrong artifact here — a binary on disk, a written unit — is the
 easiest way for an E2E to go green without proving anything. The chosen signal is the line the
-process writes when ENTERING the wait ([RN-550](../runner.md#rn-550)): it only exists after
+process writes when ENTERING the wait ([RN-550](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-550)): it only exists after
 the agent has read the machine key from disk, gotten a ticket, talked to the real api
 and received an EMPTY list — it proves pairing and waiting at once. And it is not
 state sampling: it is a fact already written to the journal, which does not undo itself. That is why
@@ -513,19 +513,19 @@ operator will see, never in its place.
 
 **The phase's outcome is measured through the API, and not the BROWSER.** The subject of the
 assertion is the AGENT, not the page: what it observes is `GET /runner/projects`
-([RN-543](../produto.md#rn-543)), an api fact. A browser would create the project through the SAME
+([RN-543](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-543)), an api fact. A browser would create the project through the SAME
 route with one more layer that fails for reasons unrelated to the promise — and would not
 make the assertion stronger, because it remains the line in the agent's
 journal. The browser layer exists (`e2e/`,
-[ADR 0120](../../adr/0120-e2e-de-navegador-contra-o-compose-de-producao.md)), answers
+[ADR 0120](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0120-e2e-de-navegador-contra-o-compose-de-producao.md)), answers
 another question (three origins, `httpOnly` cookie, CSRF), has its own lockfile and
 assumes the production compose up: dragging it here would make the installer's E2E
 depend on a second harness installed on a machine that should be clean.
 Proving the wizard is the web suite's job, and it is already covered there. What the step
 measures is the whole chain: the account born in the terminal **gets through the login** without
-any verification link, the personal workspace of [RN-410](../api.md#rn-410) exists, the
+any verification link, the personal workspace of [RN-410](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/business-rules/api.md#rn-410) exists, the
 project is born `runner`, and the agent picks it up on its own within the
-15s/30s/60s cadence of [RN-550](../runner.md#rn-550).
+15s/30s/60s cadence of [RN-550](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-550).
 
 **Idempotency is measured by the half the E2E reaches without reinstalling.** The api
 really answers `409` to a second `first-account` — with a GENERATED password, never
@@ -534,7 +534,7 @@ would give `400`, measuring the wrong thing. What the installer DOES with that `
 (go silent, and not become a pending item) is HTTP code classification, covered in
 `install-fechamento.spec.ts` against a test server: repeating it here would require
 a whole second installation, which goes through the MIGRATION path
-([RN-530](../infra.md#rn-530)) — proven backup, delete, recreate — and is its own delivery.
+([RN-530](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/business-rules/infra.md#rn-530)) — proven backup, delete, recreate — and is its own delivery.
 
 **The only divergence between this runner and a clean machine belongs to the ENVIRONMENT, and it is
 named.** On a real machine whoever installs has a login session and
@@ -596,12 +596,12 @@ stays out of `pull_request`.
 - **Gap DECLARED:** this E2E **does not run on the PR that wrote it**, and none of its
   checks proves a line of what was added — the first real execution is
   the next final tag. Also left out, and not by forgetfulness: the second
-  run of the installer through the MIGRATION path ([RN-530](../infra.md#rn-530)) — backup,
+  run of the installer through the MIGRATION path ([RN-530](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/business-rules/infra.md#rn-530)) — backup,
   restore proof, delete and recreate —, macOS (the full step is Linux:
   `launchd`, and the Docker the hosted runner does not have), and the browser
-- **ADR:** [0155](../../adr/0155-a-primeira-conta-nasce-no-terminal.md)
+- **ADR:** [0155](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0155-a-primeira-conta-nasce-no-terminal.md)
 - **Origin:** PHASE 30, session 8 —
-  [the phase's scope](../../explanation/fase-30-runner-por-maquina.md)
+  [the phase's scope](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md)
 
 ## The device key gets a screen, and the screen states the reach of revoking (RN-561)
 
@@ -609,8 +609,8 @@ stays out of `pull_request`.
 
 The signed `checksums.txt` ([RN-524](#rn-524)) is the precondition of two other
 rules: without it, `GET /runner-releases/binary` refuses with
-`release_sem_manifesto` ([RN-525](../produto.md#rn-525)) and `install.sh` refuses itself
-([RN-526](../produto.md#rn-526)) — **on all platforms, including those that attached a
+`release_sem_manifesto` ([RN-525](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-525)) and `install.sh` refuses itself
+([RN-526](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-526)) — **on all platforms, including those that attached a
 binary properly**. A manifest that is late is not a late manifest: for
 whoever installs in that interval, it is an absent manifest.
 
@@ -656,7 +656,7 @@ depend on it — it is precisely because it depended on it that it did not come 
 > The pending decision stopped being about the runner and became waiting for Bun or
 > removing the platform. The rule above does not change because of that.
 
-> **Decided on 2026-09-27 ([ADR 0174](../../adr/0174-runner-sem-binario-darwin-x64.md), AT-065):
+> **Decided on 2026-09-27 ([ADR 0174](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0174-runner-sem-binario-darwin-x64.md), AT-065):
 > the platform left.** The matrix went to FOUR targets, and `ALVOS_ESPERADOS`
 > followed — it is against it that the absence is declared, and leaving `darwin-x64`
 > there would make every manifest announce, forever, a gap that is a decision. The
@@ -683,11 +683,11 @@ depend on it — it is precisely because it depended on it that it did not come 
   and the limit is declared at the top of the file: the job is only proven on a final tag,
   and it has never run on any
 - **Gap DECLARED:** the matrix has THREE targets since
-  [ADR 0187](../../adr/0187-runner-sem-binario-win32-x64.md) (`win32-x64` left by the
+  [ADR 0187](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0187-runner-sem-binario-win32-x64.md) (`win32-x64` left by the
   same mold as ADR 0174, and `ALVOS_ESPERADOS` followed) and the Release
   keeps receiving **two** — `darwin-arm64` is proven in rehearsal
-  ([RN-688](../runner.md#rn-688)) and only needs a final tag to exercise it. The manifest will be born covering two and will
+  ([RN-688](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-688)) and only needs a final tag to exercise it. The manifest will be born covering two and will
   **say** so, which is the difference between partial and silent. And, with the matrix
   failing entirely, the job spends both waits before refusing
-- **ADR:** [0149](../../adr/0149-assinatura-dos-artefatos-publicados.md)
+- **ADR:** [0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md)
 - **Origin:** AT-051 (EP-009/HS-035)

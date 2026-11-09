@@ -17,7 +17,7 @@ ADR 0038 模型的第二个实例，继 QA 领域（RN-036）之后——有一�
 （`GetInfraContextUseCase`，从 `project_repositories.provider` 读取——**不是**从 `GitProvider` 的 `capabilities` 读取，后者对 GitHub 和 GitLab 是**相同**的）：`"gitlab"` 生成 `.gitlab-ci.yml`；任何其他值
 （`"github"`、`"local"` 或未知）生成 `.github/workflows/ci.yml`。
 每个文件在完成前都经过 `validate_infra_file`——Dockerfile 用 hadolint，GitHub Actions 工作流用 `actionlint`
-（[ADR 0039](../../adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md)；
+（[ADR 0039](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md)；
 `.gitlab-ci.yml` 没有本地校验，这是有文档记录的缺口，而不是半个方案）。
 
 整合：两个委派者的文件按 `path` 合并（冲突时 Workflows 胜出）为**单个** PR——提议 PR 的机制
@@ -42,7 +42,7 @@ ADR 0038 模型的第二个实例，继 QA 领域（RN-036）之后——有一�
   ——以及 `ExecuteInfraPrUseCase`/`InfraGateRunner`
   契约未改变的证明：`execute-infra-pr.use-case.spec.ts` 和
   `infra_gate_runner_test.exs` **完全不修改**即通过
-- **来源：** [ADR 0038](../../adr/0038-hierarquia-de-agentes.md)、[ADR 0039](../../adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md)
+- **来源：** [ADR 0038](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0038-hierarquia-de-agentes.md)、[ADR 0039](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0039-actionlint-e-validacao-do-pipeline-de-ci-gerado.md)
 
 在 `apps/web` 一侧（第 8d 阶段）：团队面板以与 QA（RN-036）相同的方式分组 `infra`/
 `infra-workflows`，信息流叙述该领域的委派——使用 `apps/web/src/lib/agents.ts` 中同一个 `AREAS`/`areaFor` 注册表，UI 中没有 Infra 专用代码。
@@ -61,17 +61,17 @@ TYPE`）。这不是要顺手修正的缺陷（与 CLAUDE.md 中保护 Z/AD/AE �
 
 - **位置：** `apps/api/scripts/lint-migracao.ts`（`principal`，文件末尾的退出码）；决定记录在文件头和 ADR 中
 - **测试：** 不适用于 CI（没有步骤）；针对真实仓库的手动运行记录在 ADR 0093 的“后果”一节
-- **ADR：** [0093](../../adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
+- **ADR：** [0093](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
 
 ## 仪表盘上的“N 个智能体在线”——**实时**状态，从不是历史在场（RN-409，ADR 0097）
 
 ### RN-411 — 第四个待处理工作信号：dev agent 说的是 `dev.*`，而不是 `agent.status` {#rn-411}
 
-这是通过**真实**使用而非测试发现的：在一个执行会话中，五个 dev agent 启动后变为 `idle_tripped`（[RN-047](../engine.md#rn-047) 的熔断器，卡住等待用户手动解除某个任务的阻塞），而 30 秒的心跳
+这是通过**真实**使用而非测试发现的：在一个执行会话中，五个 dev agent 启动后变为 `idle_tripped`（[RN-047](https://github.com/viralabs-dev/brabo-engine/blob/dev/docs/business-rules/engine.md#rn-047) 的熔断器，卡住等待用户手动解除某个任务的阻塞），而 30 秒的心跳
 （`Engine.Sessions.SessionServer.handle_info(:heartbeat_timeout, state)`）在工作——以及对人的决定的等待——仍在继续时，从底下关闭了会话。
 
 `GetSessionPendingWorkUseCase` 针对同一问题早已有第三个信号
-（[RN-064](../web.md#rn-064)）：智能体已激活、之后没有 `idle`，就会保持会话。但这个信号只读取 `agent.status`，即**对话型**智能体（Criativo/PO/Arquiteto/Dev
+（[RN-064](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-064)）：智能体已激活、之后没有 `idle`，就会保持会话。但这个信号只读取 `agent.status`，即**对话型**智能体（Criativo/PO/Arquiteto/Dev
 Lead/UX Designer/Staff/Infra）的词汇。`Engine.Dev.DevAgentServer`（经由
 `Engine.Dev.AgentIo`）从不发出 `agent.status`——它在会话事件日志中使用**自己的**词汇：`dev.started`、`dev.working`、
 `dev.awaiting_gate`、`dev.awaiting_approval`、`dev.idle`、
@@ -80,13 +80,13 @@ Lead/UX Designer/Staff/Infra）的词汇。`Engine.Dev.DevAgentServer`（经由
 
 **第四个**信号查找会话中已出现的每个 `actor.id`
 （`dev-<modulo>`/`dev-<modulo>-2`，与
-[RN-195](../web.md#rn-195) 相同的键）的**最后一个** `dev.*` 事件——与第三个信号相同，但针对多种事件类型而不是一种，因为 dev agent 的状态不是**一个**带可变 `payload.status` 的类型，而是每次转换各自不同的事件**类型**。标准：当最后一个是 `dev.working`、`dev.blocked` 或 `dev.idle_tripped` 时 `pending: true`——三者都意味着“有工作在进行，或需要人来行动”，而卡住等待解除阻塞**就是**待处理工作（这正是会话在真实执行中被关闭时用户正在做的事）。只有
+[RN-195](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-195) 相同的键）的**最后一个** `dev.*` 事件——与第三个信号相同，但针对多种事件类型而不是一种，因为 dev agent 的状态不是**一个**带可变 `payload.status` 的类型，而是每次转换各自不同的事件**类型**。标准：当最后一个是 `dev.working`、`dev.blocked` 或 `dev.idle_tripped` 时 `pending: true`——三者都意味着“有工作在进行，或需要人来行动”，而卡住等待解除阻塞**就是**待处理工作（这正是会话在真实执行中被关闭时用户正在做的事）。只有
 `dev.idle`（没有任何任务可取，真正排空了）不计入。
 
-`dev.awaiting_gate` 和 `dev.awaiting_approval` 作为最后一个事件，最初**不**触发这个信号——它们被排除在当时决定的标准之外。`awaiting_gate` 是一个**已知**的残余缺口；[RN-412](../api.md#rn-412) 关闭了它，连同 `awaiting_approval`（通过一个新论据，而不是原来的那个——见 RN-412）。
+`dev.awaiting_gate` 和 `dev.awaiting_approval` 作为最后一个事件，最初**不**触发这个信号——它们被排除在当时决定的标准之外。`awaiting_gate` 是一个**已知**的残余缺口；[RN-412](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/business-rules/api.md#rn-412) 关闭了它，连同 `awaiting_approval`（通过一个新论据，而不是原来的那个——见 RN-412）。
 
 `dev.blocked_by_container` 是**之后**加入的，基于同样的论据和同样真实的发现。该类型诞生于
-[RN-502](../engine.md#rn-502)/[ADR 0143](../../adr/0143-agentes-de-dev-so-depois-do-container.md)——dev agent 在项目有已记录的 `running` 容器之前不认领任务——而用例的 `DEV_EVENT_TYPES` 列表没有跟上。由于用例**查询**的正是这个列表，该事件变得不可见：api 甚至看不到它来忽略它。在 `exp004` 的真实运行中（会话
+[RN-502](https://github.com/viralabs-dev/brabo-engine/blob/dev/docs/business-rules/engine.md#rn-502)/[ADR 0143](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0143-agentes-de-dev-so-depois-do-container.md)——dev agent 在项目有已记录的 `running` 容器之前不认领任务——而用例的 `DEV_EVENT_TYPES` 列表没有跟上。由于用例**查询**的正是这个列表，该事件变得不可见：api 甚至看不到它来忽略它。在 `exp004` 的真实运行中（会话
 `f782257e`），五个 dev agent 在 22:41:38 发出了 `dev.started` 和
 `dev.blocked_by_container`，engine 在 22:42:07 因
 `heartbeat_timeout` 关闭——整整 30 秒——而该会话的事件在 13 分钟和 32 分钟后仍在到达。每个智能体最后一个**可见**的事件是 `dev.started`，它被有意排除在标准之外。五个智能体都在等待一个**人**启动容器，这正是其他信号已在使用的待处理工作的定义。
@@ -144,7 +144,7 @@ golden_set.rag` 诞生、“从不在 CI 中”，原因与 QA 的 golden-set（
 - **位置：** `.github/workflows/golden-set-rag.yml`、`apps/api/config/gates.yml`
   （`rag-acertivo`）、`apps/engine/mix.exs`、
   `apps/api/scripts/seed-golden-set-rag.ts`
-- **ADR：** [0138](../../adr/0138-golden-set-do-rag-em-ci-agendado.md)
+- **ADR：** [0138](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0138-golden-set-do-rag-em-ci-agendado.md)
 - **来源：** 产品负责人的计划，第 2 部分 / 第 3 步
 
 ## FASE 29 — 一行安装：为所发布的东西签名
@@ -232,15 +232,15 @@ golden_set.rag` 诞生、“从不在 CI 中”，原因与 QA 的 golden-set（
 
 ## 出错时
 
-[FASE 28](../../explanation/fase-28-pasta-do-usuario.md) 明文拒绝了一行安装程序，只要产物尚未签名（BRB-005），这就是为什么 [FASE 29](../../explanation/fase-29-instalacao-de-uma-linha.md) 在安装**之前**先签名。第 2 次会话，[ADR 0149](../../adr/0149-assinatura-dos-artefatos-publicados.md)。
+[FASE 28](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-28-pasta-do-usuario.md) 明文拒绝了一行安装程序，只要产物尚未签名（BRB-005），这就是为什么 [FASE 29](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-29-instalacao-de-uma-linha.md) 在安装**之前**先签名。第 2 次会话，[ADR 0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md)。
 
 ### RN-524 — 发布的产物由工作流身份签名，在同一次运行中校验，校验失败时拒绝而不是警告 {#rn-524}
 
 每个正式 tag 都为它发布的东西签名，并**在发布 Release 之前校验所签的东西**：
 
-- **五个镜像**按 **DIGEST** 签名（本规则写下时是四个；第五个 broker 随 [ADR 0162](../../adr/0162-broker-publicado-e-oferecido-pelo-instalador.md) 加入），读自 `.release/images.json`——绝不按 tag。tag 是可移动的指针：为 `:5.0.0` 签名，证明的是签名那一刻该 tag 指向的东西，而不是有人下载时它所指向的东西。digest 是清单早已记录、生产 overlay 早已应用的东西（ADR 0119）；
-- runner 的**二进制**（本规则诞生时是五个目标，自 [ADR 0174](../../adr/0174-runner-sem-binario-darwin-x64.md) 去掉 `darwin-x64` 后是**四个**）由**一个**签名的 `checksums.txt` 覆盖，而不是每个二进制一个签名——校验了三个而忘了第四个的人无从知道自己忘了；
-- 签名是 **keyless** 的（GitHub Actions 的 OIDC）：签名的身份就是工作流本身，不存在托管的私钥。自有密钥对意味着又一个 CI 密钥，而本仓库已经见过一个 PAT 悄无声息地过期并否决了两次 `tag-release` 运行（[ADR 0139](../../adr/0139-o-alarme-de-esteira-ganha-destinatario.md)）；
+- **五个镜像**按 **DIGEST** 签名（本规则写下时是四个；第五个 broker 随 [ADR 0162](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0162-broker-publicado-e-oferecido-pelo-instalador.md) 加入），读自 `.release/images.json`——绝不按 tag。tag 是可移动的指针：为 `:5.0.0` 签名，证明的是签名那一刻该 tag 指向的东西，而不是有人下载时它所指向的东西。digest 是清单早已记录、生产 overlay 早已应用的东西（ADR 0119）；
+- runner 的**二进制**（本规则诞生时是五个目标，自 [ADR 0174](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0174-runner-sem-binario-darwin-x64.md) 去掉 `darwin-x64` 后是**四个**）由**一个**签名的 `checksums.txt` 覆盖，而不是每个二进制一个签名——校验了三个而忘了第四个的人无从知道自己忘了；
+- 签名是 **keyless** 的（GitHub Actions 的 OIDC）：签名的身份就是工作流本身，不存在托管的私钥。自有密钥对意味着又一个 CI 密钥，而本仓库已经见过一个 PAT 悄无声息地过期并否决了两次 `tag-release` 运行（[ADR 0139](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0139-o-alarme-de-esteira-ganha-destinatario.md)）；
 - **校验失败是点名的拒绝，绝不是警告。** 点一下就能接受的警告，就是不存在的校验。
 
 清单**声明它覆盖了什么**。矩阵有意设为 `fail-fast: false`，所以一个没有构建成功的目标不会妨碍其他四个拥有清单——但作业会在日志中点名被排除的目标，因为列出四个而对第五个沉默的 `checksums.txt` 比没有更糟：校验了四个的人会以为自己校验了整个发布。这一半曾是**书面意图加上没有兑现它的机制**：在 `needs: build` 下，一个构建失败的目标不是不妨碍，而是把它「推迟」了一天——见 [RN-565](#rn-565)，它让这一半成真并测出了这个数字。
@@ -257,25 +257,25 @@ as imagens publicadas」，`permissions` 块中带 `id-token: write`）；
 
 ### RN-549 — 干净机器上的 E2E 证明「整个」安装：五个环节、在运行中等待的代理，以及无人回到终端即被接手的第一个项目 {#rn-549}
 
-[FASE 30](../../explanation/fase-30-runner-por-maquina.md) 的第 8 次会话，最后一次——也是唯一能回答整个阶段所追问问题的一次：*在一台干净的机器上，`install.sh` 结束时本地代理是否在运行且已配对，人是否无需回到终端就能以 Runner 模式创建第一个项目？* 在此之前，答案是一个书面意图：[RN-547](../produto.md#rn-547) 串联了五个命令，并以书面形式声明在它的测试中 `brabo-runner` 是 shell 替身、api 是 `node:http`——*"o que se prova é o ENCADEAMENTO, nunca a integração"*。
+[FASE 30](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md) 的第 8 次会话，最后一次——也是唯一能回答整个阶段所追问问题的一次：*在一台干净的机器上，`install.sh` 结束时本地代理是否在运行且已配对，人是否无需回到终端就能以 Runner 模式创建第一个项目？* 在此之前，答案是一个书面意图：[RN-547](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-547) 串联了五个命令，并以书面形式声明在它的测试中 `brabo-runner` 是 shell 替身、api 是 `node:http`——*"o que se prova é o ENCADEAMENTO, nunca a integração"*。
 
-**测试装置不是在这里诞生的：它被「扩展」了。** `.github/workflows/install-e2e.yml` 自 FASE 29（[RN-534](../produto.md#rn-534)）起就存在，已经在 Actions 的临时 runner 中运行已发布的安装程序——字面意义上就是一台干净的机器，没有 Brabo、没有 `.env`、没有标记。它证明的东西止步于 `.env`：计划、状态、三个绝不删除的承诺、无 TTY 路径，以及在模拟 TTY 下的启动。第二个工作流会为了测量便宜的一面而重复昂贵的一面（等待 Release、下载、校验签名）。
+**测试装置不是在这里诞生的：它被「扩展」了。** `.github/workflows/install-e2e.yml` 自 FASE 29（[RN-534](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-534)）起就存在，已经在 Actions 的临时 runner 中运行已发布的安装程序——字面意义上就是一台干净的机器，没有 Brabo、没有 `.env`、没有标记。它证明的东西止步于 `.env`：计划、状态、三个绝不删除的承诺、无 TTY 路径，以及在模拟 TTY 下的启动。第二个工作流会为了测量便宜的一面而重复昂贵的一面（等待 Release、下载、校验签名）。
 
-**它「不」在 `pull_request` 中运行，后果是声明出来的，而不是藏起来的。** 安装程序对照 Release 的**已签名** `checksums.txt` 校验自身来源（[RN-526](../produto.md#rn-526)），后者只在正式 tag 之后存在；让它在 PR 中运行的唯一方式是给它一扇「跳过」校验的门——[ADR 0150](../../adr/0150-instalador-de-uma-linha.md) 拒绝的那扇门，一旦打开就对任何人有效，而不只是 CI。因此：**写下这个 E2E 的 PR 并没有执行它**，它的检查在没有演练其新增内容任何一行的情况下通过。这与 RAG golden-set 的决定（[ADR 0138](../../adr/0138-golden-set-do-rag-em-ci-agendado.md)）相同，原因也相同。
+**它「不」在 `pull_request` 中运行，后果是声明出来的，而不是藏起来的。** 安装程序对照 Release 的**已签名** `checksums.txt` 校验自身来源（[RN-526](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-526)），后者只在正式 tag 之后存在；让它在 PR 中运行的唯一方式是给它一扇「跳过」校验的门——[ADR 0150](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0150-instalador-de-uma-linha.md) 拒绝的那扇门，一旦打开就对任何人有效，而不只是 CI。因此：**写下这个 E2E 的 PR 并没有执行它**，它的检查在没有演练其新增内容任何一行的情况下通过。这与 RAG golden-set 的决定（[ADR 0138](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0138-golden-set-do-rag-em-ci-agendado.md)）相同，原因也相同。
 
 **由此有了在 PR 中「运行」的那一半，这就是它存在的理由。** 只在 tag 中运行的工作流，其错误会在 tag 中出现，那时发布已在推出，没人再看那个弄坏它的 PR。`scripts/dev/install-e2e.spec.ts` 测量这个 E2E 悄无声息地腐烂的两种已知方式：有人**放宽**闸门（在触发器中加上 `pull_request`，或传入一个跳过校验的标志），以及有人**改写** `install.sh` 中的一句话——于是工作流中的每个 `grep` 都不再匹配任何东西，断言不是失败，而是「消失」。提示的金丝雀是推导出来的，而不是背下来的：TTY 的回答按文件、**按顺序**传入，安装程序中新增的一个 `read -r` 会让之后的所有回答错位——基目录会变成密码——，所以测试会数提示的个数，并让人去看回答文件。
 
-**E2E 开始证明的东西，每条断言都有归属。** [RN-547](../produto.md#rn-547) 的五个环节，逐一针对「真实」的 api 和二进制——账户（[RN-546](../produto.md#rn-546)）、在机器上生成的密钥对和盖上的 `kid`（[RN-551](../runner.md#rn-551)）、公钥的登记（[RN-552](../api.md#rn-552)）以及按机器的 unit（[RN-545](../runner.md#rn-545)）。再加上在「磁盘」而不是输出上测量的 [RN-475](../web.md#rn-475) 不变量（runner 读取的文件有 `kid`、有 `d`，并且 `finish` 完成时 `.parcial` 已消失），`.env`、标记和日志中都没有密码，以及标记中存在 `ownerEmail`。
+**E2E 开始证明的东西，每条断言都有归属。** [RN-547](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-547) 的五个环节，逐一针对「真实」的 api 和二进制——账户（[RN-546](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-546)）、在机器上生成的密钥对和盖上的 `kid`（[RN-551](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-551)）、公钥的登记（[RN-552](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/business-rules/api.md#rn-552)）以及按机器的 unit（[RN-545](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-545)）。再加上在「磁盘」而不是输出上测量的 [RN-475](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-475) 不变量（runner 读取的文件有 `kid`、有 `d`，并且 `finish` 完成时 `.parcial` 已消失），`.env`、标记和日志中都没有密码，以及标记中存在 `ownerEmail`。
 
-**「否定」证明最有价值，那就是待办块的缺席。** [RN-547](../produto.md#rn-547) 要求在一个点名的最终块中报告每个失败的环节——并照样以 **0** 退出。一个看退出码的 E2E 会在五个环节坏了四个的情况下给出绿色。*"Nenhuma pendência"* 是断言五个都完成的唯一方式，包括工作流说不出名字的那些。
+**「否定」证明最有价值，那就是待办块的缺席。** [RN-547](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-547) 要求在一个点名的最终块中报告每个失败的环节——并照样以 **0** 退出。一个看退出码的 E2E 会在五个环节坏了四个的情况下给出绿色。*"Nenhuma pendência"* 是断言五个都完成的唯一方式，包括工作流说不出名字的那些。
 
 **代理「在运行」并等待的信号是那「一行」，绝不是管理器的状态——这一选择是本 E2E 的核心决定。**
-`perguntarEstado` 把 `activating` 映射为 `rodando`（[RN-088](../web.md#rn-088)，有道理：「启动中」不是「已停止」），所以 `systemctl is-active` 和 `brabo-runner service status --machine` 都会对一个两秒后就会死掉的进程回答*在运行*。这恰恰是固定的 `sleep` 所掩盖的竞态，而在这里测量错误的产物——磁盘上的一个二进制、一个写好的 unit——是 E2E 不证明任何东西就给出绿色的最容易的方式。所选的信号是进程在「进入」等待时写下的那一行（[RN-550](../runner.md#rn-550)）：它只在代理从磁盘读取了机器密钥、拿到票据、和真实的 api 对话并收到一个「空」列表之后才存在——一次性证明了配对和等待。而且它不是
+`perguntarEstado` 把 `activating` 映射为 `rodando`（[RN-088](https://github.com/viralabs-dev/brabo-web/blob/dev/docs/business-rules/web.md#rn-088)，有道理：「启动中」不是「已停止」），所以 `systemctl is-active` 和 `brabo-runner service status --machine` 都会对一个两秒后就会死掉的进程回答*在运行*。这恰恰是固定的 `sleep` 所掩盖的竞态，而在这里测量错误的产物——磁盘上的一个二进制、一个写好的 unit——是 E2E 不证明任何东西就给出绿色的最容易的方式。所选的信号是进程在「进入」等待时写下的那一行（[RN-550](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-550)）：它只在代理从磁盘读取了机器密钥、拿到票据、和真实的 api 对话并收到一个「空」列表之后才存在——一次性证明了配对和等待。而且它不是
 状态采样：它是已经写进 journal、不会撤销的事实。所以带上限地等待它不是竞态——要么它出现，要么上限耗尽，该步骤失败并显示整个 journal。`service status --machine` 在它**之后**进入，作为退出码回答了运维者将看到的内容的确认，绝不取代它。
 
-**阶段的结果由 API 测量，而不是由浏览器。** 断言的主体是「代理」，不是页面：它观察的是 `GET /runner/projects`（[RN-543](../produto.md#rn-543)），api 的一个事实。浏览器会通过「同一」路由创建项目，多一层会因与承诺无关的原因失败的东西——而且不会让断言更强，因为断言仍然是代理 journal 中的那一行。浏览器层是存在的（`e2e/`，[ADR 0120](../../adr/0120-e2e-de-navegador-contra-o-compose-de-producao.md)），它回答的是另一个问题（三个源、`httpOnly` cookie、CSRF），有自己的 lockfile，并假定生产 compose 在运行：把它拖到这里，会让安装程序的 E2E 依赖于在一台本应干净的机器上安装的第二个测试装置。证明向导是 web 套件的工作，那里已经覆盖了。这一步测量的是整条链：在终端中诞生的账户**通过登录**，无需任何验证链接；[RN-410](../api.md#rn-410) 的个人 workspace 存在；项目以 `runner` 诞生；代理在 [RN-550](../runner.md#rn-550) 的 15s/30s/60s 节奏内自行接手它。
+**阶段的结果由 API 测量，而不是由浏览器。** 断言的主体是「代理」，不是页面：它观察的是 `GET /runner/projects`（[RN-543](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-543)），api 的一个事实。浏览器会通过「同一」路由创建项目，多一层会因与承诺无关的原因失败的东西——而且不会让断言更强，因为断言仍然是代理 journal 中的那一行。浏览器层是存在的（`e2e/`，[ADR 0120](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0120-e2e-de-navegador-contra-o-compose-de-producao.md)），它回答的是另一个问题（三个源、`httpOnly` cookie、CSRF），有自己的 lockfile，并假定生产 compose 在运行：把它拖到这里，会让安装程序的 E2E 依赖于在一台本应干净的机器上安装的第二个测试装置。证明向导是 web 套件的工作，那里已经覆盖了。这一步测量的是整条链：在终端中诞生的账户**通过登录**，无需任何验证链接；[RN-410](https://github.com/viralabs-dev/brabo-api/blob/dev/docs/business-rules/api.md#rn-410) 的个人 workspace 存在；项目以 `runner` 诞生；代理在 [RN-550](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-550) 的 15s/30s/60s 节奏内自行接手它。
 
-**幂等性由 E2E 无需重新安装就能到达的那一半来测量。** api 对第二次 `first-account` 确实回应 `409`——使用「生成」的密码，绝不是常量，因为 `exigirSenhaValida` 在冲突「之前」运行，弱密码会得到 `400`，测量的就是错误的东西。安装程序如何「处理」这个 `409`（保持沉默，而不变成待办）是 HTTP 状态码的分类，在 `install-fechamento.spec.ts` 中针对测试服务器覆盖：在这里重复它需要第二次完整安装，那会走「迁移」路径（[RN-530](../infra.md#rn-530)）——经证明的备份、删除、重建——是另一项交付。
+**幂等性由 E2E 无需重新安装就能到达的那一半来测量。** api 对第二次 `first-account` 确实回应 `409`——使用「生成」的密码，绝不是常量，因为 `exigirSenhaValida` 在冲突「之前」运行，弱密码会得到 `400`，测量的就是错误的东西。安装程序如何「处理」这个 `409`（保持沉默，而不变成待办）是 HTTP 状态码的分类，在 `install-fechamento.spec.ts` 中针对测试服务器覆盖：在这里重复它需要第二次完整安装，那会走「迁移」路径（[RN-530](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/business-rules/infra.md#rn-530)）——经证明的备份、删除、重建——是另一项交付。
 
 **这个 runner 与干净机器之间唯一的分歧来自「环境」，并已点名。** 在真实机器上，安装者有登录会话，`systemd --user` 已经在运行；Actions 作业以非交互方式运行，没有会话，没有会话时 `systemctl --user` 没有可以对话的总线——`service install
 --machine` 会因为一个不属于产品的原因变成待办，而 E2E 会「证明」一个实验室故障。`loginctl enable-linger` 让用户管理器运行起来；它不是安装程序的标志，不跳过任何校验，也不改变 unit 的行为。
@@ -288,16 +288,16 @@ as imagens publicadas」，`permissions` 块中带 `id-token: write`）；
 
 - **代码：** `.github/workflows/install-e2e.yml:16`（仍然没有 `pull_request` 的触发器）、`:111`（发现的那一步——安装程序不下载的三个文件）、`:172`（systemd 的用户会话，已声明的分歧）、`:204`（带「七个」回答的完整安装）、`:241`–`:245`（RN-547 的五个环节，每行一个）、`:253`（否定证明——没有待办）、`:267`–`:274`（`kid`、`d` 和 `.parcial`，在「磁盘」而不是输出上测量）、`:278`（没有泄露的密码）、`:307`（代理在运行，凭 journal 的那一行而不是管理器）、`:354`（通过 api 的第一个项目，以及代理接手它）、`:415`（第二个账户的 `409`）
 - **测试：** `scripts/dev/install-e2e.spec.ts`——在 PR 中运行的那一半：从「文档」读取的触发器（而不是从文本，那会匹配到解释为什么没有 `pull_request` 的注释）、两个文件中都没有跳过校验的标志、工作流与 `install.sh` 之间的语句契约（五个环节加上一贯的四个）、断言所依赖的 `apps/runner` 的两行、交互提示的金丝雀、journal 行与 `service status --machine` 之间的「顺序」，以及 compose 发现的两半。经变异验证：改写安装程序的一句话以及在触发器中加入 `pull_request` 都会失败
-- **已「声明」的缺口：** 这个 E2E **不在写下它的 PR 中运行**，它的任何检查都不证明所新增内容的任何一行——第一次真实执行是下一个正式 tag。同样不在范围内，而且不是因为遗忘：经由「迁移」路径（[RN-530](../infra.md#rn-530)）的第二次安装程序执行——备份、恢复证明、删除和重建——、macOS（完整步骤是 Linux 的：`launchd`，以及托管 runner 没有的 Docker），以及浏览器
-- **ADR：** [0155](../../adr/0155-a-primeira-conta-nasce-no-terminal.md)
+- **已「声明」的缺口：** 这个 E2E **不在写下它的 PR 中运行**，它的任何检查都不证明所新增内容的任何一行——第一次真实执行是下一个正式 tag。同样不在范围内，而且不是因为遗忘：经由「迁移」路径（[RN-530](https://github.com/viralabs-dev/brabo-infra/blob/dev/deploy/docs/business-rules/infra.md#rn-530)）的第二次安装程序执行——备份、恢复证明、删除和重建——、macOS（完整步骤是 Linux 的：`launchd`，以及托管 runner 没有的 Docker），以及浏览器
+- **ADR：** [0155](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0155-a-primeira-conta-nasce-no-terminal.md)
 - **来源：** FASE 30，第 8 次会话——
-  [阶段的范围划定](../../explanation/fase-30-runner-por-maquina.md)
+  [阶段的范围划定](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md)
 
 ## 设备密钥获得界面，界面说明吊销的范围（RN-561）
 
 ### RN-565 — 已签名的清单随 Release「已有」的东西发出，不等待永远构建不出来的平台 {#rn-565}
 
-已签名的 `checksums.txt`（[RN-524](#rn-524)）是另外两条规则的前提：没有它，`GET /runner-releases/binary` 以 `release_sem_manifesto` 拒绝（[RN-525](../produto.md#rn-525)），`install.sh` 拒绝它自己（[RN-526](../produto.md#rn-526)）——**在所有平台上，包括那些正常附加了二进制的平台**。一个延迟的清单不是延迟的清单：对在这段间隔内安装的人来说，它就是缺失的清单。
+已签名的 `checksums.txt`（[RN-524](#rn-524)）是另外两条规则的前提：没有它，`GET /runner-releases/binary` 以 `release_sem_manifesto` 拒绝（[RN-525](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-525)），`install.sh` 拒绝它自己（[RN-526](https://github.com/viralabs-dev/brabo/blob/dev/docs/business-rules/produto.md#rn-526)）——**在所有平台上，包括那些正常附加了二进制的平台**。一个延迟的清单不是延迟的清单：对在这段间隔内安装的人来说，它就是缺失的清单。
 
 **测量，针对现有的三个 tag。** 在 `v4.0.0`、`v4.0.1` 和 `v5.0.0` 中，`darwin-x64` 目标（`macos-13`）在队列中停留了 **24h00m01s**，被 Actions 的上限取消——三个中都是「同一个」数字，这说明它从未被调度。其他四个作业最多在 **4m18s** 内结束（`v4.0.1` 中的 `linux-x64`，17:38:28Z → 17:42:44Z）。`checksums` 作业带有 `needs: build`：`always()` 保证它会「运行」（被取消的依赖也覆盖在内），却从不保证「何时」运行。
 
@@ -313,11 +313,11 @@ as imagens publicadas」，`permissions` 块中带 `id-token: write`）；
 > `macos-13` 是没有 runner 的标签（GitHub 已于 2025 年 12 月退役该镜像；在队列中 30 分钟，被取消，run `34769280227`）。`macos-15-intel` 在 3–22 秒内调度并构建，但在 `--self-test-pty` 上失败，因为在 Bun 下，`node-pty` 的 `onData` 不交付子进程的输出（oven-sh/bun#25822，仍开放）；同样的证明在同一 runner 上在 Node 下通过（run `34770476634`）。
 > 待定的决定不再是关于 runner 的，而是等待 Bun 还是去掉该平台。上面的规则不因此改变。
 
-> **于 2026-09-27 决定（[ADR 0174](../../adr/0174-runner-sem-binario-darwin-x64.md)，AT-065）：
+> **于 2026-09-27 决定（[ADR 0174](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0174-runner-sem-binario-darwin-x64.md)，AT-065）：
 > 该平台已移除。** 矩阵变为「四个」目标，`ALVOS_ESPERADOS` 随之调整——缺失正是对照它来声明的，把 `darwin-x64` 留在那里会让每个清单永远宣布一个本是决定的缺失。Mac Intel 没有 runner（npm 已在 AT-774 中移除）：`install.sh` 说明这一点而不尝试下载，代理 `GET /runner-releases/binary` 以指向 npm 的自己的 400 拒绝 `darwin-x64`，浏览器面板甚至不请求下载。本 RN 的规则不变：它仍适用于任何失去 runner 的目标，而当矩阵、api 的列表、安装程序的 `case` 和浏览器的列表出现分歧时，`scripts/ci/alvos-do-runner.spec.ts` 会失败。
 
 - **代码：** `.github/workflows/build-runner-binaries.yml:283`（作业，现在没有 `needs:`）、`:318`（`timeout-minutes: 40`，容得下两次等待）、`:358`（作业级的 `ALVOS_ESPERADOS`，让两个步骤读取同一个列表）、`:397`（等待的步骤）、`:401`/`:402`（两个上限）、`:410`（缺失的 Release，这是错误）、`:433`（二进制的上限，这是 `notice`）、`:499`（点名未覆盖内容的清单）
 - **测试：** `scripts/ci/checksums-nao-espera-a-matriz.spec.ts`——作业没有 `needs:`、两个上限都存在、二进制的上限由 `build` 的 `timeout-minutes` 推导（而不是复制）、它容得进作业自身的 `timeout-minutes`、目标缺失是 `notice` 而 Release 缺失是 `error`、`ALVOS_ESPERADOS` 与矩阵一致，以及本次改动不触及的 ADR 0149 的四项保证（一个签名、附加之前校验、`id-token: write`、清单中的 `install.sh`）。它是「静态」的，其局限在文件顶部声明：该作业只能在正式 tag 中证明，而它从未在任何 tag 中运行过
-- **已「声明」的缺口：** 自 [ADR 0187](../../adr/0187-runner-sem-binario-win32-x64.md) 起矩阵有「三个」目标（`win32-x64` 按 ADR 0174 的同一模式移除，`ALVOS_ESPERADOS` 随之调整），而 Release 仍然收到**两个**——`darwin-arm64` 已在演练中证明（[RN-688](../runner.md#rn-688)），只差一个正式 tag 来演练它。清单诞生时将覆盖两个，并会**说明**这一点，这就是部分与沉默之间的区别。而当整个矩阵都失败时，作业会在拒绝之前耗尽两次等待
-- **ADR：** [0149](../../adr/0149-assinatura-dos-artefatos-publicados.md)
+- **已「声明」的缺口：** 自 [ADR 0187](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0187-runner-sem-binario-win32-x64.md) 起矩阵有「三个」目标（`win32-x64` 按 ADR 0174 的同一模式移除，`ALVOS_ESPERADOS` 随之调整），而 Release 仍然收到**两个**——`darwin-arm64` 已在演练中证明（[RN-688](https://github.com/viralabs-dev/brabo-runner/blob/dev/docs/business-rules/runner.md#rn-688)），只差一个正式 tag 来演练它。清单诞生时将覆盖两个，并会**说明**这一点，这就是部分与沉默之间的区别。而当整个矩阵都失败时，作业会在拒绝之前耗尽两次等待
+- **ADR：** [0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md)
 - **来源：** AT-051（EP-009/HS-035）

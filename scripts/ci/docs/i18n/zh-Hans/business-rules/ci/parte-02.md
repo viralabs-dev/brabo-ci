@@ -20,7 +20,7 @@ keywords: [regras de negócio, ci]
 - **测试：** `scripts/ci/funcionalidades.spec.ts`（校验器）和
   `scripts/ci/qa-regressivo-catalogo-real.spec.ts:12`（真实目录有 14 个
   活跃功能，且 glob 能匹配）
-- **ADR：** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR：** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **来源：** AT-769（EP-033）
 
 ### RN-1032 — 面向 `dev` 的 PR 只运行它触及的功能的回归测试，使用「绝不」被要求的 `Regressivo do brabo-qa` 检查 {#rn-1032}
@@ -33,7 +33,7 @@ keywords: [regras de negócio, ci]
 - **测试：** `scripts/ci/qa-e2e-resumo.spec.ts`（按模式的名称）和
   `scripts/ci/qa-regressivo-selecao.spec.ts:33`（按映射选择）和
   `scripts/ci/qa-regressivo-lembrete.spec.ts`（提醒）
-- **ADR：** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR：** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **来源：** AT-769（EP-033）
 
 ### RN-1033 — 三条跨领域的文件规则先于映射生效：无、整个目录、无归属 {#rn-1033}
@@ -44,7 +44,7 @@ keywords: [regras de negócio, ci]
   `scripts/ci/qa-regressivo-selecao.ts:43`（`SMOKE`）
 - **测试：** `scripts/ci/qa-regressivo-selecao.spec.ts:41`（规则 1）、
   `:55`（按仓库的规则 2）、`:58`（规则 3）
-- **ADR：** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR：** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **来源：** AT-769（EP-033）
 
 ### RN-1075 — `brabo-runner` 由自身的 CI 证明：linux-x64 二进制进入 PR，与 engine 的契约只在 TP-01 中验证 {#rn-1075}
@@ -53,18 +53,18 @@ keywords: [regras de negócio, ci]
 
 - **代码：** `brabo-runner` 的 `.github/workflows/ci.yml` 中的 `runner` 作业
 - **测试：** 作业本身（日志含 `--self-test-pty` 的 `ok:`）
-- **ADR：** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR：** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **来源：** AT-853（EP-033）
 
 ### RN-1034 — 面向 `main` 的 PR 在 `E2E do brabo-qa` 中运行整个目录，没有 spec 的功能显示为「无覆盖」但不会失败 {#rn-1034}
 
-`E2E do brabo-qa` 检查（[ADR 0267](../../adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md)）运行所有 spec，并生成 `funcionalidade | specs | resultado` 表。目录中没有 spec 的功能以 `sem cobertura` 进入，并且**不会失败**（负责人于 2026/11/06 的决定）：若规则相反，`main` 会连续数周保持红色，`/qa-aceitar` 也会变成例行公事。现有的测试无需改动即可通过；`spec` 或 `ambiente` 的红色仍可通过 `/qa-aceitar` 接受，`digest` 或 `assinatura` 的红色则永远不行。
+`E2E do brabo-qa` 检查（[ADR 0267](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0267-o-e2e-do-brabo-qa-e-portao-da-main.md)）运行所有 spec，并生成 `funcionalidade | specs | resultado` 表。目录中没有 spec 的功能以 `sem cobertura` 进入，并且**不会失败**（负责人于 2026/11/06 的决定）：若规则相反，`main` 会连续数周保持红色，`/qa-aceitar` 也会变成例行公事。现有的测试无需改动即可通过；`spec` 或 `ambiente` 的红色仍可通过 `/qa-aceitar` 接受，`digest` 或 `assinatura` 的红色则永远不行。
 
 - **代码：** `scripts/ci/qa-e2e-resumo.ts:28`（表格行中的 `sem cobertura`
   结果）、`scripts/ci/qa-e2e-resumo.ts:22`（`main` 的检查名称）
 - **测试：** `scripts/ci/qa-e2e-resumo.spec.ts`（表格和无覆盖
   的行）
-- **ADR：** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR：** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **来源：** AT-769（EP-033）
 
 ### RN-1035 — 面向 `dev` 的 PR 只为自己的仓库发布已签名的 `sha-<12>` 镜像，清理任务删除孤儿镜像 {#rn-1035}
@@ -74,19 +74,19 @@ keywords: [regras de negócio, ci]
 - **代码：** `scripts/ci/qa-e2e-imagens.ts:83`（为
   `dev` 和 `hotfix` 选择 `sha-<12>`）
 - **测试：** `scripts/ci/qa-e2e-imagens.spec.ts`（按基线的选择）
-- **ADR：** [0268](../../adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
+- **ADR：** [0268](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0268-o-brabo-qa-tem-regressivo-por-funcionalidade.md)
 - **来源：** AT-769（EP-033）
 
 ### RN-1043 — 每个读取其他仓库的运行都在 Summary 顶部发布 `## Vínculos`，且该辅助程序绝不让作业失败 {#rn-1043}
 
-通过 `brabo-ci` 的 action `vinculos`，每个关联仓库的作业的 Summary 都带有 `## Vínculos` 表（来源、带链接的兄弟仓库 `repo@SHA`、目标以及被触发的运行）和一张 Mermaid 图，紧跟在 checkout 之后。所有值在进入 Markdown 之前都要过正则：仓库 `viralabs-dev/brabo(-x)?`、40 位十六进制的 SHA、数字 PR、组织的 GitHub URL、操作者。不匹配的变成 `?` 并产生 `::warning::`。无效的 `origem` 只是被丢弃并给出警告。该步骤带有 `continue-on-error`：辅助程序绝不让作业失败。在 `brabo` 中，`docs-check`、`docs-deploy`、`docs-audit` 和 `regenera-gerados` 传入 `montar-layout.sh` 写下的 `.git/irmaos-sha.lst` 中的 SHA（[ADR 0274](../../adr/0274-os-gerados-leem-os-irmaos-por-uma-trava-de-shas.md)），而 `release.yml` 则按路径传入 `infra`。
+通过 `brabo-ci` 的 action `vinculos`，每个关联仓库的作业的 Summary 都带有 `## Vínculos` 表（来源、带链接的兄弟仓库 `repo@SHA`、目标以及被触发的运行）和一张 Mermaid 图，紧跟在 checkout 之后。所有值在进入 Markdown 之前都要过正则：仓库 `viralabs-dev/brabo(-x)?`、40 位十六进制的 SHA、数字 PR、组织的 GitHub URL、操作者。不匹配的变成 `?` 并产生 `::warning::`。无效的 `origem` 只是被丢弃并给出警告。该步骤带有 `continue-on-error`：辅助程序绝不让作业失败。在 `brabo` 中，`docs-check`、`docs-deploy`、`docs-audit` 和 `regenera-gerados` 传入 `montar-layout.sh` 写下的 `.git/irmaos-sha.lst` 中的 SHA（[ADR 0274](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0274-os-gerados-leem-os-irmaos-por-uma-trava-de-shas.md)），而 `release.yml` 则按路径传入 `infra`。
 
 - **代码：** `scripts/ci/vinculos.ts:57`（`montar`）、`.github/actions/vinculos/action.yml:31`
   （`continue-on-error`）、`scripts/ci/validar-payload.ts:112`（`validarOrigem`）、
   `.github/workflows/docs-check.yml:89`（`brabo` 转交兄弟仓库）
 - **测试：** `scripts/ci/vinculos.spec.ts`（fixtures、恶意值、空
   来源）和 `scripts/ci/validar-payload.spec.ts`
-- **ADR：** [0271](../../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
+- **ADR：** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **来源：** AT-773（EP-033）
 
 ### RN-1044 — dispatch 或 tag 的目标运行带有含来源的 `run-name`，dispatch 的关联以 `c=<run_id>-<attempt>` 的形式写在名称里 {#rn-1044}
@@ -99,7 +99,7 @@ keywords: [regras de negócio, ci]
   （`comCarimbo`）、`.github/workflows/release.yml:3`（tag 的 `run-name`）
 - **测试：** `scripts/ci/qa-e2e-vinculos.spec.ts`（`c=` 的匹配）和
   `scripts/ci/qa-e2e-imagens.spec.ts`
-- **ADR：** [0271](../../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
+- **ADR：** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **来源：** AT-773（EP-033）
 
 ### RN-1045 — App 的检查从一开始就指向 `brabo-qa` 的运行，来源运行记录被触发运行的链接 {#rn-1045}
@@ -110,7 +110,7 @@ keywords: [regras de negócio, ci]
   `scripts/ci/qa-e2e-vinculos.ts:42`（`vinculosDoGatilho`）、
   `scripts/ci/qa-e2e-disparar.ts:154`（找不到运行时的警告）
 - **测试：** `scripts/ci/fechar-check.spec.ts` 和 `scripts/ci/qa-e2e-vinculos.spec.ts`
-- **ADR：** [0271](../../adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
+- **ADR：** [0271](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0271-os-runs-do-actions-mostram-os-vinculos-entre-os-repos.md)
 - **来源：** AT-773（EP-033）
 
 ## npm 包的发布（RN-1042）
@@ -135,7 +135,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
   发布在 `brabo-ci`；在 `brabo` 的 `dev` 中尚不存在
 - **测试：** `scripts/ci/dependencias-de-merge.spec.ts`，涵盖正则、allowlist、
   owner、自我引用和格式错误的行
-- **ADR：** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR：** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **来源：** AT-787（EP-033）
 
 ### RN-1048 — `Dependências de merge` 检查有四种状态，绝不使用 `neutral`，等待显示为黄色 {#rn-1048}
@@ -145,7 +145,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
 - **代码：** `scripts/ci/dependencias-de-merge.ts`（纯评估函数）和
   `.github/workflows/dependencias-de-merge.yml`（可复用工作流），位于 `brabo-ci`
 - **测试：** `scripts/ci/dependencias-de-merge.spec.ts`，每种状态一个用例
-- **ADR：** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR：** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **来源：** AT-787（EP-033）
 
 ### RN-1049 — 依赖的合并会更新引用它的 PR 的检查，每小时的 cron 只是兜底 {#rn-1049}
@@ -156,7 +156,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
   `.github/workflows/dependencias-de-merge.yml`（作业和 cron），位于 `brabo-ci`
 - **测试：** `scripts/ci/dependencias-de-merge.spec.ts`，包含模拟的搜索和
   不再匹配的正文
-- **ADR：** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR：** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **来源：** AT-787（EP-033）
 
 ### RN-1050 — 依赖循环会连同完整路径一起失败，深度最多为 5 {#rn-1050}
@@ -165,7 +165,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
 
 - **代码：** `scripts/ci/dependencias-de-merge.ts`（直到深度 5 的遍历），位于 `brabo-ci`
 - **测试：** `scripts/ci/dependencias-de-merge.spec.ts`，包含 A↔B 循环和超出的深度
-- **ADR：** [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
+- **ADR：** [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md)
 - **来源：** AT-787（EP-033）
 
 ### RN-1071 — 晋升 PR 依赖前面各层未关闭的晋升，顺序是一个经过测试的列表 {#rn-1071}
@@ -174,7 +174,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
 
 - **代码：** `scripts/ci/dependencias-de-merge.ts`（`CAMADAS_DE_PROMOCAO`、`predecessores`、`avaliar`、`linhas` 模式）和 `scripts/ci/abrir-pr-de-promocao.sh`，位于 `brabo-ci`
 - **测试：** `scripts/ci/dependencias-de-merge.spec.ts`（「promoção em camadas」块）
-- **ADR：** [0284](../../adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md)，它修订了 [0276](../../adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md) 的决定 7
+- **ADR：** [0284](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md)，它修订了 [0276](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0276-a-pr-declara-de-que-pr-depende-o-merge.md) 的决定 7
 - **来源：** AT-788（EP-033）
 
 ### RN-1072 — 晋升的合并和 cron 会重新评估后面各层的晋升 {#rn-1072}
@@ -183,7 +183,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
 
 - **代码：** `scripts/ci/dependencias-de-merge.ts`（`avisar-dependentes` 和 `varrer` 模式）
 - **测试：** `scripts/ci/dependencias-de-merge.spec.ts`（`sucessores`）；搜索本身是 GitHub，在下一次晋升中验证
-- **ADR：** [0284](../../adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md)
+- **ADR：** [0284](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0284-a-promocao-infere-as-dependencias-pela-ordem-dos-repos.md)
 - **来源：** AT-788（EP-033）
 
 ## 回归测试的决策报告（RN-1051..1053）
@@ -197,7 +197,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
   中尚不存在（AT-791，lanes L1 和 L2）
 - **测试：** `scripts/ci/qa-e2e-resumo.spec.ts`（按模式的检查）；建议规则
   和 JSON v1 的测试在 L1 和 L2 中补上
-- **ADR：** [0277](../../adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
+- **ADR：** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **来源：** AT-791（EP-033）
 
 ### RN-1052 — `/qa-aceitar` 保留红色的报告，并记录与建议相悖的接受 {#rn-1052}
@@ -209,7 +209,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
   （`avaliarAceite`，继续读取 `external_id` 的 `causa:*`）
 - **测试：** `scripts/ci/qa-e2e-aceite.spec.ts`（接受的裁决）；摘要的
   保留和「与建议相悖」的记录在 L1 中补上测试
-- **ADR：** [0277](../../adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
+- **ADR：** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **来源：** AT-791（EP-033）
 
 ### RN-1053 — 没有 `@f-*` 标签的 spec 显示为「无功能」，且绝不会从报告中消失 {#rn-1053}
@@ -220,7 +220,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
   「无功能」桶尚不存在（AT-791，lanes L1 和 L2）
 - **测试：** `scripts/ci/qa-regressivo-selecao.spec.ts`（按映射的选择和
   `semDono`）；报告中的桶在 L2 中补上测试
-- **ADR：** [0277](../../adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
+- **ADR：** [0277](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0277-o-regressivo-roda-num-compose-so-e-o-relatorio-decide.md)
 - **来源：** AT-791（EP-033）
 
 ## 触发器在变红之前等待印章和签名（RN-1066）
@@ -251,7 +251,7 @@ PR 的每个合并依赖都是正文中的一行：`Depende-de:` 后跟 `viralab
 
 - **代码：** `scripts/ci/painel.ts:235`（`terminou`，停止的标尺）
 - **测试：** `scripts/ci/painel.spec.ts`
-- **ADR：** [0278](../../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
+- **ADR：** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **来源：** AT-792（EP-033）
 
 ### RN-1055 — 面板不在 PR 上发布检查；链接留在来源运行中 {#rn-1055}
@@ -260,7 +260,7 @@ Vínculos 辅助程序在带 PR 的 auto 模式下写入 `Disparado | Painel da 
 
 - **代码：** `scripts/ci/vinculos.ts:164`（`linhaDoPainel`，Vínculo 行）
 - **测试：** `scripts/ci/vinculos.spec.ts`
-- **ADR：** [0278](../../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
+- **ADR：** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **来源：** AT-792（EP-033）
 
 ### RN-1056 — 每个组件一个面板 {#rn-1056}
@@ -270,5 +270,5 @@ Vínculos 辅助程序在带 PR 的 auto 模式下写入 `Disparado | Painel da 
 - **代码：** `scripts/ci/painel.ts:247`（`jaTemPainel`）；`scripts/ci/painel.ts:90`
   （`superado`，进行中的面板会查询它）
 - **测试：** `scripts/ci/painel.spec.ts`
-- **ADR：** [0278](../../adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
+- **ADR：** [0278](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0278-a-mudanca-e-vista-num-painel-do-brabo-ci.md)
 - **来源：** AT-792（EP-033）
