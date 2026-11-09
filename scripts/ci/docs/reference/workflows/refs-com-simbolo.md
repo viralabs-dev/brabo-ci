@@ -2,7 +2,7 @@
 id: workflow-refs-com-simbolo
 title: Reutilizável refs-com-simbolo
 sidebar_label: refs-com-simbolo
-description: "Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora; ref interna quebrada reprova."
+description: "Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora e que nenhum link relativo .md das RNs aponta para fora do repo; qualquer um quebrado reprova."
 keywords: [brabo-ci, workflow_call, refs-com-simbolo]
 ---
 
@@ -14,7 +14,7 @@ keywords: [brabo-ci, workflow_call, refs-com-simbolo]
 
 ## O que faz
 
-Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora; ref interna quebrada reprova.
+Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora e que nenhum link relativo .md das RNs aponta para fora do repo; qualquer um quebrado reprova.
 
 ## Gatilhos recomendados
 
