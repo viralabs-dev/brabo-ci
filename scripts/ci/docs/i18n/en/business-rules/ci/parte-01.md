@@ -11,6 +11,8 @@ keywords: [business rules, ci]
 
 ## PR Gates
 
+<a id="rn-037"></a>
+
 ### RN-037 — Infra becomes an area: Workflows generates CI per provider, Lead consolidates into a single PR {#rn-037}
 
 Second instance of the ADR 0038 model, after the QA area (RN-036) — with
@@ -70,6 +72,8 @@ area's delegations — the same `AREAS`/`areaFor` registry from
 
 ## The `dbre` role becomes two mechanical scripts (RN-400..403, ADR 0093)
 
+<a id="rn-401"></a>
+
 ### RN-401 — The linter is not a CI gate: it scans the whole repository, not the PR's diff {#rn-401}
 
 Running `pnpm --filter api lint:migracao` against the repository's real
@@ -93,6 +97,8 @@ BLOCK a merge — today it's a manual opinion, not an automatic verdict.
 - **ADR:** [0093](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
 
 ## "N agents online" on the dashboard — LIVE status, never historical presence (RN-409, ADR 0097)
+
+<a id="rn-411"></a>
 
 ### RN-411 — The fourth pending-work signal: dev agents speak `dev.*`, not `agent.status` {#rn-411}
 
@@ -205,6 +211,8 @@ it can't do is be left out by forgetfulness.
 ---
 
 ## RAG search leaves a trace, and the trace freezes the weights (RN-479..481)
+
+<a id="rn-498"></a>
 
 ### RN-498 — The RAG golden-set runs in real CI, SCHEDULED — and the gate stays `warn` {#rn-498}
 
@@ -390,6 +398,8 @@ one-line installer while the artifacts were not signed (BRB-005), and
 that is why [PHASE 29](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-29-instalacao-de-uma-linha.md)
 signs **before** installing. Session 2, [ADR 0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md).
 
+<a id="rn-524"></a>
+
 ### RN-524 — A published artifact is signed by workflow identity, verified in the same run, and the verification refuses instead of warning {#rn-524}
 
 Every final tag signs what it publishes, and **verifies what it signed before
@@ -439,6 +449,8 @@ cover the operating-system *code-signing* of the binaries (macOS notarization,
 Windows Authenticode), which requires a paid identity and stays in the backlog.
 
 ## `install.sh` closes the installation (RN-547, PHASE 30)
+
+<a id="rn-549"></a>
 
 ### RN-549 — The E2E on a clean machine proves the WHOLE installation: the five links, the agent up and waiting, and the first project picked up without anyone going back to the terminal {#rn-549}
 
@@ -604,6 +616,8 @@ stays out of `pull_request`.
   [the phase's scope](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md)
 
 ## The device key gets a screen, and the screen states the reach of revoking (RN-561)
+
+<a id="rn-565"></a>
 
 ### RN-565 — The signed manifest goes out with what the Release HAS, and does not wait for the platform that never builds {#rn-565}
 

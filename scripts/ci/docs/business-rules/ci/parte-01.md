@@ -10,6 +10,8 @@ keywords: [regras de negócio, ci]
 
 ## PR Gates
 
+<a id="rn-037"></a>
+
 ### RN-037 — Infra becomes an area: Workflows generates CI per provider, Lead consolidates into a single PR {#rn-037}
 
 Second instance of the ADR 0038 model, after the QA area (RN-036) — with
@@ -69,6 +71,8 @@ area's delegations — the same `AREAS`/`areaFor` registry from
 
 ## O papel `dbre` vira dois scripts mecânicos (RN-400..403, ADR 0093)
 
+<a id="rn-401"></a>
+
 ### RN-401 — O linter não é gate de CI: varre o repositório inteiro, não o diff da PR {#rn-401}
 
 Rodar `pnpm --filter api lint:migracao` contra as migrations reais do
@@ -92,6 +96,8 @@ BLOQUEAR merge — hoje ele é parecer manual, não veredito automático.
 - **ADR:** [0093](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0093-dbre-linter-de-migracao-e-relatorio-de-backup.md)
 
 ## "N agentes online" no dashboard — status AO VIVO, nunca presença histórica (RN-409, ADR 0097)
+
+<a id="rn-411"></a>
 
 ### RN-411 — O quarto sinal de trabalho pendente: dev agents falam `dev.*`, não `agent.status` {#rn-411}
 
@@ -204,6 +210,8 @@ que não pode é ficar de fora por esquecimento.
 ---
 
 ## A busca do RAG deixa rastro, e o rastro congela os pesos (RN-479..481)
+
+<a id="rn-498"></a>
 
 ### RN-498 — O golden-set do RAG roda em CI de verdade, AGENDADO — e o gate continua `warn` {#rn-498}
 
@@ -389,6 +397,8 @@ instalador de uma linha enquanto os artefatos não fossem assinados (BRB-005), e
 é por isso que a [FASE 29](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-29-instalacao-de-uma-linha.md)
 assina **antes** de instalar. Sessão 2, [ADR 0149](https://github.com/viralabs-dev/brabo/blob/dev/docs/adr/0149-assinatura-dos-artefatos-publicados.md).
 
+<a id="rn-524"></a>
+
 ### RN-524 — Artefato publicado é assinado por identidade de workflow, verificado no mesmo run, e a verificação recusa em vez de avisar {#rn-524}
 
 Toda tag final assina o que publica, e **verifica o que assinou antes de
@@ -438,6 +448,8 @@ cobre o *code-signing* de sistema operacional dos binários (notarização do
 macOS, Authenticode do Windows), que exige identidade paga e segue no backlog.
 
 ## O `install.sh` fecha a instalação (RN-547, FASE 30)
+
+<a id="rn-549"></a>
 
 ### RN-549 — O E2E em máquina limpa prova a instalação INTEIRA: os cinco elos, o agente de pé esperando, e o primeiro projeto pego sem ninguém voltar ao terminal {#rn-549}
 
@@ -603,6 +615,8 @@ continua fora de `pull_request`.
   [o recorte da fase](https://github.com/viralabs-dev/brabo/blob/dev/docs/explanation/fase-30-runner-por-maquina.md)
 
 ## A chave de dispositivo ganha tela, e a tela diz o alcance de revogar (RN-561)
+
+<a id="rn-565"></a>
 
 ### RN-565 — O manifesto assinado sai com o que a Release TEM, e não espera a plataforma que nunca constrói {#rn-565}
 
