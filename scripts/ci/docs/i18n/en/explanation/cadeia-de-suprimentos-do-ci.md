@@ -469,7 +469,7 @@ Declared, not fixed:
   Authenticode), which needs a paid signing identity and stays in
   [the backlog](backlog.md).
 - ~~**Third-party images are tag-pinned, not digest-pinned.**~~ **Closed**
-  (above): all 21 third-party references — composes, kustomize manifests and
+  (above): all 24 third-party references — composes, kustomize manifests and
   Dockerfile `FROM` lines — are pinned by digest with the tag inside the
   reference (ADR 0178), the workflow `services:` read theirs from the compose
   (ADR 0197), and `scripts/ci/imagens-pinadas.ts` fails the `lint` job on the

@@ -493,7 +493,7 @@ Declarado, não corrigido:
   Authenticode do Windows), que exige uma identidade de assinatura paga e
   fica no [backlog](backlog.md).
 - ~~**Imagens de terceiros pinadas por tag, não por digest.**~~ **Fechado**
-  (acima): todas as 21 referências de terceiros — composes, manifestos
+  (acima): todas as 24 referências de terceiros — composes, manifestos
   kustomize e linhas `FROM` de Dockerfile — estão pinadas por digest com a
   tag dentro da referência (ADR 0178), os `services:` dos workflows leem as
   deles do compose (ADR 0197), e o `scripts/ci/imagens-pinadas.ts` reprova
