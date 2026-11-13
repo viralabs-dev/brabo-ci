@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Política de PR (AT-878, ADR 0289): a isenção da escada do GitHub App `viralabs-dev-brabo` passa a ser uma lista de branches (`BRANCHES_DO_BOT` em `pr-police.ts`) e `chore/capturas-versao` entra nela, ao lado de `chore/regenera-gerados`. Régua igual: autor E branch, base `dev`; na `main` a escada é inteira. A `chore/capturas-da-doc` (imagem mudou) não é isenta e segue pedindo o dono. Specs em `approval-ladder.spec.ts`.
 - Doc (AT-871): cada RN das partes `scripts/ci/docs/business-rules/ci/parte-NN.md` (e das traduções en, ru, zh-Hans) ganha a âncora `<a id="rn-NNN"></a>`, para o link `#rn-NNN` abrir a RN também no GitHub. Só acréscimo de linhas; o site não muda.
 - CI (AT-868): `refs-com-simbolo` ganha o passo "Links relativos das RNs" (`scripts/ci/links-das-rns.ts` + spec). Reprova link relativo `.md` em `docs/**/business-rules*` cujo alvo não existe no próprio repo (404 no GitHub); ignora URL com esquema, âncora e código. A mensagem manda rodar `node scripts/docs/links-para-repo-dono.mjs --repo <x> --escrever` a partir do `brabo`. Continua sem ser check obrigatório.
 - Doc (AT-868): os links das páginas de RN que só resolviam no site (`../adr/…`, `../explanation/…`, `api.md`) apontam para o arquivo no GitHub do repo dono, na `dev` (`https://github.com/viralabs-dev/<repo>/blob/dev/<caminho>`). O site converte de volta para link relativo, então nada muda para quem lê por lá.

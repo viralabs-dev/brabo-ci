@@ -21,7 +21,7 @@ A política que estas regras aplicam está em
 > `Escada de aprovação` são checks **required** no ruleset de `dev` e `main`
 > dos 11 repositórios `viralabs-dev/brabo*`; `brabo`, `brabo-qa` e `brabo-infra`
 > ganham o ruleset "main e dev sem force push"; e a PR do GitHub App
-> `viralabs-dev-brabo` na branch `chore/regenera-gerados` → `dev` dispensa a
+> `viralabs-dev-brabo` nas branches `chore/regenera-gerados` e `chore/capturas-versao` → `dev` dispensa a
 > escada (autor E branch; a `main` segue com a escada inteira). A aplicação no
 > GitHub continua manual.
 
