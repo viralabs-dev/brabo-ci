@@ -304,7 +304,7 @@ HTTP/2）影响所有 Bandit `>= 1.4.0`，包括 hex 上最新的 release 1.12.5
 
   这**不**覆盖的，是另一个条目：面向操作系统的 **runner 二进制代码签名**（macOS 的公证、Windows 的 Authenticode），它需要
   一个付费的签名身份，留在 [backlog](backlog.md) 中。
-- ~~**第三方镜像按 tag 而不是按 digest 固定。**~~ **已关闭**（见上）：全部 21 个第三方引用——compose、kustomize 清单和
+- ~~**第三方镜像按 tag 而不是按 digest 固定。**~~ **已关闭**（见上）：全部 24 个第三方引用——compose、kustomize 清单和
   Dockerfile 的 `FROM` 行——都按 digest 固定，tag 在引用内部（ADR 0178），workflow 的 `services:` 从 compose 读取它们的
   镜像（ADR 0197），`scripts/ci/imagens-pinadas.ts` 会在下一次回退时让 `lint` job 失败。**没有**关闭的，是固定的代价而不是
   残余：digest 在有人升级它之前收不到安全更新。Dependabot 的 `docker`/`docker-compose` 生态系统自 ADR 0197 起提议这些升级；

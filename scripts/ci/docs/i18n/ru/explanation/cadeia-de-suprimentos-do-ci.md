@@ -499,7 +499,7 @@ PR. Исправление существует только как коммит
   Authenticode Windows), которая требует платной идентичности подписи и
   остаётся в [backlog](backlog.md).
 - ~~**Сторонние образы закреплены по тегу, а не по digest.**~~ **Закрыто**
-  (выше): все 21 сторонние ссылки — compose, манифесты kustomize и строки
+  (выше): все 24 сторонние ссылки — compose, манифесты kustomize и строки
   `FROM` в Dockerfile — закреплены по digest с тегом внутри ссылки
   (ADR 0178), `services:` у workflow читают свои из compose (ADR 0197), а
   `scripts/ci/imagens-pinadas.ts` провалит job `lint` при следующей
