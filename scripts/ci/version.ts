@@ -231,6 +231,12 @@ export interface ContextoDaAncora {
   treePorTag: Record<string, string>;
   /** Os pais do commit de `main`. */
   paisDoCommit: string[];
+  /**
+   * Caminhos de `git diff --name-only <última -dev.N> <commit>`. O gate mora na
+   * `main` por desenho (`.release/gate.json`), então diferença só sob `.release/`
+   * não é conteúdo publicado (AT-948). Ausente: a tolerância não vale.
+   */
+  caminhosDiferentes?: string[];
 }
 
 /**
@@ -301,6 +307,13 @@ export function verificarAncora(
     }
 
     if (ehPai && treeDaUltima === contexto.treeDoCommit) {
+      return { ok: true, tagEsperada: ultima.tag };
+    }
+
+    // AT-948: só o estado do gate difere (retropropagação de hotfix leva o
+    // `gate.json` travado à `dev`; o destrava só escreve na `main`).
+    const dif = contexto.caminhosDiferentes;
+    if (ehPai && dif && dif.length > 0 && dif.every((c) => c.startsWith('.release/'))) {
       return { ok: true, tagEsperada: ultima.tag };
     }
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Carimbo (AT-948): a âncora da tag final aceita a árvore que difere da última `-dev.N` só em caminhos sob `.release/` (o `gate.json` travado da retropropagação de hotfix). `tag-release.ts` passa `caminhosDiferentes` (`git diff --name-only`) a `verificarAncora`; qualquer caminho fora de `.release/` reprova como antes. Specs em `version.spec.ts`. Os repos consumidores repinam na próxima TAG.
 - Doc: a contagem de referências de terceiros em `cadeia-de-suprimentos-do-ci.md` (e nas traduções) passa de 21 para 24, o total de `node scripts/ci/imagens-pinadas.ts` com o `brabo-infra` v1.5.0.
 - Política de PR (AT-878, ADR 0289): a isenção da escada do GitHub App `viralabs-dev-brabo` passa a ser uma lista de branches (`BRANCHES_DO_BOT` em `pr-police.ts`) e `chore/capturas-versao` entra nela, ao lado de `chore/regenera-gerados`. Régua igual: autor E branch, base `dev`; na `main` a escada é inteira. A `chore/capturas-da-doc` (imagem mudou) não é isenta e segue pedindo o dono. Specs em `approval-ladder.spec.ts`.
 - Doc (AT-871): cada RN das partes `scripts/ci/docs/business-rules/ci/parte-NN.md` (e das traduções en, ru, zh-Hans) ganha a âncora `<a id="rn-NNN"></a>`, para o link `#rn-NNN` abrir a RN também no GitHub. Só acréscimo de linhas; o site não muda.

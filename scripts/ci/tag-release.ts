@@ -19,6 +19,8 @@ import {
   conferirMergeDeEsteira,
   extrairNumerosDePr,
   identificarCaminho,
+  ESTAGIO_ANTERIOR_A_MAIN,
+  lerTagDeEstagio,
   lerVersaoFinal,
   montarTag,
   proximaVersao,
@@ -53,7 +55,21 @@ async function principal(): Promise<void> {
     }
   };
 
-  const git = (...args: string[]): string =>
+  /** AT-948: arquivos que diferem entre a última `-dev.N` da versão e o commit (undefined se não resolver). */
+function caminhosDiferentesDaUltima(versao: string, tags: string[], sha: string): string[] | undefined {
+  const ultima = tags
+    .map((t) => ({ t, l: lerTagDeEstagio(t) }))
+    .filter((x) => x.l !== null && x.l.versao === versao && x.l.estagio === ESTAGIO_ANTERIOR_A_MAIN)
+    .reduce<{ t: string; n: number } | null>((a, b) => (a && a.n >= b.l!.n ? a : { t: b.t, n: b.l!.n }), null);
+  if (!ultima) return undefined;
+  try {
+    return git('diff', '--name-only', ultima.t, sha).split('\n').filter(Boolean);
+  } catch {
+    return undefined;
+  }
+}
+
+const git = (...args: string[]): string =>
     execFileSync('git', args, { encoding: 'utf8' }).trim();
 
   const tags = git('tag', '--list', 'v*').split('\n').map((t) => t.trim()).filter(Boolean);
@@ -366,6 +382,7 @@ async function principal(): Promise<void> {
       treeDoCommit: git('rev-parse', `${sha}^{tree}`),
       treePorTag,
       paisDoCommit: git('rev-list', '--parents', '-n1', sha).split(/\s+/).slice(1),
+      caminhosDiferentes: caminhosDiferentesDaUltima(versao, tags, sha),
     });
     if (!ancora.ok) {
       const titulo = `a tag final ${versao} NÃO pode ser criada`;

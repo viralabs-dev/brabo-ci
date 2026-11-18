@@ -185,6 +185,25 @@ describe('âncora da tag final', () => {
     expect(r.motivo).toContain('NÃO é o que passou');
   });
 
+  it('AT-948: aprova quando só .release/ difere (gate.json da retropropagação)', () => {
+    const r = verificarAncora('v0.2.0', tags, shas, 'merge999', {
+      ...contexto,
+      treeDoCommit: 'tree-diferente',
+      caminhosDiferentes: ['.release/gate.json'],
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it('AT-948: REPROVA quando .release/ e outro arquivo diferem', () => {
+    const r = verificarAncora('v0.2.0', tags, shas, 'merge999', {
+      ...contexto,
+      treeDoCommit: 'tree-diferente',
+      caminhosDiferentes: ['.release/gate.json', 'src/a.ts'],
+    });
+    expect(r.ok).toBe(false);
+    expect(r.motivo).toContain('árvore');
+  });
+
   it('REPROVA merge em que a -dev.N não é pai — entrou algo no meio', () => {
     const r = verificarAncora('v0.2.0', tags, shas, 'merge999', {
       ...contexto,
