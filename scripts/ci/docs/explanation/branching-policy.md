@@ -962,6 +962,12 @@ arquivo, a árvore mudaria e a verificação reprovaria — exatamente o caso qu
 a âncora existe para pegar. Igualdade de árvore é mais forte que igualdade
 de commit: ela olha para conteúdo, não para identidade.
 
+Uma exceção, nomeada (AT-948): se a árvore difere **só** em caminhos sob
+`.release/`, a âncora vale. O `gate.json` mora na `main` por desenho — a
+retropropagação de um hotfix o leva travado à `dev`, e o destrava só escreve na
+`main` —, então essa diferença não é conteúdo publicado. Um único caminho fora
+de `.release/` reprova como antes. O `-qa.N` ainda precisa ser pai.
+
 ### Os dois caminhos da `main` {#mains-two-paths}
 
 A `main` recebe merges de duas formas, e elas pedem versões diferentes. A
