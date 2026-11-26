@@ -1,0 +1,80 @@
+name: indice-de-rn
+# propósito: Reprova a PR cujo índice de regras de negócio (business-rules/<x>.md das áreas partidas) difere do gerado das partes, e mede o Markdown de cada página de RN (aviso a 90 KB, reprova a 105 KB).
+# chamador:
+#   pull_request:
+#     types: [opened, reopened, synchronize]
+
+# REUTILIZÁVEL (workflow_call) — brabo-ci (AT-1029, F3; ADR 0287). Regenera, das
+# partes `<x>/parte-NN.md`, a tabela e a grade `<a id="rn-NNN">` de cada índice
+# `business-rules/<x>.md`; se o índice do repo difere, reprova e sobe o patch
+# `indice-de-rn-patch` (`git apply` na raiz do repo). Mede também o peso em
+# Markdown de cada página de RN: aviso acima de 90 KB (a RN nova vai para a
+# próxima parte) e reprova acima de 105 KB (o HTML passaria do teto de 150 KB do
+# site). Não é check obrigatório.
+on:
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
+        required: false
+        type: string
+        default: 'viralabs-dev/brabo-ci'
+
+permissions:
+  contents: read
+
+jobs:
+  indice:
+    name: Índice de RN e peso das páginas
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ inputs.ci_repo }}
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
+      # --escrever reescreve o índice no checkout; o código de saída continua sendo o do veredito de ANTES.
+      - name: Conferir o índice e o peso das páginas
+        run: node .brabo-ci/scripts/ci/indice-de-rn.ts --escrever
+
+      - name: Patch do índice
+        id: patch
+        if: failure()
+        run: |
+          git diff -- . ':!.brabo-ci' > "$RUNNER_TEMP/indice-de-rn.patch"
+          if [ -s "$RUNNER_TEMP/indice-de-rn.patch" ]; then
+            echo "tem=true" >> "$GITHUB_OUTPUT"
+            {
+              echo
+              echo '### Índice regenerado'
+              echo
+              echo 'Baixe e aplique:'
+              echo
+              echo '```'
+              echo "gh run download $GITHUB_RUN_ID -n indice-de-rn-patch && git apply indice-de-rn.patch"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Subir o indice-de-rn-patch
+        if: failure() && steps.patch.outputs.tem == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: indice-de-rn-patch
+          path: ${{ runner.temp }}/indice-de-rn.patch
