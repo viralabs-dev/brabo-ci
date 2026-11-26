@@ -1,0 +1,56 @@
+name: rn-unica
+# propósito: Reprova a PR que define uma regra de negócio (cabeçalho ### RN-NNN) cujo número já está definido na dev de outro repo da organização; só conta a RN que a PR acrescenta.
+# chamador:
+#   pull_request:
+#     types: [opened, reopened, synchronize]
+
+# REUTILIZÁVEL (workflow_call) — brabo-ci (AT-1029). Cruza os números de RN que a
+# PR ACRESCENTA (head menos base) com os cabeçalhos definidos na `dev` dos outros
+# repos da organização (clone raso, repos públicos, sem token). Colisão reprova e
+# diz o número, o repo, o arquivo e o próximo número livre. Citação não conta, a
+# duplicata herdada não trava e, sem RN nova, nenhum vizinho é lido. Duas PRs
+# abertas ao mesmo tempo não se veem: a segunda a mergear é a pega. Não é check
+# obrigatório.
+on:
+  workflow_call:
+    inputs:
+      ci_ref:
+        description: 'O MESMO SHA de 40 hex do `uses:` do chamador (sem padrão: tag ou ausência rodaria scripts de outra versão)'
+        required: true
+        type: string
+      ci_repo:
+        description: 'O repo do brabo-ci de onde vêm os scripts (owner/repo). Só muda num fork; o `uses:` do chamador deve apontar para o mesmo.'
+        required: false
+        type: string
+        default: 'viralabs-dev/brabo-ci'
+
+permissions:
+  contents: read
+
+jobs:
+  rn-unica:
+    name: RN única entre repos
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Scripts do brabo-ci
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ inputs.ci_repo }}
+          ref: ${{ inputs.ci_ref }}
+          path: .brabo-ci
+          persist-credentials: false
+
+      - uses: ./.brabo-ci/.github/actions/preparar
+        with:
+          ci_ref: ${{ inputs.ci_ref }}
+
+      - name: Cruzar as RNs novas com a dev dos vizinhos
+        env:
+          BASE: ${{ github.base_ref }}
+        run: node .brabo-ci/scripts/ci/rn-unica.ts --repo "${GITHUB_REPOSITORY##*/}" --base "origin/${BASE}"
