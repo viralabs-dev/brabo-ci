@@ -66,7 +66,7 @@ beforeEach(() => {
   // `--frozen-lockfile` só valida (FROZEN_FALHA=1 simula lock inconsistente); o resto "regenera".
   writeFileSync(
     path.join(repo, 'pnpm-falso'),
-    '#!/usr/bin/env bash\nif [[ "$*" == *--frozen-lockfile* ]]; then exit "${FROZEN_FALHA:-0}"; fi\ncp "$(dirname "$0")/lock.novo" pnpm-lock.yaml\n',
+    '#!/usr/bin/env bash\nif [[ "$*" == *--frozen-lockfile* ]]; then [ "${FROZEN_FALHA:-0}" = 0 ] || echo "ERR_PNPM_FALSO: causa do frozen" >&2; exit "${FROZEN_FALHA:-0}"; fi\ncp "$(dirname "$0")/lock.novo" pnpm-lock.yaml\n',
   );
   chmodSync(path.join(repo, 'pnpm-falso'), 0o755);
 });
@@ -92,6 +92,11 @@ describe('subir-contracts.sh (RN-1038)', () => {
     const r = rodar('1.3.0', LOCK('1.3.0', '4.1.0'), { FROZEN_FALHA: '1' });
     expect(r.status).toBe(1);
     expect(r.stderr).toContain('RECUSADO');
+    // o erro do pnpm aparece, e a orientação traz só a troca da entrada do pacote
+    expect(r.stderr).toContain('ERR_PNPM_FALSO: causa do frozen');
+    expect(r.stderr).toContain('-        specifier: npm:@viralabs-dev/brabo-shared@1.2.0');
+    expect(r.stderr).toContain('+        specifier: npm:@viralabs-dev/brabo-shared@1.3.0');
+    expect(r.stderr.split('troque À MÃO')[1]).not.toMatch(/^[-+].*zod/m); // o contexto do diff pode citar zod; a troca não
     expect(ler('pnpm-lock.yaml')).toBe(LOCK('1.2.0'));
     expect(ler('package.json')).toBe(PKG('1.2.0'));
     expect(ler('scripts/baixar-areas.mjs')).toContain("'v1.2.0'");
