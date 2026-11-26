@@ -102,10 +102,16 @@ if [ -f pnpm-lock.yaml ]; then
     # Lock semeado: o pnpm mexeu em outras entradas. Fica o antigo + só os blocos do contracts.
     enxertar pnpm-lock.yaml "${salva}/pnpm-lock.yaml" > "${salva}/lock.enxerto"
     cp "${salva}/lock.enxerto" pnpm-lock.yaml
-    if ! "${pnpm_bin}" install --lockfile-only --frozen-lockfile >/dev/null 2>&1; then
+    # O erro do pnpm NÃO se esconde: é ele que diz por que o enxerto não vale (AT-1029).
+    if ! "${pnpm_bin}" install --lockfile-only --frozen-lockfile > "${salva}/frozen.log" 2>&1; then
       restaurar
-      echo "RECUSADO: o pnpm-lock.yaml mudou fora das entradas @viralabs-dev/brabo-* e o enxerto não passa no --frozen-lockfile; tudo restaurado:" >&2
+      echo "RECUSADO: o pnpm-lock.yaml mudou fora das entradas @viralabs-dev/brabo-* e o enxerto não passa no --frozen-lockfile; tudo restaurado." >&2
+      echo "--- erro do pnpm (--frozen-lockfile), últimas linhas:" >&2
+      tail -20 "${salva}/frozen.log" >&2
+      echo "--- o que o pnpm mudou fora do contracts (o lock regenerado):" >&2
       head -40 "${salva}/lock.diff" >&2
+      echo "--- troque À MÃO só a entrada do pacote no pnpm-lock.yaml (importers: specifier e version; packages: chave, integrity e tarball; snapshots: chave):" >&2
+      diff -u "${salva}/pnpm-lock.yaml" "${salva}/lock.enxerto" >&2 || true
       exit 1
     fi
     echo "lock semeado: só as entradas @viralabs-dev/brabo-* foram trocadas" >&2

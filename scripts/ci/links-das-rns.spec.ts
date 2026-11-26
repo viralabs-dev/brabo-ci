@@ -21,6 +21,18 @@ describe('links-das-rns', () => {
     const md = '```md\n[x](../nada.md)\n```\ntexto `[y](../nada.md)` fim\n~~~\n[z](../nada.md)\n~~~\n[real](../nada.md)';
     expect(linksRelativos(md)).toEqual([{ linha: 8, href: '../nada.md' }]);
   });
+  it('âncora #rn-N ausente no alvo reprova; {#rn-N} e <a id> passam', () => {
+    const ler = (f: string) => (f.endsWith('api.md') ? '<a id="rn-1"></a>[1](api/parte-01.md#rn-1)' : '### RN-935 — x {#rn-935}');
+    const set = new Set([...arquivos, 'docs/business-rules/api/parte-01.md']);
+    expect(quebrados(DOC, '[a](../api.md#rn-1) [b](parte-01.md#RN-935) [c](../api.md#secao)', set, ler)).toEqual([]);
+    expect(quebrados(DOC, 'veja [x](parte-01.md#rn-936) e [y](../api.md#rn-2)', set, ler)).toEqual([
+      { linha: 1, href: 'parte-01.md#rn-936', motivo: 'ancora' },
+      { linha: 1, href: '../api.md#rn-2', motivo: 'ancora' },
+    ]);
+  });
+  it('sem `ler`, a âncora não é conferida (compatível com quem só quer o arquivo)', () => {
+    expect(quebrados(DOC, '[x](../api.md#rn-999)', arquivos)).toEqual([]);
+  });
   it('só páginas de RN (inclui traduções)', () => {
     expect(ehPaginaDeRn('docs/business-rules/api.md')).toBe(true);
     expect(ehPaginaDeRn('docs/i18n/en/business-rules/api.md')).toBe(true);

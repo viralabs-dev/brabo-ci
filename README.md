@@ -102,6 +102,7 @@ Não ponha `if:` no job que chama `pr-police`, `approval-ladder`, `backmerge-gat
 | `contracts-alinhado` | Confere que a versão do brabo-contracts é a mesma no package.json, no lock e nos scripts de download; só avisa se difere do componentes.json do brabo. | [contracts-alinhado](scripts/ci/docs/reference/workflows/contracts-alinhado.md) |
 | `dependabot-para-dev` | Fecha ou redireciona para a dev a PR de segurança do Dependabot que o GitHub abre contra a main. | [dependabot-para-dev](scripts/ci/docs/reference/workflows/dependabot-para-dev.md) |
 | `dependencias-de-merge` | Faz o check Dependências de merge esperar as PRs citadas em `Depende-de: <org>/<repo>#<n>` até todas estarem mergeadas. | [dependencias-de-merge](scripts/ci/docs/reference/workflows/dependencias-de-merge.md) |
+| `indice-de-rn` | Reprova a PR cujo índice de regras de negócio (business-rules/<x>.md das áreas partidas) difere do gerado das partes, e mede o Markdown de cada página de RN (aviso a 90 KB, reprova a 105 KB). | [indice-de-rn](scripts/ci/docs/reference/workflows/indice-de-rn.md) |
 | `mapa-alinhado` | Reprova se o bloco "Onde se encaixa" do README do repo chamador diverge do repos.yml do brabo (mapa dos 11 repos). | [mapa-alinhado](scripts/ci/docs/reference/workflows/mapa-alinhado.md) |
 | `pr-police` | Confere a forma de toda PR (nome da branch, origem e destino), reprova com o código da violação e o conserto, e escreve a label de família. | [pr-police](scripts/ci/docs/reference/workflows/pr-police.md) |
 | `promote` | Calcula a versão do ciclo e abre a PR de promoção de um degrau ao próximo (padrão dev->main); o merge continua humano. | [promote](scripts/ci/docs/reference/workflows/promote.md) |
@@ -110,6 +111,8 @@ Não ponha `if:` no job que chama `pr-police`, `approval-ladder`, `backmerge-gat
 | `qa-e2e-gatilho` | Liga a PR ao brabo-qa: na base main cria o check E2E do brabo-qa e dispara o e2e-pr; na base dev roda o regressivo das funcionalidades tocadas; /qa-aceitar aceita falha de spec ou ambiente. | [qa-e2e-gatilho](scripts/ci/docs/reference/workflows/qa-e2e-gatilho.md) |
 | `readme-esqueleto` | Reprova o README do repo chamador que não segue o esqueleto de 8 seções do README.modelo.md, tem id de AT, ADR ou RN no título ou não tem o bloco do mapa. | [readme-esqueleto](scripts/ci/docs/reference/workflows/readme-esqueleto.md) |
 | `refs-com-simbolo` | Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora e que nenhum link relativo .md das RNs aponta para fora do repo; qualquer um quebrado reprova. | [refs-com-simbolo](scripts/ci/docs/reference/workflows/refs-com-simbolo.md) |
+| `refs-entre-repos` | Confere as refs caminho:N (símbolo) das RNs que apontam para outro repo contra a dev do vizinho; a ref nova errada reprova, a já quebrada e a que a PR quebra na doc de outro repo só avisam, com o patch de reancoragem. | [refs-entre-repos](scripts/ci/docs/reference/workflows/refs-entre-repos.md) |
+| `rn-unica` | Reprova a PR que define uma regra de negócio (cabeçalho ### RN-NNN) cujo número já está definido na dev de outro repo da organização; só conta a RN que a PR acrescenta. | [rn-unica](scripts/ci/docs/reference/workflows/rn-unica.md) |
 | `tag-release` | Carimba a tag do estágio a cada merge numa permanente e, se o merge foi um hotfix, trava o gate e abre as PRs de retropropagação. | [tag-release](scripts/ci/docs/reference/workflows/tag-release.md) |
 | `preparar` | Depois do checkout mínimo do brabo-ci em .brabo-ci/, confere o ci_ref, instala o Node e, se pedido, as dependências de produção dos scripts. | [preparar](scripts/ci/docs/reference/workflows/preparar.md) |
 | `vinculos` | Escreve a tabela Vínculos (origem, irmãos, destino) e o diagrama Mermaid no Summary do run; nunca reprova o job. | [vinculos](scripts/ci/docs/reference/workflows/vinculos.md) |
@@ -133,8 +136,8 @@ O `ci.yml` roda quatro jobs, e o exigido para mergear é o `politica.yml` pinado
 - **actionlint** (workflows e exemplos de chamada válidos), **shell** (shellcheck em `scripts/ci/*.sh`) e **segredos** (gitleaks varre a árvore, sem allowlist).
 - **testar**: vitest com piso de cobertura (sobe quando a cobertura sobe, nunca desce), typecheck, `actions:pinadas` (todo `uses:` preso a SHA) e `referencia --check`.
 
-## Documentação
 
+## Documentação
 - [Guia de adoção](scripts/ci/docs/tutorials/adotar.md): do kit mínimo ao kit completo. Site: <https://viralabs-dev.github.io/brabo/prd/>. Mais: [política em 10 minutos](scripts/ci/docs/explanation/politica-em-10-minutos.md), [ordem da promoção](scripts/ci/docs/explanation/ordem-da-promocao.md), [usar em outra org](scripts/ci/docs/explanation/usar-em-outra-org.md), [referência de cada workflow](scripts/ci/docs/reference/workflows/) (gerada), [códigos de violação](scripts/ci/docs/reference/codigos-de-violacao.md) e [reutilizáveis sem chamador](scripts/ci/docs/explanation/reutilizaveis-sem-chamador.md).
 
 ## Como replicar no seu projeto
