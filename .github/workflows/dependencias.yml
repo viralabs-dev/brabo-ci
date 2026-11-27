@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   dependencias:
-    uses: viralabs-dev/brabo-ci/.github/workflows/dependencias-de-merge.yml@b75c803f06bd024956b31fdc6bddcdd7075a8b23  # v1.4.0-dev.11
+    uses: viralabs-dev/brabo-ci/.github/workflows/dependencias-de-merge.yml@98f7d5884b9b571b657388ab35939decae2b0e7f  # v1.4.0-dev.11
     with:
       ci_ref: b75c803f06bd024956b31fdc6bddcdd7075a8b23  # v1.4.0-dev.11
     secrets:
