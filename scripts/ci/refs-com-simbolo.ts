@@ -185,6 +185,9 @@ export const PREFIXOS: Readonly<Record<string, string>> = {
   web: 'apps/web',
   runner: 'apps/runner',
   broker: 'apps/broker',
+  // contracts e infra: o caminho canônico É o do repo (fontes.yml: `contracts: packages`, `infra: .`).
+  contracts: '',
+  infra: '',
 };
 
 export type Classe = { tipo: 'interna'; noRepo: string } | { tipo: 'externa' };
@@ -198,8 +201,8 @@ export function classificar(caminho: string, repo: string, raizDoRepo: ReadonlyS
   const eu = PREFIXOS[repo];
   if (eu === undefined) throw new Error(`repo sem prefixo conhecido: ${repo}`);
   const limpo = caminho.replace(/^\.\//, '');
-  if (limpo.startsWith(`${eu}/`)) return { tipo: 'interna', noRepo: limpo.slice(eu.length + 1) };
-  if (limpo.startsWith('apps/') || limpo.startsWith('packages/')) return { tipo: 'externa' };
+  if (eu !== '' && limpo.startsWith(`${eu}/`)) return { tipo: 'interna', noRepo: limpo.slice(eu.length + 1) };
+  if (limpo.startsWith('apps/') || (limpo.startsWith('packages/') && repo !== 'contracts')) return { tipo: 'externa' };
   return raizDoRepo.has(limpo.split('/')[0]!) ? { tipo: 'interna', noRepo: limpo } : { tipo: 'externa' };
 }
 
@@ -210,8 +213,8 @@ export function resolver(caminho: string, versionados: readonly string[]): strin
   return achados.length === 1 ? achados[0]! : null;
 }
 
-/** As RNs fonte (pt-BR) do repo: o mesmo filtro do agregador. */
-export const ehDocDeRn = (f: string) => /^docs\/business-rules.*\.md$/.test(f) && !f.includes('/i18n/');
+/** As RNs fonte (pt-BR) de qualquer repo: docs/, packages/docs (contracts), deploy/docs (infra), scripts/ci/docs. */
+export const ehDocDeRn = (f: string) => /^(docs|packages\/docs|deploy\/docs|scripts\/ci\/docs)\/business-rules.*\.md$/.test(f) && !f.includes('/i18n/');
 
 type Achado = Ref & { doc: string; resolvido?: string; achadoEm?: number | null; novaLinha?: number | null };
 

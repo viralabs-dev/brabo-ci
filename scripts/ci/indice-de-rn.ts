@@ -28,12 +28,12 @@ import { pathToFileURL } from 'node:url';
 /** O alvo de corte do `brabo:scripts/docs/partir-rn.mjs` (`ORCAMENTO_KB`). */
 export const AVISO_KB = 90;
 /**
- * Teto em Markdown, estimado de api#162 (26/11): a parte-11 com ~101 KB passou no
- * teto de 150 KB de HTML do `orcamento.mjs` e a parte-12 com ~111 KB estourou, ou
- * seja, HTML/MD entre 1,35 e 1,49. NÃO foi medido num `docs:build`: recalibrar
- * com a maior razão observada (150 ÷ razão) quando alguém medir.
+ * Teto em Markdown, calibrado em 27/11 (AT-1039) no site publicado: a pior razão HTML/MD das
+ * páginas acima de 90 KB é 1,502 (engine `parte-07`, locale ru: 101.806 B de MD, 152.895 B de HTML);
+ * 150 KB (teto do `orcamento.mjs`, ADR 0287) ÷ 1,502 = 99,8 KB. Os 105 KB antigos deixavam passar
+ * ~157 KB de HTML. Recalibrar se a razão piorar.
  */
-export const TETO_KB = 105;
+export const TETO_KB = 99.8;
 
 export interface Parte {
   /** `docs/business-rules/api/parte-01.md` */
@@ -71,7 +71,7 @@ export function gerarIndice(atual: string, area: string, partes: readonly Parte[
   partes.forEach((p, k) => {
     const { rns, secoes } = lerParte(p.texto);
     const nome = `parte-${String(k + 1).padStart(2, '0')}.md`;
-    tabela.push(`| [parte ${k + 1}](${area}/${nome}) | RN-${pad(rns[0] ?? 0)} | ${rns.length} | ${secoes.join('; ') || '—'} |`);
+    tabela.push(`| [parte ${k + 1}](${area}/${nome}) | ${rns.length > 0 ? `RN-${pad(rns[0]!)}` : '—'} | ${rns.length} | ${secoes.join('; ') || '—'} |`);
     for (const n of rns) {
       if (vistos.has(n)) continue;
       vistos.add(n);

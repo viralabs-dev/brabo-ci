@@ -1,5 +1,5 @@
 name: refs-com-simbolo
-# propósito: Confere que cada ref caminho:N (símbolo) das regras de negócio aponta para onde o símbolo mora e que nenhum link relativo .md das RNs aponta para fora do repo; qualquer um quebrado reprova.
+# propósito: Confere que cada ref caminho:N (símbolo) das RNs aponta para onde o símbolo mora e que nenhum link .md das RNs sai do repo nem aponta a parte-NN de outro repo; qualquer um quebrado reprova.
 # chamador:
 #   pull_request:
 #     types: [opened, reopened, synchronize]
@@ -9,7 +9,10 @@ name: refs-com-simbolo
 # símbolo mora. Ref interna quebrada REPROVA; ref para outro irmão só é listada
 # no Summary (sem anotação: quem confere é a subida da trava do brabo). O
 # artefato `refs-patch` traz a reancoragem pronta. Também reprova link relativo
-# `.md` de RN cujo alvo não existe no próprio repo (AT-868, links-das-rns.ts).
+# `.md` de RN cujo alvo não existe no próprio repo (AT-868, links-das-rns.ts) e
+# URL do GitHub para `…/business-rules/<x>/parte-NN.md#rn-N` de OUTRO repo (regra
+# 3c: use o índice `<x>.md#rn-N`). Vale para api, engine, web, runner, broker,
+# contracts e infra (AT-1039); `deploy/docs` e `packages/docs` também são lidos.
 # Não é check obrigatório.
 on:
   workflow_call:
@@ -62,7 +65,7 @@ jobs:
         id: patch
         if: failure()
         run: |
-          git diff -- docs/ > "$RUNNER_TEMP/refs.patch"
+          git diff -- . ':!.brabo-ci' > "$RUNNER_TEMP/refs.patch"
           if [ -s "$RUNNER_TEMP/refs.patch" ]; then
             echo "tem=true" >> "$GITHUB_OUTPUT"
             {

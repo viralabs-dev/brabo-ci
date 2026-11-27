@@ -85,6 +85,13 @@ export async function esperarImagemAssinada(a: {
   throw new ImagemAusente(`${nome} não foi publicada dentro do teto de espera`);
 }
 
+/** As imagens que o gatilho espera: toda tag escolhida, menos infra, qa e backup (não são `brabo-<x>` de serviço) e tag vazia. */
+export function imagensAEsperar(tags: Record<string, string>): Array<{ imagem: string; tag: string }> {
+  return Object.entries(tags)
+    .filter(([dono, tag]) => tag && !['infra', 'qa', 'backup'].includes(dono))
+    .map(([dono, tag]) => ({ imagem: `brabo-${dono}`, tag }));
+}
+
 const execFileP = promisify(execFile);
 
 /** Mesmo `cosign verify` e mesma identidade do e2e-pr do brabo-qa. Sem assinatura = false; cosign ausente sobe. */
