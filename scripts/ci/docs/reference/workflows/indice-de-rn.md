@@ -2,7 +2,7 @@
 id: workflow-indice-de-rn
 title: Reutilizável indice-de-rn
 sidebar_label: indice-de-rn
-description: "Reprova a PR cujo índice de regras de negócio (business-rules/<x>.md das áreas partidas) difere do gerado das partes, e mede o Markdown de cada página de RN (aviso a 90 KB, reprova a 105 KB)."
+description: "Reprova a PR cujo índice de regras de negócio (business-rules/<x>.md das áreas partidas) difere do gerado das partes, e mede o Markdown de cada página de RN (aviso a 90 KB, reprova a 99,8 KB)."
 keywords: [brabo-ci, workflow_call, indice-de-rn]
 ---
 
@@ -14,7 +14,7 @@ keywords: [brabo-ci, workflow_call, indice-de-rn]
 
 ## O que faz
 
-Reprova a PR cujo índice de regras de negócio (business-rules/<x>.md das áreas partidas) difere do gerado das partes, e mede o Markdown de cada página de RN (aviso a 90 KB, reprova a 105 KB).
+Reprova a PR cujo índice de regras de negócio (business-rules/<x>.md das áreas partidas) difere do gerado das partes, e mede o Markdown de cada página de RN (aviso a 90 KB, reprova a 99,8 KB).
 
 ## Gatilhos recomendados
 

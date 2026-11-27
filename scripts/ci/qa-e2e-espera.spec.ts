@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AssinaturaAusente, ImagemAusente, esperarImagemAssinada, repetirAte, tetoDoEnv, type Relogio } from './qa-e2e-espera.ts';
+import { AssinaturaAusente, ImagemAusente, esperarImagemAssinada, imagensAEsperar, repetirAte, tetoDoEnv, type Relogio } from './qa-e2e-espera.ts';
 
 /** Relógio falso: `dormir` só avança o tempo. */
 function falso(): Relogio & { t: number } {
@@ -75,5 +75,14 @@ describe('tetoDoEnv', () => {
     expect(tetoDoEnv('0')).toBe(0);
     expect(tetoDoEnv('abc')).toBe(600_000);
     expect(tetoDoEnv('-1')).toBe(600_000);
+  });
+});
+
+describe('imagensAEsperar', () => {
+  it('espera todas as imagens com tag; infra, qa e tag vazia ficam de fora', () => {
+    expect(imagensAEsperar({ api: 'v1', engine: 'v2', infra: 'v3', qa: 'v4', backup: 'v5', web: '' })).toEqual([
+      { imagem: 'brabo-api', tag: 'v1' },
+      { imagem: 'brabo-engine', tag: 'v2' },
+    ]);
   });
 });

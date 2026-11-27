@@ -1,8 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { ehPaginaDeRn, linksRelativos, quebrados } from './links-das-rns.ts';
+import { ehPaginaDeRn, linksRelativos, quebrados, urlsDeOutroRepo } from './links-das-rns.ts';
 
 const DOC = 'docs/business-rules/api/parte-01.md';
 const arquivos = new Set(['docs/adr/0001.md', 'docs/business-rules/api.md']);
+
+describe('regra 3c: URL para parte-NN de outro repo', () => {
+  const u = (x: string, ref = 'dev') => `veja [RN](https://github.com/viralabs-dev/brabo-${x}/blob/${ref}/docs/business-rules/${x}/parte-03.md#rn-12)`;
+  it('de outro repo reprova e sugere o índice', () => {
+    const r = urlsDeOutroRepo(u('engine'), 'api');
+    expect(r).toEqual([{ linha: 1, href: 'https://github.com/viralabs-dev/brabo-engine/blob/dev/docs/business-rules/engine/parte-03.md#rn-12', sugestao: 'https://github.com/viralabs-dev/brabo-engine/blob/dev/docs/business-rules/engine.md#rn-12' }]);
+  });
+  it('do próprio repo passa; o índice passa; código é ignorado', () => {
+    expect(urlsDeOutroRepo(u('api'), 'api')).toEqual([]);
+    expect(urlsDeOutroRepo('[RN](https://github.com/viralabs-dev/brabo-engine/blob/dev/docs/business-rules/engine.md#rn-12)', 'api')).toEqual([]);
+    expect(urlsDeOutroRepo('```\n' + u('engine') + '\n```\n`' + u('engine') + '`', 'api')).toEqual([]);
+  });
+  it('lê páginas de deploy/docs e packages/docs', () => {
+    expect(ehPaginaDeRn('deploy/docs/business-rules/infra.md')).toBe(true);
+    expect(ehPaginaDeRn('packages/docs/business-rules/contracts.md')).toBe(true);
+  });
+});
 
 describe('links-das-rns', () => {
   it('um link quebrado reprova', () => {

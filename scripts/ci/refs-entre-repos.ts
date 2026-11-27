@@ -23,10 +23,10 @@ import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } f
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { conferir, extrairRefs, novaLinha, reancorar, resolver, type Ref } from './refs-com-simbolo.ts';
+import { conferir, ehDocDeRn, extrairRefs, novaLinha, reancorar, resolver, type Ref } from './refs-com-simbolo.ts';
 
 export const ORG = 'viralabs-dev';
-export const REPOS = ['api', 'engine', 'web', 'runner', 'broker', 'contracts'] as const;
+export const REPOS = ['api', 'engine', 'web', 'runner', 'broker', 'contracts', 'infra'] as const;
 
 /** Um repo lido em algum ponto do tempo: lista de arquivos e leitura (null se não existe). */
 export interface Fonte {
@@ -35,6 +35,7 @@ export interface Fonte {
 }
 
 /** De quem é o caminho citado (tabela de `brabo:scripts/docs/fontes.yml`): `apps/<x>` e `packages`. */
+// shortcut: nenhum caminho é mapeado para a infra (ninguém cita a infra com símbolo e `docker/` existe também no web); quando citarem, mapear só `deploy/`, que é exclusivo dela.
 export function donoDe(caminho: string): { repo: string; noRepo: string } | null {
   const c = caminho.replace(/^\.\//, '');
   const m = /^apps\/(api|engine|web|runner|broker)\/(.+)$/.exec(c);
@@ -42,8 +43,6 @@ export function donoDe(caminho: string): { repo: string; noRepo: string } | null
   return c.startsWith('packages/') ? { repo: 'contracts', noRepo: c } : null;
 }
 
-/** As RNs fonte (pt-BR) de qualquer repo: docs/, packages/docs, deploy/docs, scripts/ci/docs. */
-export const ehDocDeRn = (f: string) => /^(docs|packages\/docs|deploy\/docs|scripts\/ci\/docs)\/business-rules.*\.md$/.test(f) && !f.includes('/i18n/');
 
 const git = (dir: string, args: string[]) => execFileSync('git', ['-C', dir, ...args], { encoding: 'utf8', maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 'pipe'] });
 

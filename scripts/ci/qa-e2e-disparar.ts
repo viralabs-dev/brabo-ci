@@ -29,7 +29,7 @@ import {
 } from './qa-e2e-imagens.ts';
 import { NOME_DO_CHECK_POR_MODO, montarCheck, secaoMotivos } from './qa-e2e-resumo.ts';
 import { escreverNoSummary, procurarRun, vinculosDoGatilho, type RunDoQa } from './qa-e2e-vinculos.ts';
-import { AssinaturaAusente, ImagemAusente, cosignAssinada, esperarImagemAssinada, relogioReal, repetirAte, tetoDoEnv } from './qa-e2e-espera.ts';
+import { AssinaturaAusente, ImagemAusente, cosignAssinada, esperarImagemAssinada, imagensAEsperar, relogioReal, repetirAte, tetoDoEnv } from './qa-e2e-espera.ts';
 import { buscaTagsDoHead } from './qa-e2e-busca-tags.ts';
 import { DONO } from './dono.ts';
 import { lerCatalogo, selecionar, type Selecao } from './qa-regressivo-selecao.ts';
@@ -153,11 +153,9 @@ async function principal(): Promise<void> {
     const t0 = Date.now();
     escolha = await repetirAte(resolver, (e) => e instanceof SemTagParaOHead, limite);
     if (avisouTag) console.log(`tags do head achadas após ${Math.round((Date.now() - t0) / 1000)} s`);
-    // Só o repo do evento tem imagem nova; as outras já estão carimbadas e assinadas.
-    const dono = nome.replace('brabo-', '');
-    const tag = (escolha.tags as Record<string, string>)[dono];
-    if (tag && dono !== 'infra' && dono !== 'qa') {
-      await esperarImagemAssinada({ imagem: nome, tag, digestDe: consultarGhcr, assinada: cosignAssinada, limite, log: (m) => console.log(m) });
+    // Todas as imagens escolhidas, não só a do repo do evento: na PR da infra nenhuma era esperada (AT-1036).
+    for (const { imagem, tag } of imagensAEsperar(escolha.tags as Record<string, string>)) {
+      await esperarImagemAssinada({ imagem, tag, digestDe: consultarGhcr, assinada: cosignAssinada, limite, log: (m) => console.log(m) });
     }
   } catch (e) {
     if (e instanceof AssinaturaAusente) causaDoErro = 'assinatura';

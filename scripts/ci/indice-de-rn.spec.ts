@@ -65,9 +65,21 @@ describe('pesar', () => {
     expect(r.avisos[0]).toContain('já está cheia');
     expect(r.avisos[1]).toContain('parte-NN+1.md');
   });
+  it('99,5 KB avisa e passa; 100 KB reprova (teto calibrado: 150 KB de HTML / 1,502)', () => {
+    expect(pesar([{ arquivo: 'p.md', bytes: kb(99.5), ultima: true }])).toMatchObject({ erros: [], avisos: [expect.any(String)] });
+    expect(pesar([{ arquivo: 'p.md', bytes: kb(100), ultima: true }]).erros).toHaveLength(1);
+    expect(TETO_KB).toBe(99.8);
+  });
   it('acima do teto reprova (112 KB, o caso da api#162)', () => {
     expect(pesar([{ arquivo: 'p.md', bytes: kb(112), ultima: true }]).erros).toHaveLength(1);
     expect(pesar([{ arquivo: 'p.md', bytes: kb(TETO_KB), ultima: true }]).erros).toEqual([]);
+  });
+});
+
+describe('parte vazia', () => {
+  it('sai "—" na coluna Desde', () => {
+    const atual = '| Parte | Desde | RNs | Seções |\n|---|---|---|---|\n| x | y | 0 | — |\n\nfrase\n';
+    expect(gerarIndice(atual, 'api', [{ arquivo: 'p.md', texto: '# nada\n' }])).toContain('| — | 0 |');
   });
 });
 
