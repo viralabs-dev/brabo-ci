@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { classificar, conferir, extrairRefs, novaLinha, reancorar, resolver, veredito } from './refs-com-simbolo.ts';
+import { classificar, conferir, ehDocDeRn, extrairRefs, novaLinha, reancorar, resolver, veredito } from './refs-com-simbolo.ts';
 
 const aqui = fileURLToPath(new URL('.', import.meta.url));
 const SCRIPT = join(aqui, 'refs-com-simbolo.ts');
@@ -54,6 +54,26 @@ describe('classificar e resolver', () => {
     expect(classificar('src/a.ts', 'api', raiz)).toEqual({ tipo: 'interna', noRepo: 'src/a.ts' });
     expect(classificar('install.sh', 'api', raiz).tipo).toBe('externa');
   });
+  it('contracts: packages/ é interna (identidade) e apps/ é externa', () => {
+    const r = new Set(['packages', 'docs']);
+    expect(classificar('packages/shared/src/a.ts', 'contracts', r)).toEqual({ tipo: 'interna', noRepo: 'packages/shared/src/a.ts' });
+    expect(classificar('apps/api/src/a.ts', 'contracts', r).tipo).toBe('externa');
+  });
+  it('infra: docker/ e scripts/ são internas; apps/, packages/ e install.sh são externas', () => {
+    const r = new Set(['docker', 'scripts', 'deploy']);
+    expect(classificar('docker/x.yml', 'infra', r)).toEqual({ tipo: 'interna', noRepo: 'docker/x.yml' });
+    expect(classificar('scripts/dev/a.sh', 'infra', r).tipo).toBe('interna');
+    expect(classificar('apps/web/src/a.ts', 'infra', r).tipo).toBe('externa');
+    expect(classificar('packages/shared/a.ts', 'infra', r).tipo).toBe('externa');
+    expect(classificar('install.sh', 'infra', r).tipo).toBe('externa');
+  });
+  it('ehDocDeRn lê as RNs de docs/, deploy/docs e packages/docs, e não i18n', () => {
+    expect(ehDocDeRn('docs/business-rules/web.md')).toBe(true);
+    expect(ehDocDeRn('deploy/docs/business-rules/infra.md')).toBe(true);
+    expect(ehDocDeRn('packages/docs/business-rules/contracts.md')).toBe(true);
+    expect(ehDocDeRn('docs/i18n/en/business-rules/web.md')).toBe(false);
+    expect(ehDocDeRn('docs/adr/0001.md')).toBe(false);
+  });
   it('resolver: exato, sufixo único; ambíguo ou ausente é null', () => {
     const v = ['src/a/x.ts', 'src/b/x.ts', 'src/y.ts'];
     expect(resolver('src/y.ts', v)).toBe('src/y.ts');
@@ -95,6 +115,13 @@ describe('ponta a ponta no fixture real do brabo-web', () => {
     expect(rodar(d, '--escrever').status).toBe(1);
     expect(readFileSync(join(d, 'docs/business-rules/web.md'), 'utf8')).toContain('activity.ts:105');
     expect(rodar(d).status).toBe(0);
+  });
+
+  it('--repo brabo-infra e brabo-contracts não saem 2', () => {
+    for (const repo of ['brabo-infra', 'brabo-contracts']) {
+      const r = spawnSync('node', [SCRIPT, '--repo', repo], { cwd: montar(), encoding: 'utf8', env: { ...process.env, GITHUB_STEP_SUMMARY: '' } });
+      expect(r.status).not.toBe(2);
+    }
   });
 
   it('mutação: arquivo interno citado que sumiu reprova', () => {

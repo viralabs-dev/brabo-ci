@@ -413,7 +413,7 @@ cobertura" com um vermelho de spec, que é o achado da qa#28.
 
 Quando uma PR para a `main` (portão `E2E do brabo-qa`) ou para a `dev` (check
 `Regressivo do brabo-qa`) dispara o gatilho, a imagem do head do repo do evento pode
-ainda estar sendo carimbada ou assinada: o merge na `dev` move o head da promoção, e
+ainda estar sendo carimbada ou assinada (o gatilho espera a assinatura de todas as imagens escolhidas, não só a do repo do evento; ficam de fora `infra`, `qa` e `backup`): o merge na `dev` move o head da promoção, e
 o carimbo (tag `-dev`, imagem) e a assinatura da imagem levam de 3 a 8 min. Por isso o
 gatilho repete três buscas até um teto configurável (`QA_ESPERA_MINUTOS`, padrão 10
 min, intervalo de 15 s):

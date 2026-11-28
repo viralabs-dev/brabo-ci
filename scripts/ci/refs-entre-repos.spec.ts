@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { donoDe, executar, type Fonte, sentidoA, sentidoB } from './refs-entre-repos.ts';
+import { REPOS, donoDe, executar, type Fonte, sentidoA, sentidoB } from './refs-entre-repos.ts';
 
 const mem = (arquivos: Record<string, string>): Fonte => ({ arquivos: Object.keys(arquivos), ler: (c) => arquivos[c] ?? null });
 
@@ -20,6 +20,14 @@ describe('donoDe', () => {
     expect(donoDe('packages/shared/src/a.ts')).toEqual({ repo: 'contracts', noRepo: 'packages/shared/src/a.ts' });
     expect(donoDe('src/a.ts')).toBeNull();
     expect(donoDe('apps/ci/a')).toBeNull();
+  });
+});
+
+describe('infra', () => {
+  it('é um repo conhecido, mas nenhum caminho é dela (docker/ existe também no web)', () => {
+    expect(REPOS).toContain('infra');
+    expect(donoDe('docker/compose.yml')).toBeNull();
+    expect(donoDe('deploy/k8s/a.yaml')).toBeNull();
   });
 });
 

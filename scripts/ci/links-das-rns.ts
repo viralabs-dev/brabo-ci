@@ -10,10 +10,12 @@
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { join, posix } from 'node:path';
+import { basename, join, posix } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { ehDocDeRn } from './refs-com-simbolo.ts';
 
-export const ehPaginaDeRn = (f: string) => /^docs\/.*business-rules.*\.md$/.test(f);
+/** As páginas de RN de qualquer repo (`ehDocDeRn`) e as traduções em `docs/i18n/`. */
+export const ehPaginaDeRn = (f: string) => ehDocDeRn(f) || /^docs\/.*business-rules.*\.md$/.test(f);
 
 export interface Quebrado {
   linha: number;
@@ -22,9 +24,9 @@ export interface Quebrado {
   motivo?: 'ancora';
 }
 
-/** Hrefs relativos `.md` de um texto, sem código (bloco cercado e inline), com a linha. */
-export function linksRelativos(md: string): Quebrado[] {
-  const achados: Quebrado[] = [];
+/** Hrefs (qualquer forma) de um texto, sem código (bloco cercado e inline), com a linha. */
+function hrefs(md: string): Array<{ linha: number; href: string }> {
+  const achados: Array<{ linha: number; href: string }> = [];
   let cerca: string | null = null;
   md.split('\n').forEach((l, i) => {
     const m = /^\s*(`{3,}|~{3,})/.exec(l);
@@ -37,13 +39,28 @@ export function linksRelativos(md: string): Quebrado[] {
       return;
     }
     for (const x of l.replace(/`+[^`]*`+/g, '').matchAll(/\]\(\s*<?([^)\s>]+)/g)) {
-      const href = x[1]!;
-      const alvo = href.replace(/[#?].*$/, '');
-      if (!alvo.endsWith('.md') || /^([a-z][a-z0-9+.-]*:|\/\/)/i.test(alvo)) continue;
-      achados.push({ linha: i + 1, href });
+      achados.push({ linha: i + 1, href: x[1]! });
     }
   });
   return achados;
+}
+
+/** Hrefs relativos `.md` de um texto, sem código (bloco cercado e inline), com a linha. */
+export function linksRelativos(md: string): Quebrado[] {
+  return hrefs(md).filter(({ href }) => {
+    const alvo = href.replace(/[#?].*$/, '');
+    return alvo.endsWith('.md') && !/^([a-z][a-z0-9+.-]*:|\/\/)/i.test(alvo);
+  });
+}
+
+const URL_PARTE = /^(https:\/\/github\.com\/viralabs-dev\/brabo-([a-z]+)\/blob\/[^/]+\/.*\/business-rules)\/([^/]+)\/parte-\d+\.md(#rn-\d+)$/i;
+
+/** Regra 3c: URL do GitHub para `…/business-rules/<x>/parte-NN.md#rn-N` de OUTRO repo (a parte muda; o índice `<x>.md#rn-N` não). Só texto, sem clone. */
+export function urlsDeOutroRepo(md: string, repo: string): Array<{ linha: number; href: string; sugestao: string }> {
+  return hrefs(md).flatMap(({ linha, href }) => {
+    const m = URL_PARTE.exec(href);
+    return m && m[2] !== repo ? [{ linha, href, sugestao: `${m[1]}/${m[3]}.md${m[4]}` }] : [];
+  });
 }
 
 /** Os links relativos de `doc` cujo alvo não está entre os arquivos versionados ou, com `ler`, não tem a âncora `#rn-N`. */
@@ -64,13 +81,20 @@ export function quebrados(doc: string, md: string, versionados: Set<string>, ler
   return achados;
 }
 
-export function principal(cwd: string): number {
+export function principal(cwd: string, env: NodeJS.ProcessEnv = process.env, argv: string[] = []): number {
+  const i = argv.indexOf('--repo');
+  const nome = (i >= 0 ? argv[i + 1] : undefined) ?? (env.GITHUB_REPOSITORY ? basename(env.GITHUB_REPOSITORY) : basename(cwd));
+  const repo = nome.replace(/^brabo-/, '');
   const lista = execFileSync('git', ['-C', cwd, 'ls-files'], { encoding: 'utf8', maxBuffer: 1 << 28 }).split('\n').filter(Boolean);
   const versionados = new Set(lista);
   const cache = new Map<string, string>();
   const ler = (f: string) => cache.get(f) ?? (cache.set(f, readFileSync(join(cwd, f), 'utf8')), cache.get(f)!);
   let n = 0;
   for (const doc of lista.filter(ehPaginaDeRn)) {
+    for (const u of urlsDeOutroRepo(readFileSync(join(cwd, doc), 'utf8'), repo)) {
+      n++;
+      console.log(`::error file=${doc},line=${u.linha},title=links-das-rns::a URL \`${u.href}\` aponta para a parte de outro repo, que muda de lugar. Use o índice: \`${u.sugestao}\`.`);
+    }
     for (const q of quebrados(doc, readFileSync(join(cwd, doc), 'utf8'), versionados, ler)) {
       n++;
       if (q.motivo === 'ancora') {
@@ -85,5 +109,5 @@ export function principal(cwd: string): number {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  process.exit(principal(process.cwd()));
+  process.exit(principal(process.cwd(), process.env, process.argv.slice(2)));
 }

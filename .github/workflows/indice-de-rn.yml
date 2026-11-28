@@ -1,5 +1,5 @@
 name: indice-de-rn
-# propósito: Reprova a PR cujo índice de regras de negócio (business-rules/<x>.md das áreas partidas) difere do gerado das partes, e mede o Markdown de cada página de RN (aviso a 90 KB, reprova a 105 KB).
+# propósito: Reprova a PR cujo índice de regras de negócio (business-rules/<x>.md das áreas partidas) difere do gerado das partes, e mede o Markdown de cada página de RN (aviso a 90 KB, reprova a 99,8 KB).
 # chamador:
 #   pull_request:
 #     types: [opened, reopened, synchronize]
@@ -9,7 +9,7 @@ name: indice-de-rn
 # `business-rules/<x>.md`; se o índice do repo difere, reprova e sobe o patch
 # `indice-de-rn-patch` (`git apply` na raiz do repo). Mede também o peso em
 # Markdown de cada página de RN: aviso acima de 90 KB (a RN nova vai para a
-# próxima parte) e reprova acima de 105 KB (o HTML passaria do teto de 150 KB do
+# próxima parte) e reprova acima de 99,8 KB (o HTML passaria do teto de 150 KB do
 # site). Não é check obrigatório.
 on:
   workflow_call:
